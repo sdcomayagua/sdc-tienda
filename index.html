@@ -2,44 +2,68 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tienda Gamer Premium</title>
+  <title>Renee Gaming Store — Catálogo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Tipografía -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos A1 FULL NEÓN -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Lógica -->
   <script src="app.js" defer></script>
 </head>
 
-<body>
-  <header class="header">
-    <div class="logo-area">
-      <div class="logo-mark">RG</div>
-      <div class="logo-text">
-        <span class="brand">Renee Gaming Store</span>
-        <span class="tagline">Setup premium, experiencia pro</span>
-      </div>
-    </div>
+<body class="theme-neon">
 
-    <nav class="nav">
-      <button class="nav-link active">Catálogo</button>
-      <button class="nav-link">Ofertas</button>
-      <button class="nav-link">Servicios</button>
-    </nav>
+  <!-- ============================================================
+       HEADER GAMER PREMIUM FULL NEÓN
+  ============================================================ -->
+  <header class="header-neon">
+    <div class="header-inner">
 
-    <div class="header-actions">
-      <div class="shipping-pill">
-        <span class="dot"></span>
-        Envíos a todo Honduras
+      <!-- LOGO -->
+      <div class="logo-block">
+        <div class="logo-icon">RG</div>
+        <div class="logo-text">
+          <h1>Renee Gaming Store</h1>
+          <span>Setup premium, experiencia pro</span>
+        </div>
       </div>
 
-      <button id="btnPagar" class="btn-pagar" style="display:none;">
-        Ir a pagar (0)
-      </button>
+      <!-- MENÚ -->
+      <nav class="nav-neon">
+        <button class="nav-item active">Catálogo</button>
+        <button class="nav-item">Ofertas</button>
+        <button class="nav-item">Servicios</button>
+      </nav>
+
+      <!-- ACCIONES -->
+      <div class="header-actions">
+        <div class="shipping-pill-neon">
+          <span class="dot-online"></span>
+          Envíos a todo Honduras
+        </div>
+
+        <button id="btnPagar" class="btn-checkout-neon" style="display:none;">
+          Ir a pagar (0)
+        </button>
+      </div>
+
     </div>
   </header>
 
-  <main class="layout">
-    <section class="filters">
-      <h2>Datos de envío</h2>
+  <!-- ============================================================
+       CONTENIDO PRINCIPAL
+  ============================================================ -->
+  <main class="main-layout">
+
+    <!-- ============================================================
+         PANEL DE ENVÍO
+    ============================================================ -->
+    <aside class="panel-envio">
+      <h2 class="panel-title">Datos de envío</h2>
 
       <label class="field">
         <span>Departamento</span>
@@ -68,12 +92,17 @@
       <p class="hint">
         Estos datos se enviarán junto con tu pedido por WhatsApp.
       </p>
+    </aside>
+
+    <!-- ============================================================
+         CATÁLOGO
+    ============================================================ -->
+    <section class="catalogo-neon">
+      <h2 class="catalogo-title">Productos destacados</h2>
+      <div id="productos" class="grid-neon"></div>
     </section>
 
-    <section class="catalogo">
-      <h2>Productos destacados</h2>
-      <div id="productos" class="grid-productos"></div>
-    </section>
   </main>
+
 </body>
 </html>
