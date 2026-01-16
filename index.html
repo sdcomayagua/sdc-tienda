@@ -21,6 +21,8 @@
       --ease: cubic-bezier(.2,.9,.3,1);
     }
 
+    *{box-sizing:border-box;}
+
     body{
       margin:0;
       font-family:Inter,system-ui;
@@ -29,13 +31,15 @@
       -webkit-font-smoothing:antialiased;
     }
 
+    a{text-decoration:none;color:inherit;}
+
     /* HEADER TECH PREMIUM */
     header{
       position:sticky;
       top:0;
       z-index:100;
-      background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.15));
-      backdrop-filter:blur(10px);
+      background:linear-gradient(180deg,rgba(0,0,0,0.7),rgba(0,0,0,0.2));
+      backdrop-filter:blur(12px);
       border-bottom:1px solid rgba(255,255,255,0.06);
       padding:10px 0 6px;
     }
@@ -98,7 +102,7 @@
       padding:8px 12px;
       border-radius:999px;
       background:rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.1);
       font-size:13px;
       white-space:nowrap;
       cursor:pointer;
@@ -106,7 +110,7 @@
     }
 
     .menu-item:hover{
-      background:rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.09);
       transform:translateY(-2px);
     }
 
@@ -115,19 +119,18 @@
       opacity:0.9;
     }
 
-    /* LINEA GUIA */
     .scroll-line{
       height:2px;
       width:100%;
-      background:linear-gradient(90deg,rgba(255,255,255,0.12),rgba(255,255,255,0));
+      background:linear-gradient(90deg,rgba(255,255,255,0.18),rgba(255,255,255,0));
       margin-top:4px;
       border-radius:999px;
     }
 
-    /* CONTENIDO */
+    /* CONTENIDO GENERAL */
     main{
       max-width:1100px;
-      margin:20px auto;
+      margin:20px auto 60px;
       padding:0 14px;
     }
 
@@ -137,7 +140,7 @@
       margin-bottom:10px;
     }
 
-    /* PRODUCTOS */
+    /* GRID PRODUCTOS */
     .grid{
       display:grid;
       gap:16px;
@@ -150,28 +153,131 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       border:1px solid rgba(255,255,255,0.05);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    .item img{
-      width:100%;
-      border-radius:var(--radius);
-      margin-bottom:10px;
+    .item-header{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
     }
 
     .item h3{
-      margin:0 0 6px;
+      margin:0;
       font-family:Poppins;
       font-size:16px;
     }
 
     .item p{
-      margin:0 0 10px;
+      margin:0;
       color:var(--muted);
       font-size:14px;
     }
 
-    .btn{
-      display:inline-block;
+    .price{
+      font-weight:600;
+      color:var(--accent-2);
+      font-size:15px;
+    }
+
+    .stock{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* MEDIA PRINCIPAL */
+    .media-wrapper{
+      position:relative;
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:#05060a;
+      min-height:180px;
+    }
+
+    .media-wrapper img,
+    .media-wrapper video{
+      width:100%;
+      display:block;
+    }
+
+    .media-tag{
+      position:absolute;
+      top:8px;
+      left:8px;
+      background:rgba(0,0,0,0.7);
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:11px;
+      display:flex;
+      align-items:center;
+      gap:4px;
+    }
+
+    .media-tag span{
+      font-size:13px;
+    }
+
+    /* BOTONES MEDIA */
+    .media-actions{
+      display:flex;
+      gap:8px;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+
+    .chip-btn{
+      flex:1;
+      min-width:120px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.03);
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      cursor:pointer;
+      transition:all .18s var(--ease);
+    }
+
+    .chip-btn:hover{
+      background:rgba(255,255,255,0.08);
+      transform:translateY(-1px);
+    }
+
+    /* PUNTOS CLAVE */
+    .bullets{
+      margin:6px 0 0;
+      padding-left:18px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .bullets li{
+      margin-bottom:2px;
+    }
+
+    /* DESCRIPCIÓN EXTENDIDA */
+    .desc-toggle{
+      margin-top:4px;
+      font-size:12px;
+      color:var(--accent);
+      cursor:pointer;
+    }
+
+    .desc-full{
+      margin-top:4px;
+      font-size:13px;
+      color:var(--muted);
+      display:none;
+    }
+
+    /* BOTÓN AGREGAR */
+    .btn-add{
+      margin-top:8px;
       padding:10px 14px;
       background:var(--accent);
       color:#000;
@@ -179,15 +285,15 @@
       font-weight:600;
       cursor:pointer;
       text-align:center;
-      width:100%;
       transition:0.2s;
+      border:none;
     }
 
-    .btn:hover{
+    .btn-add:hover{
       background:#33e1ff;
     }
 
-    /* BOTÓN FLOTANTE */
+    /* BOTÓN FLOTANTE PAGO */
     #btnPagar{
       position:fixed;
       bottom:20px;
@@ -201,15 +307,66 @@
       display:none;
       cursor:pointer;
       z-index:200;
+      font-size:14px;
     }
 
-    /* SECCIONES */
+    /* SECCIONES GENERALES */
     section{
-      margin-top:40px;
-      padding:20px;
+      margin-top:20px;
+      padding:18px;
       background:var(--card);
       border-radius:var(--radius);
       border:1px solid rgba(255,255,255,0.05);
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    /* CARRUSEL SIMPLE */
+    .thumbs{
+      display:flex;
+      gap:6px;
+      margin-top:6px;
+      overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .thumbs::-webkit-scrollbar{display:none;}
+
+    .thumb{
+      width:52px;
+      height:52px;
+      border-radius:10px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.15);
+      cursor:pointer;
+      flex-shrink:0;
+    }
+
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .thumb.active{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(0,212,255,0.6);
+    }
+
+    @media(max-width:600px){
+      .brand{
+        gap:10px;
+      }
+      .logo{
+        width:40px;
+        height:40px;
+        font-size:16px;
+      }
+      .brand .title{
+        font-size:14px;
+      }
+      main{
+        margin-top:16px;
+      }
     }
   </style>
 </head>
@@ -222,7 +379,7 @@
       <div class="logo">SD</div>
       <div>
         <div class="title">Soluciones Digitales Comayagua</div>
-        <div class="sub">Gaming · Accesorios · Servicios</div>
+        <div class="sub">Gaming · Accesorios · Servicios digitales</div>
       </div>
     </div>
 
@@ -240,53 +397,107 @@
     <div class="scroll-line"></div>
   </div>
 </header>
-
-<main id="inicio">
+<main id="inicio" class="wrap">
 
   <h2 id="catalogo">Catálogo</h2>
   <div class="grid" id="productos"></div>
 
   <h2 id="ofertas">Ofertas</h2>
-  <section>Próximamente…</section>
+  <section>
+    Muy pronto verás aquí combos gamer, descuentos por temporada y promociones especiales para Comayagua y todo Honduras.
+  </section>
 
   <h2 id="testimonios">Testimonios</h2>
-  <section>Clientes satisfechos pronto aparecerán aquí.</section>
+  <section>
+    “Excelente servicio, entregas rápidas y productos originales.”  
+    “Me ayudaron a configurar todo, súper recomendados.”
+  </section>
 
   <h2 id="faq">Preguntas frecuentes</h2>
-  <section>Información útil para tus clientes.</section>
+  <section>
+    <strong>¿Hacen envíos a todo el país?</strong><br>
+    Sí, realizamos envíos a todo Honduras con diferentes opciones de mensajería.<br><br>
+    <strong>¿Aceptan pagos contra entrega?</strong><br>
+    Dependiendo de la zona, podemos coordinar pago contra entrega o depósito previo.
+  </section>
 
   <h2 id="ubicacion">Ubicación</h2>
-  <section>Envíos a todo Honduras.</section>
+  <section>
+    Estamos en Comayagua, Honduras.  
+    Coordinamos entregas en puntos seguros y envíos a nivel nacional.
+  </section>
 
   <h2 id="privacidad">Política de privacidad</h2>
-  <section>Tu privacidad es importante.</section>
+  <section>
+    Tu información se usa únicamente para procesar tus pedidos y coordinar entregas.  
+    No compartimos tus datos con terceros sin tu consentimiento.
+  </section>
 
   <h2 id="contacto">Contacto</h2>
-  <section>WhatsApp: +504 XXX-XXXX</section>
+  <section>
+    Escríbenos por WhatsApp para cotizaciones, dudas o pedidos especiales.<br><br>
+    WhatsApp: <strong>+504 0000-0000</strong>
+  </section>
 
 </main>
 
 <div id="btnPagar">Ir a pagar</div>
-
 <script>
+  // Simulación de productos (luego se puede conectar a Google Sheets)
   const productos = [
     {
+      id:1,
       nombre:"Gamepad Bluetooth para móvil",
       precio:850,
       stock:10,
-      img:"https://via.placeholder.com/300x200"
+      imagenPrincipal:"https://via.placeholder.com/600x350?text=Gamepad",
+      imagenes:[
+        "https://via.placeholder.com/600x350?text=Gamepad+1",
+        "https://via.placeholder.com/600x350?text=Gamepad+2",
+        "https://via.placeholder.com/600x350?text=Gamepad+3"
+      ],
+      video:"https://www.w3schools.com/html/mov_bbb.mp4",
+      puntos:[
+        "Compatible con Android y iOS",
+        "Batería de larga duración",
+        "Ideal para shooters y juegos competitivos"
+      ],
+      descripcion:"Control inalámbrico diseñado para gamers móviles que buscan precisión, comodidad y mejor rendimiento en sus partidas."
     },
     {
+      id:2,
       nombre:"Teclado mecánico RGB",
       precio:1450,
       stock:5,
-      img:"https://via.placeholder.com/300x200"
+      imagenPrincipal:"https://via.placeholder.com/600x350?text=Teclado+RGB",
+      imagenes:[
+        "https://via.placeholder.com/600x350?text=Teclado+1",
+        "https://via.placeholder.com/600x350?text=Teclado+2"
+      ],
+      video:"",
+      puntos:[
+        "Switches mecánicos de alta durabilidad",
+        "Iluminación RGB personalizable",
+        "Diseño compacto para más espacio de mouse"
+      ],
+      descripcion:"Teclado mecánico con iluminación RGB para setups gamer que buscan estilo y rendimiento."
     },
     {
+      id:3,
       nombre:"Cuenta de streaming 4K",
       precio:320,
       stock:999,
-      img:"https://via.placeholder.com/300x200"
+      imagenPrincipal:"https://via.placeholder.com/600x350?text=Streaming+4K",
+      imagenes:[
+        "https://via.placeholder.com/600x350?text=Streaming+1"
+      ],
+      video:"",
+      puntos:[
+        "Calidad 4K en contenido seleccionado",
+        "Ideal para televisores y monitores grandes",
+        "Soporte y renovación mensual disponible"
+      ],
+      descripcion:"Servicio de cuenta de streaming con acceso a contenido en alta calidad, ideal para maratones de series y películas."
     }
   ];
 
@@ -294,35 +505,160 @@
   const btnPagar = document.getElementById("btnPagar");
   let carrito = [];
 
-  function render(){
+  function renderProductos(){
     contenedor.innerHTML = "";
-    productos.forEach((p,i)=>{
+    productos.forEach((p, index)=>{
+      const tieneVideo = p.video && p.video.trim() !== "";
+      const tieneMasImagenes = p.imagenes && p.imagenes.length > 1;
+
+      let bulletsHTML = "";
+      if(p.puntos && p.puntos.length){
+        bulletsHTML = "<ul class='bullets'>" + p.puntos.map(pt=>`<li>${pt}</li>`).join("") + "</ul>";
+      }
+
+      let thumbsHTML = "";
+      if(p.imagenes && p.imagenes.length){
+        thumbsHTML = `
+          <div class="thumbs" data-product="${p.id}">
+            ${p.imagenes.map((img, i)=>`
+              <div class="thumb ${i===0 ? "active":""}" data-index="${i}">
+                <img src="${img}">
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }
+
       contenedor.innerHTML += `
-        <div class="item">
-          <img src="${p.img}">
-          <h3>${p.nombre}</h3>
-          <p>L ${p.precio}.00</p>
-          <p>Stock: ${p.stock}</p>
-          <div class="btn" onclick="agregar(${i})">Agregar</div>
+        <div class="item" data-id="${p.id}">
+          <div class="item-header">
+            <h3>${p.nombre}</h3>
+            <p class="price">L ${p.precio}.00</p>
+            <p class="stock">Stock: ${p.stock}</p>
+          </div>
+
+          <div class="media-wrapper" data-media="${p.id}">
+            <img src="${p.imagenPrincipal}" alt="${p.nombre}">
+            <div class="media-tag">
+              <span>🖼️</span><span>Imagen principal</span>
+            </div>
+          </div>
+
+          ${thumbsHTML}
+
+          <div class="media-actions">
+            ${tieneMasImagenes ? `
+              <button class="chip-btn" data-action="imagenes" data-id="${p.id}">
+                <span>🖼️</span><span>Ver más imágenes</span>
+              </button>
+            ` : ""}
+
+            ${tieneVideo ? `
+              <button class="chip-btn" data-action="video" data-id="${p.id}">
+                <span>🎥</span><span>Ver video</span>
+              </button>
+            ` : ""}
+          </div>
+
+          ${bulletsHTML}
+
+          <div class="desc-toggle" data-toggle="${p.id}">Ver descripción completa</div>
+          <div class="desc-full" data-desc="${p.id}">
+            ${p.descripcion}
+          </div>
+
+          <button class="btn-add" onclick="agregarAlCarrito(${index})">
+            Agregar al carrito
+          </button>
         </div>
       `;
     });
+
+    // Listeners para thumbs (carrusel simple)
+    document.querySelectorAll(".thumbs").forEach(th=>{
+      th.addEventListener("click", e=>{
+        const thumb = e.target.closest(".thumb");
+        if(!thumb) return;
+        const productId = th.getAttribute("data-product");
+        const index = parseInt(thumb.getAttribute("data-index"));
+        const prod = productos.find(x=>x.id == productId);
+        const mediaWrapper = document.querySelector(`.media-wrapper[data-media="${productId}"]`);
+        if(!prod || !mediaWrapper) return;
+
+        mediaWrapper.innerHTML = `
+          <img src="${prod.imagenes[index]}" alt="${prod.nombre}">
+          <div class="media-tag">
+            <span>🖼️</span><span>Imagen ${index+1}</span>
+          </div>
+        `;
+
+        th.querySelectorAll(".thumb").forEach(t=>t.classList.remove("active"));
+        thumb.classList.add("active");
+      });
+    });
+
+    // Listeners para botones de media
+    document.querySelectorAll(".chip-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const action = btn.getAttribute("data-action");
+        const id = btn.getAttribute("data-id");
+        const prod = productos.find(x=>x.id == id);
+        const mediaWrapper = document.querySelector(`.media-wrapper[data-media="${id}"]`);
+        if(!prod || !mediaWrapper) return;
+
+        if(action === "imagenes" && prod.imagenes && prod.imagenes.length){
+          mediaWrapper.innerHTML = `
+            <img src="${prod.imagenes[0]}" alt="${prod.nombre}">
+            <div class="media-tag">
+              <span>🖼️</span><span>Galería</span>
+            </div>
+          `;
+        }
+
+        if(action === "video" && prod.video){
+          mediaWrapper.innerHTML = `
+            <video controls>
+              <source src="${prod.video}" type="video/mp4">
+              Tu navegador no soporta video.
+            </video>
+            <div class="media-tag">
+              <span>🎥</span><span>Video</span>
+            </div>
+          `;
+        }
+      });
+    });
+
+    // Descripción extendida
+    document.querySelectorAll(".desc-toggle").forEach(tg=>{
+      tg.addEventListener("click", ()=>{
+        const id = tg.getAttribute("data-toggle");
+        const desc = document.querySelector(`[data-desc="${id}"]`);
+        if(!desc) return;
+        const visible = desc.style.display === "block";
+        desc.style.display = visible ? "none" : "block";
+        tg.textContent = visible ? "Ver descripción completa" : "Ocultar descripción";
+      });
+    });
   }
 
-  function agregar(i){
-    carrito.push(productos[i]);
-    btnPagar.style.display = "block";
+  function agregarAlCarrito(index){
+    carrito.push(productos[index]);
+    if(carrito.length > 0){
+      btnPagar.style.display = "block";
+      btnPagar.textContent = `Ir a pagar (${carrito.length})`;
+    }
   }
 
-  btnPagar.onclick = ()=>{
+  btnPagar.addEventListener("click", ()=>{
     let mensaje = "Hola, quiero comprar:\n";
     carrito.forEach(c=>{
       mensaje += `- ${c.nombre} (L ${c.precio})\n`;
     });
     window.open("https://wa.me/50400000000?text="+encodeURIComponent(mensaje));
-  };
+  });
 
-  render();
+  renderProductos();
 </script>
 
 </body>
