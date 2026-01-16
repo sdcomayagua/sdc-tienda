@@ -1,402 +1,324 @@
+<!-- Parte 1: HEAD + CSS + HEADER -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Soluciones Digitales Comayagua · SDC</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
   <style>
-    :root{
-      --bg:#05060a;
-      --card:#0b0d12;
-      --muted:#9aa3b2;
-      --accent:#00d4ff;
-      --accent-2:#00ff95;
-      --white:#f5f7fb;
-      --glass: rgba(255,255,255,0.04);
-      --radius:12px;
-      --shadow: 0 6px 20px rgba(2,6,23,0.6);
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --muted: #6c7a89;
+      --accent: #0077ff;
+      --accent-2: #00c78f;
+      --text: #1a1a1a;
+      --radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
       --ease: cubic-bezier(.2,.9,.3,1);
     }
 
-    *{box-sizing:border-box;}
+    * { box-sizing: border-box; }
 
-    body{
-      margin:0;
-      font-family:Inter,system-ui;
-      background:var(--bg);
-      color:var(--white);
-      -webkit-font-smoothing:antialiased;
+    body {
+      margin: 0;
+      font-family: Inter, system-ui;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    a{text-decoration:none;color:inherit;}
+    a { text-decoration: none; color: inherit; }
 
-    /* HEADER TECH PREMIUM */
-    header{
-      position:sticky;
-      top:0;
-      z-index:100;
-      background:linear-gradient(180deg,rgba(0,0,0,0.7),rgba(0,0,0,0.2));
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,0.06);
-      padding:10px 0 6px;
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #ffffffee;
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e0e0e0;
+      padding: 10px 0 6px;
     }
 
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:0 14px;
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 14px;
     }
 
-    /* BRAND */
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:10px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
-    .logo{
-      width:46px;
-      height:46px;
-      border-radius:12px;
-      background:linear-gradient(135deg,#0af,#4b0082);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-family:Poppins;
-      font-weight:700;
-      color:#000;
-      font-size:18px;
-      box-shadow:0 6px 20px rgba(0,123,255,0.25);
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0077ff, #00c78f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Poppins;
+      font-weight: 700;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: var(--shadow);
     }
 
-    .brand .title{
-      font-family:Poppins;
-      font-size:16px;
-      font-weight:600;
+    .brand .title {
+      font-family: Poppins;
+      font-size: 16px;
+      font-weight: 600;
     }
 
-    .brand .sub{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:2px;
+    .brand .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
-    /* MENU SCROLL */
-    .menu-scroll{
-      display:flex;
-      gap:10px;
-      overflow-x:auto;
-      padding-bottom:6px;
-      scrollbar-width:none;
-    }
-    .menu-scroll::-webkit-scrollbar{display:none;}
-
-    .menu-item{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.1);
-      font-size:13px;
-      white-space:nowrap;
-      cursor:pointer;
-      transition:all .18s var(--ease);
+    .menu-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
     }
 
-    .menu-item:hover{
-      background:rgba(255,255,255,0.09);
-      transform:translateY(-2px);
+    .menu-scroll::-webkit-scrollbar { display: none; }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      font-size: 13px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all .18s var(--ease);
     }
 
-    .menu-icon{
-      font-size:15px;
-      opacity:0.9;
+    .menu-item:hover {
+      background: #e0e0e0;
+      transform: translateY(-2px);
     }
 
-    .scroll-line{
-      height:2px;
-      width:100%;
-      background:linear-gradient(90deg,rgba(255,255,255,0.18),rgba(255,255,255,0));
-      margin-top:4px;
-      border-radius:999px;
+    .menu-icon {
+      font-size: 15px;
+      opacity: 0.9;
     }
 
-    /* CONTENIDO GENERAL */
-    main{
-      max-width:1100px;
-      margin:20px auto 60px;
-      padding:0 14px;
+    .scroll-line {
+      height: 2px;
+      width: 100%;
+      background: linear-gradient(90deg, #ddd, transparent);
+      margin-top: 4px;
+      border-radius: 999px;
     }
 
-    h2{
-      font-family:Poppins;
-      margin-top:40px;
-      margin-bottom:10px;
+    main {
+      max-width: 1100px;
+      margin: 20px auto 60px;
+      padding: 0 14px;
     }
 
-    /* GRID PRODUCTOS */
-    .grid{
-      display:grid;
-      gap:16px;
-      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    h2 {
+      font-family: Poppins;
+      margin-top: 40px;
+      margin-bottom: 10px;
     }
 
-    .item{
-      background:var(--card);
-      padding:16px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid rgba(255,255,255,0.05);
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     }
 
-    .item-header{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+    .item {
+      background: var(--card);
+      padding: 16px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .item h3{
-      margin:0;
-      font-family:Poppins;
-      font-size:16px;
+    .item h3 {
+      margin: 0;
+      font-family: Poppins;
+      font-size: 16px;
     }
 
-    .item p{
-      margin:0;
-      color:var(--muted);
-      font-size:14px;
+    .item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    .price{
-      font-weight:600;
-      color:var(--accent-2);
-      font-size:15px;
+    .price {
+      font-weight: 600;
+      color: var(--accent-2);
+      font-size: 15px;
     }
 
-    .stock{
-      font-size:12px;
-      color:var(--muted);
+    .stock {
+      font-size: 12px;
+      color: var(--muted);
     }
 
-    /* MEDIA PRINCIPAL */
-    .media-wrapper{
-      position:relative;
-      border-radius:var(--radius);
-      overflow:hidden;
-      background:#05060a;
-      min-height:180px;
+    .media-wrapper {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #f0f0f0;
+      min-height: 180px;
     }
 
     .media-wrapper img,
-    .media-wrapper video{
-      width:100%;
-      display:block;
+    .media-wrapper video {
+      width: 100%;
+      display: block;
     }
 
-    .media-tag{
-      position:absolute;
-      top:8px;
-      left:8px;
-      background:rgba(0,0,0,0.7);
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:11px;
-      display:flex;
-      align-items:center;
-      gap:4px;
+    .media-tag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .media-tag span{
-      font-size:13px;
+    .media-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
     }
 
-    /* BOTONES MEDIA */
-    .media-actions{
-      display:flex;
-      gap:8px;
-      margin-top:6px;
-      flex-wrap:wrap;
+    .chip-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all .18s var(--ease);
     }
 
-    .chip-btn{
-      flex:1;
-      min-width:120px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.12);
-      background:rgba(255,255,255,0.03);
-      font-size:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      cursor:pointer;
-      transition:all .18s var(--ease);
+    .chip-btn:hover {
+      background: #eee;
+      transform: translateY(-1px);
     }
 
-    .chip-btn:hover{
-      background:rgba(255,255,255,0.08);
-      transform:translateY(-1px);
+    .bullets {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--muted);
     }
 
-    /* PUNTOS CLAVE */
-    .bullets{
-      margin:6px 0 0;
-      padding-left:18px;
-      font-size:13px;
-      color:var(--muted);
+    .bullets li {
+      margin-bottom: 2px;
     }
 
-    .bullets li{
-      margin-bottom:2px;
+    .desc-toggle {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
     }
 
-    /* DESCRIPCIÓN EXTENDIDA */
-    .desc-toggle{
-      margin-top:4px;
-      font-size:12px;
-      color:var(--accent);
-      cursor:pointer;
+    .desc-full {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+      display: none;
     }
 
-    .desc-full{
-      margin-top:4px;
-      font-size:13px;
-      color:var(--muted);
-      display:none;
+    .btn-add {
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+      border: none;
     }
 
-    /* BOTÓN AGREGAR */
-    .btn-add{
-      margin-top:8px;
-      padding:10px 14px;
-      background:var(--accent);
-      color:#000;
-      border-radius:var(--radius);
-      font-weight:600;
-      cursor:pointer;
-      text-align:center;
-      transition:0.2s;
-      border:none;
+    .btn-add:hover {
+      background: #3399ff;
     }
 
-    .btn-add:hover{
-      background:#33e1ff;
+    #btnPagar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent-2);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+      display: none;
+      cursor: pointer;
+      z-index: 200;
+      font-size: 14px;
     }
 
-    /* BOTÓN FLOTANTE PAGO */
-    #btnPagar{
-      position:fixed;
-      bottom:20px;
-      right:20px;
-      background:var(--accent-2);
-      color:#000;
-      padding:14px 20px;
-      border-radius:999px;
-      font-weight:700;
-      box-shadow:0 6px 20px rgba(0,0,0,0.4);
-      display:none;
-      cursor:pointer;
-      z-index:200;
-      font-size:14px;
+    section {
+      margin-top: 20px;
+      padding: 18px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid #eee;
+      font-size: 14px;
+      color: var(--muted);
     }
 
-    /* SECCIONES GENERALES */
-    section{
-      margin-top:20px;
-      padding:18px;
-      background:var(--card);
-      border-radius:var(--radius);
-      border:1px solid rgba(255,255,255,0.05);
-      font-size:14px;
-      color:var(--muted);
+    .thumbs {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
 
-    /* CARRUSEL SIMPLE */
-    .thumbs{
-      display:flex;
-      gap:6px;
-      margin-top:6px;
-      overflow-x:auto;
-      scrollbar-width:none;
-    }
-    .thumbs::-webkit-scrollbar{display:none;}
+    .thumbs::-webkit-scrollbar { display: none; }
 
-    .thumb{
-      width:52px;
-      height:52px;
-      border-radius:10px;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,0.15);
-      cursor:pointer;
-      flex-shrink:0;
+    .thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      flex-shrink: 0;
     }
 
-    .thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .thumb.active{
-      border-color:var(--accent);
-      box-shadow:0 0 0 1px rgba(0,212,255,0.6);
-    }
-
-    @media(max-width:600px){
-      .brand{
-        gap:10px;
-      }
-      .logo{
-        width:40px;
-        height:40px;
-        font-size:16px;
-      }
-      .brand .title{
-        font-size:14px;
-      }
-      main{
-        margin-top:16px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-<header>
-  <div class="wrap">
-    <div class="brand">
-      <div class="logo">SD</div>
-      <div>
-        <div class="title">Soluciones Digitales Comayagua</div>
-        <div class="sub">Gaming · Accesorios · Servicios digitales</div>
-      </div>
-    </div>
-
-    <nav class="menu-scroll">
-      <a href="#inicio" class="menu-item"><span class="menu-icon">🏠</span>Inicio</a>
-      <a href="#catalogo" class="menu-item"><span class="menu-icon">🛒</span>Catálogo</a>
-      <a href="#ofertas" class="menu-item"><span class="menu-icon">🔥</span>Ofertas</a>
-      <a href="#testimonios" class="menu-item"><span class="menu-icon">⭐</span>Testimonios</a>
-      <a href="#faq" class="menu-item"><span class="menu-icon">❓</span>Preguntas</a>
-      <a href="#ubicacion" class="menu-item"><span class="menu-icon">📍</span>Ubicación</a>
-      <a href="#privacidad" class="menu-item"><span class="menu-icon">🔒</span>Privacidad</a>
-      <a href="#contacto" class="menu-item"><span class="menu-icon">📞</span>Contacto</a>
-    </nav>
-
-    <div class="scroll-line"></div>
-  </div>
-</header>
+    .<!-- Parte 2: MAIN + SECCIONES -->
 <main id="inicio" class="wrap">
 
   <h2 id="catalogo">Catálogo</h2>
@@ -409,7 +331,7 @@
 
   <h2 id="testimonios">Testimonios</h2>
   <section>
-    “Excelente servicio, entregas rápidas y productos originales.”  
+    “Excelente servicio, entregas rápidas y productos originales.”<br>
     “Me ayudaron a configurar todo, súper recomendados.”
   </section>
 
@@ -417,19 +339,20 @@
   <section>
     <strong>¿Hacen envíos a todo el país?</strong><br>
     Sí, realizamos envíos a todo Honduras con diferentes opciones de mensajería.<br><br>
+
     <strong>¿Aceptan pagos contra entrega?</strong><br>
     Dependiendo de la zona, podemos coordinar pago contra entrega o depósito previo.
   </section>
 
   <h2 id="ubicacion">Ubicación</h2>
   <section>
-    Estamos en Comayagua, Honduras.  
+    Estamos en Comayagua, Honduras.<br>
     Coordinamos entregas en puntos seguros y envíos a nivel nacional.
   </section>
 
   <h2 id="privacidad">Política de privacidad</h2>
   <section>
-    Tu información se usa únicamente para procesar tus pedidos y coordinar entregas.  
+    Tu información se usa únicamente para procesar tus pedidos y coordinar entregas.<br>
     No compartimos tus datos con terceros sin tu consentimiento.
   </section>
 
@@ -442,62 +365,62 @@
 </main>
 
 <div id="btnPagar">Ir a pagar</div>
+<!-- Parte 3: SCRIPTS COMPLETOS -->
 <script>
-  // Simulación de productos (luego se puede conectar a Google Sheets)
   const productos = [
     {
-      id:1,
-      nombre:"Gamepad Bluetooth para móvil",
-      precio:850,
-      stock:10,
-      imagenPrincipal:"https://via.placeholder.com/600x350?text=Gamepad",
-      imagenes:[
+      id: 1,
+      nombre: "Gamepad Bluetooth para móvil",
+      precio: 850,
+      stock: 10,
+      imagenPrincipal: "https://via.placeholder.com/600x350?text=Gamepad",
+      imagenes: [
         "https://via.placeholder.com/600x350?text=Gamepad+1",
         "https://via.placeholder.com/600x350?text=Gamepad+2",
         "https://via.placeholder.com/600x350?text=Gamepad+3"
       ],
-      video:"https://www.w3schools.com/html/mov_bbb.mp4",
-      puntos:[
+      video: "https://www.w3schools.com/html/mov_bbb.mp4",
+      puntos: [
         "Compatible con Android y iOS",
         "Batería de larga duración",
         "Ideal para shooters y juegos competitivos"
       ],
-      descripcion:"Control inalámbrico diseñado para gamers móviles que buscan precisión, comodidad y mejor rendimiento en sus partidas."
+      descripcion: "Control inalámbrico diseñado para gamers móviles que buscan precisión, comodidad y mejor rendimiento en sus partidas."
     },
     {
-      id:2,
-      nombre:"Teclado mecánico RGB",
-      precio:1450,
-      stock:5,
-      imagenPrincipal:"https://via.placeholder.com/600x350?text=Teclado+RGB",
-      imagenes:[
+      id: 2,
+      nombre: "Teclado mecánico RGB",
+      precio: 1450,
+      stock: 5,
+      imagenPrincipal: "https://via.placeholder.com/600x350?text=Teclado+RGB",
+      imagenes: [
         "https://via.placeholder.com/600x350?text=Teclado+1",
         "https://via.placeholder.com/600x350?text=Teclado+2"
       ],
-      video:"",
-      puntos:[
+      video: "",
+      puntos: [
         "Switches mecánicos de alta durabilidad",
         "Iluminación RGB personalizable",
         "Diseño compacto para más espacio de mouse"
       ],
-      descripcion:"Teclado mecánico con iluminación RGB para setups gamer que buscan estilo y rendimiento."
+      descripcion: "Teclado mecánico con iluminación RGB para setups gamer que buscan estilo y rendimiento."
     },
     {
-      id:3,
-      nombre:"Cuenta de streaming 4K",
-      precio:320,
-      stock:999,
-      imagenPrincipal:"https://via.placeholder.com/600x350?text=Streaming+4K",
-      imagenes:[
+      id: 3,
+      nombre: "Cuenta de streaming 4K",
+      precio: 320,
+      stock: 999,
+      imagenPrincipal: "https://via.placeholder.com/600x350?text=Streaming+4K",
+      imagenes: [
         "https://via.placeholder.com/600x350?text=Streaming+1"
       ],
-      video:"",
-      puntos:[
+      video: "",
+      puntos: [
         "Calidad 4K en contenido seleccionado",
         "Ideal para televisores y monitores grandes",
         "Soporte y renovación mensual disponible"
       ],
-      descripcion:"Servicio de cuenta de streaming con acceso a contenido en alta calidad, ideal para maratones de series y películas."
+      descripcion: "Servicio de cuenta de streaming con acceso a contenido en alta calidad, ideal para maratones de series y películas."
     }
   ];
 
@@ -505,23 +428,28 @@
   const btnPagar = document.getElementById("btnPagar");
   let carrito = [];
 
-  function renderProductos(){
+  function renderProductos() {
     contenedor.innerHTML = "";
-    productos.forEach((p, index)=>{
+
+    productos.forEach((p) => {
       const tieneVideo = p.video && p.video.trim() !== "";
       const tieneMasImagenes = p.imagenes && p.imagenes.length > 1;
 
       let bulletsHTML = "";
-      if(p.puntos && p.puntos.length){
-        bulletsHTML = "<ul class='bullets'>" + p.puntos.map(pt=>`<li>${pt}</li>`).join("") + "</ul>";
+      if (p.puntos?.length) {
+        bulletsHTML = `
+          <ul class="bullets">
+            ${p.puntos.map(pt => `<li>${pt}</li>`).join("")}
+          </ul>
+        `;
       }
 
       let thumbsHTML = "";
-      if(p.imagenes && p.imagenes.length){
+      if (p.imagenes?.length) {
         thumbsHTML = `
           <div class="thumbs" data-product="${p.id}">
-            ${p.imagenes.map((img, i)=>`
-              <div class="thumb ${i===0 ? "active":""}" data-index="${i}">
+            ${p.imagenes.map((img, i) => `
+              <div class="thumb ${i === 0 ? "active" : ""}" data-index="${i}">
                 <img src="${img}">
               </div>
             `).join("")}
@@ -531,16 +459,14 @@
 
       contenedor.innerHTML += `
         <div class="item" data-id="${p.id}">
-          <div class="item-header">
-            <h3>${p.nombre}</h3>
-            <p class="price">L ${p.precio}.00</p>
-            <p class="stock">Stock: ${p.stock}</p>
-          </div>
+          <h3>${p.nombre}</h3>
+          <p class="price">L ${p.precio}.00</p>
+          <p class="stock">Stock: ${p.stock}</p>
 
           <div class="media-wrapper" data-media="${p.id}">
-            <img src="${p.imagenPrincipal}" alt="${p.nombre}">
+            <img src="${p.imagenPrincipal}">
             <div class="media-tag">
-              <span>🖼️</span><span>Imagen principal</span>
+              <span>🖼️</span> Imagen principal
             </div>
           </div>
 
@@ -549,113 +475,110 @@
           <div class="media-actions">
             ${tieneMasImagenes ? `
               <button class="chip-btn" data-action="imagenes" data-id="${p.id}">
-                <span>🖼️</span><span>Ver más imágenes</span>
+                🖼️ Ver más imágenes
               </button>
             ` : ""}
 
             ${tieneVideo ? `
               <button class="chip-btn" data-action="video" data-id="${p.id}">
-                <span>🎥</span><span>Ver video</span>
+                🎥 Ver video
               </button>
             ` : ""}
           </div>
 
           ${bulletsHTML}
 
-          <div class="desc-toggle" data-toggle="${p.id}">Ver descripción completa</div>
+          <div class="desc-toggle" data-toggle="${p.id}">
+            Ver descripción completa
+          </div>
+
           <div class="desc-full" data-desc="${p.id}">
             ${p.descripcion}
           </div>
 
-          <button class="btn-add" onclick="agregarAlCarrito(${index})">
+          <button class="btn-add" onclick="agregarAlCarrito(${p.id})">
             Agregar al carrito
           </button>
         </div>
       `;
     });
 
-    // Listeners para thumbs (carrusel simple)
-    document.querySelectorAll(".thumbs").forEach(th=>{
-      th.addEventListener("click", e=>{
+    activarEventos();
+  }
+
+  function activarEventos() {
+    document.querySelectorAll(".thumbs").forEach(th => {
+      th.addEventListener("click", e => {
         const thumb = e.target.closest(".thumb");
-        if(!thumb) return;
+        if (!thumb) return;
+
         const productId = th.getAttribute("data-product");
         const index = parseInt(thumb.getAttribute("data-index"));
-        const prod = productos.find(x=>x.id == productId);
+        const prod = productos.find(x => x.id == productId);
         const mediaWrapper = document.querySelector(`.media-wrapper[data-media="${productId}"]`);
-        if(!prod || !mediaWrapper) return;
 
         mediaWrapper.innerHTML = `
-          <img src="${prod.imagenes[index]}" alt="${prod.nombre}">
-          <div class="media-tag">
-            <span>🖼️</span><span>Imagen ${index+1}</span>
-          </div>
+          <img src="${prod.imagenes[index]}">
+          <div class="media-tag">🖼️ Imagen ${index + 1}</div>
         `;
 
-        th.querySelectorAll(".thumb").forEach(t=>t.classList.remove("active"));
+        th.querySelectorAll(".thumb").forEach(t => t.classList.remove("active"));
         thumb.classList.add("active");
       });
     });
 
-    // Listeners para botones de media
-    document.querySelectorAll(".chip-btn").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".chip-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
         const action = btn.getAttribute("data-action");
         const id = btn.getAttribute("data-id");
-        const prod = productos.find(x=>x.id == id);
+        const prod = productos.find(x => x.id == id);
         const mediaWrapper = document.querySelector(`.media-wrapper[data-media="${id}"]`);
-        if(!prod || !mediaWrapper) return;
 
-        if(action === "imagenes" && prod.imagenes && prod.imagenes.length){
+        if (action === "imagenes") {
           mediaWrapper.innerHTML = `
-            <img src="${prod.imagenes[0]}" alt="${prod.nombre}">
-            <div class="media-tag">
-              <span>🖼️</span><span>Galería</span>
-            </div>
+            <img src="${prod.imagenes[0]}">
+            <div class="media-tag">🖼️ Galería</div>
           `;
         }
 
-        if(action === "video" && prod.video){
+        if (action === "video" && prod.video) {
           mediaWrapper.innerHTML = `
             <video controls>
               <source src="${prod.video}" type="video/mp4">
-              Tu navegador no soporta video.
             </video>
-            <div class="media-tag">
-              <span>🎥</span><span>Video</span>
-            </div>
+            <div class="media-tag">🎥 Video</div>
           `;
         }
       });
     });
 
-    // Descripción extendida
-    document.querySelectorAll(".desc-toggle").forEach(tg=>{
-      tg.addEventListener("click", ()=>{
+    document.querySelectorAll(".desc-toggle").forEach(tg => {
+      tg.addEventListener("click", () => {
         const id = tg.getAttribute("data-toggle");
         const desc = document.querySelector(`[data-desc="${id}"]`);
-        if(!desc) return;
         const visible = desc.style.display === "block";
+
         desc.style.display = visible ? "none" : "block";
         tg.textContent = visible ? "Ver descripción completa" : "Ocultar descripción";
       });
     });
   }
 
-  function agregarAlCarrito(index){
-    carrito.push(productos[index]);
-    if(carrito.length > 0){
-      btnPagar.style.display = "block";
-      btnPagar.textContent = `Ir a pagar (${carrito.length})`;
-    }
+  function agregarAlCarrito(id) {
+    const prod = productos.find(p => p.id === id);
+    carrito.push(prod);
+
+    btnPagar.style.display = "block";
+    btnPagar.textContent = `Ir a pagar (${carrito.length})`;
   }
 
-  btnPagar.addEventListener("click", ()=>{
+  btnPagar.addEventListener("click", () => {
     let mensaje = "Hola, quiero comprar:\n";
-    carrito.forEach(c=>{
+    carrito.forEach(c => {
       mensaje += `- ${c.nombre} (L ${c.precio})\n`;
     });
-    window.open("https://wa.me/50400000000?text="+encodeURIComponent(mensaje));
+
+    window.open("https://wa.me/50400000000?text=" + encodeURIComponent(mensaje));
   });
 
   renderProductos();
