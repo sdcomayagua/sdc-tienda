@@ -66,7 +66,7 @@
     .nav {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -113,16 +113,18 @@
     .nav-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
-      font-size: 0.85rem;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      justify-content: center;
     }
 
     .nav-links a {
-      padding: 0.35rem 0.7rem;
+      padding: 0.25rem 0.6rem;
       border-radius: 999px;
       border: 1px solid transparent;
       color: rgba(245, 245, 245, 0.85);
       transition: all 0.18s ease-out;
+      white-space: nowrap;
     }
 
     .nav-links a:hover {
@@ -143,15 +145,16 @@
     .nav-cart {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.85rem;
+      gap: 0.3rem;
+      font-size: 0.8rem;
       cursor: pointer;
-      padding: 0.35rem 0.7rem;
+      padding: 0.3rem 0.7rem;
       border-radius: 999px;
       background: rgba(0, 0, 0, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.08);
       transition: all 0.18s ease-out;
       color: #fff;
+      flex-shrink: 0;
     }
 
     .nav-cart:hover {
@@ -180,14 +183,35 @@
       color: #000;
     }
 
+    @media (max-width: 720px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .nav-links {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.2rem;
+      }
+      .nav-links a {
+        font-size: 0.78rem;
+      }
+      .nav-cart {
+        align-self: flex-end;
+      }
+    }
+
     main {
       flex: 1;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 1.5rem 1rem 3rem;
+      padding: 1.2rem 1rem 3rem;
       display: grid;
       grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.2fr);
-      gap: 1.75rem;
+      gap: 1.5rem;
     }
 
     @media (max-width: 900px) {
@@ -196,10 +220,17 @@
       }
     }
 
+    @media (max-width: 720px) {
+      main {
+        padding: 0.9rem 0.8rem 3.2rem;
+        gap: 1.1rem;
+      }
+    }
+
     .hero {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     .badge {
@@ -225,7 +256,7 @@
 
     .hero-title {
       font-family: 'Poppins', system-ui;
-      font-size: clamp(1.9rem, 3vw, 2.4rem);
+      font-size: clamp(1.8rem, 4.5vw, 2.4rem);
       line-height: 1.1;
     }
 
@@ -236,19 +267,25 @@
     }
 
     .hero-subtitle {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       max-width: 32rem;
       color: var(--texto-suave);
+    }
+
+    @media (max-width: 720px) {
+      .hero-subtitle {
+        font-size: 0.88rem;
+      }
     }
 
     .hero-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.75rem;
-      margin-top: 0.5rem;
+      margin-top: 0.4rem;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 720px) {
       .hero-grid {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -285,7 +322,7 @@
     }
 
     .hero-card p {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--texto-suave);
     }
 
@@ -293,13 +330,13 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
-      margin-top: 0.5rem;
+      margin-top: 0.4rem;
     }
 
     .btn {
       border-radius: 999px;
-      padding: 0.55rem 1.1rem;
-      font-size: 0.85rem;
+      padding: 0.5rem 1.05rem;
+      font-size: 0.82rem;
       border: 1px solid transparent;
       cursor: pointer;
       display: inline-flex;
@@ -340,11 +377,18 @@
       }
     }
 
+    @media (max-width: 720px) {
+      .btn {
+        font-size: 0.8rem;
+        padding: 0.45rem 0.95rem;
+      }
+    }
+
     .hero-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 0.75rem;
+      gap: 0.6rem;
+      margin-top: 0.6rem;
       font-size: 0.75rem;
       color: var(--texto-suave);
     }
@@ -375,6 +419,12 @@
       }
     }
 
+    @media (max-width: 720px) {
+      .panel {
+        padding: 0.85rem;
+      }
+    }
+
     .panel-header {
       display: flex;
       align-items: center;
@@ -393,6 +443,7 @@
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: var(--texto-suave);
+      white-space: nowrap;
     }
 
     @media (prefers-color-scheme: light) {
@@ -417,6 +468,7 @@
       background: rgba(0, 0, 0, 0.6);
       color: var(--texto-suave);
       transition: all 0.16s ease-out;
+      white-space: nowrap;
     }
 
     .tab.active {
@@ -446,9 +498,10 @@
       padding-right: 0.2rem;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 720px) {
       .catalog-grid {
         grid-template-columns: minmax(0, 1fr);
+        max-height: none;
       }
     }
 
@@ -548,7 +601,7 @@
       padding: 0.6rem;
       background: rgba(0, 0, 0, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      display: none; /* OCULTO POR DEFECTO */
+      display: none;
       flex-direction: column;
       gap: 0.4rem;
       font-size: 0.8rem;
@@ -575,6 +628,12 @@
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
+    }
+
+    @media (max-width: 720px) {
+      .cart-items {
+        max-height: none;
+      }
     }
 
     .cart-item {
@@ -685,7 +744,7 @@
       font-size: 0.75rem;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 720px) {
       .cart-steps {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -802,15 +861,22 @@
 
     .sections {
       grid-column: 1 / -1;
-      margin-top: 1.5rem;
+      margin-top: 1.4rem;
       display: grid;
       grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
-      gap: 1.25rem;
+      gap: 1.1rem;
     }
 
     @media (max-width: 900px) {
       .sections {
         grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .sections {
+        margin-top: 1.1rem;
+        gap: 0.9rem;
       }
     }
 
@@ -853,7 +919,6 @@
       margin-bottom: 0.2rem;
     }
 
-    /* Acordeones */
     .accordion {
       border-radius: 0.9rem;
       overflow: hidden;
@@ -936,11 +1001,10 @@
       }
     }
 
-    /* Botón flotante IR A PAGAR */
     .btn-floating {
       position: fixed;
-      bottom: 1.2rem;
-      right: 1.2rem;
+      bottom: 1.1rem;
+      right: 1.1rem;
       background: linear-gradient(120deg, #00ff95, #00d4ff);
       color: #000;
       font-weight: 600;
@@ -954,7 +1018,13 @@
       cursor: pointer;
     }
 
-    /* Testimonios y redes */
+    @media (max-width: 720px) {
+      .btn-floating {
+        font-size: 0.82rem;
+        padding: 0.55rem 0.9rem;
+      }
+    }
+
     .testimonials-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -962,7 +1032,7 @@
       margin-top: 0.4rem;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 720px) {
       .testimonials-grid {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -1009,7 +1079,6 @@
       cursor: pointer;
     }
 
-    /* Admin (simple, oculto) */
     .admin-panel {
       display: none;
       font-size: 0.8rem;
@@ -1056,7 +1125,6 @@
   </header>
 
   <main>
-    <!-- INICIO -->
     <section id="inicio" class="hero">
       <div class="badge">
         <span class="badge-dot"></span>
@@ -1114,7 +1182,6 @@
       </div>
     </section>
 
-    <!-- PANEL DERECHO: CATÁLOGO + CARRITO -->
     <section id="catalogo" class="panel">
       <div class="panel-header">
         <div>
@@ -1130,11 +1197,8 @@
         <span class="pill" id="catalogInfo">Cargando catálogo…</span>
       </div>
 
-      <div class="catalog-grid" id="catalogGrid">
-        <!-- Productos dinámicos -->
-      </div>
+      <div class="catalog-grid" id="catalogGrid"></div>
 
-      <!-- CARRITO -->
       <div id="carrito" class="cart">
         <div class="cart-header">
           <span id="txtCarritoTitulo">Carrito de compra</span>
@@ -1220,7 +1284,6 @@
       </div>
     </section>
 
-    <!-- SECCIONES INFERIORES -->
     <section class="sections">
       <article id="ofertas" class="section-card">
         <h3 id="txtOfertasTitulo">Ofertas y cupones</h3>
@@ -1241,9 +1304,7 @@
           La opinión de nuestros clientes es nuestra mejor carta de presentación. Conoce sus experiencias reales y aumenta la
           confianza en tu tienda.
         </p>
-        <div class="testimonials-grid" id="testimonialsGrid">
-          <!-- Testimonios dinámicos -->
-        </div>
+        <div class="testimonials-grid" id="testimonialsGrid"></div>
       </article>
 
       <article id="faq" class="section-card">
@@ -1306,9 +1367,7 @@
           Integra tus redes sociales y canales de contacto desde la hoja <strong>Redes Sociales</strong>. Muestra enlaces a WhatsApp,
           Facebook, Instagram, TikTok o la plataforma que prefieras.
         </p>
-        <div class="social-links" id="socialLinks">
-          <!-- Redes dinámicas -->
-        </div>
+        <div class="social-links" id="socialLinks"></div>
         <p style="font-size:0.78rem; opacity:0.8;" id="txtContactoExtra">
           El botón de WhatsApp del carrito usa una URL codificada con el resumen del pedido para que el cliente solo toque y envíe.
         </p>
@@ -1326,16 +1385,11 @@
     <span id="txtFooter">Desplegado en GitHub Pages · Catálogo desde Google Sheets</span>
   </footer>
 
-  <!-- Botón flotante IR A PAGAR -->
   <button id="btnIrAPagar" class="btn-floating" type="button" onclick="mostrarCarrito()">
     🛒 Ir a pagar
   </button>
 
   <script>
-    // ==========================
-    // CONFIGURACIÓN BÁSICA
-    // ==========================
-
     const SHEETBEST = "https://api.sheetbest.com/sheets/2f50fe4e-6985-4677-b5de-968b83268bc4";
     const SHEETDB   = "https://sheetdb.io/api/v1/9ynyemsm9a1w1";
 
@@ -1349,13 +1403,9 @@
       privacidad:       SHEETBEST + "?sheet=Política%20de%20Privacidad"
     };
 
-    // Número de WhatsApp al que se enviará el pedido (formato internacional sin +)
     const WHATSAPP_NUMBER = '504XXXXXXXX'; // cámbialo por tu número real
-
-    // Modo catálogo (si true, oculta carrito y WhatsApp)
     const CATALOG_ONLY = false;
 
-    // Estado global
     let productos = [];
     let productosFiltrados = [];
     let carrito = [];
@@ -1370,16 +1420,11 @@
     let testimonios = [];
     let redesSociales = [];
 
-    // ==========================
-    // MULTILENGUAJE SIMPLE
-    // ==========================
-
     const isEnglish = navigator.language && navigator.language.toLowerCase().startsWith('en');
 
     function applyTranslations() {
       if (!isEnglish) return;
 
-      // Solo traducciones básicas (lo importante)
       document.documentElement.lang = 'en';
 
       document.getElementById('txtBrand').textContent = 'Digital Solutions Comayagua';
@@ -1467,10 +1512,6 @@
       document.getElementById('navCartText').textContent = 'Cart';
     }
 
-    // ==========================
-    // UTILIDADES
-    // ==========================
-
     function formatCurrency(value) {
       return 'L ' + (Number(value) || 0).toFixed(2);
     }
@@ -1521,10 +1562,6 @@
       acc.classList.toggle('open');
     }
 
-    // ==========================
-    // CARGA DESDE GOOGLE SHEETS
-    // ==========================
-
     async function fetchJSON(url) {
       try {
         const res = await fetch(url);
@@ -1545,7 +1582,6 @@
       try {
         document.getElementById('catalogInfo').textContent = 'Cargando catálogo…';
 
-        // Productos
         const dataProductos = await fetchJSON(SHEETS_CONFIG.productos);
         if (dataProductos && Array.isArray(dataProductos)) {
           productos = dataProductos;
@@ -1598,7 +1634,6 @@
         renderCatalog();
         document.getElementById('catalogInfo').textContent = productos.length + ' productos disponibles';
 
-        // Envíos Comayagua
         const dataEnviosCom = await fetchJSON(SHEETS_CONFIG.enviosComayagua);
         if (dataEnviosCom && Array.isArray(dataEnviosCom)) {
           enviosComayagua = dataEnviosCom;
@@ -1609,7 +1644,6 @@
           ];
         }
 
-        // Envíos Nacionales
         const dataEnviosNac = await fetchJSON(SHEETS_CONFIG.enviosNacionales);
         if (dataEnviosNac && Array.isArray(dataEnviosNac)) {
           enviosNacionales = dataEnviosNac;
@@ -1620,7 +1654,6 @@
           ];
         }
 
-        // Testimonios
         try {
           const dataTest = await fetchJSON(SHEETS_CONFIG.testimonios);
           if (Array.isArray(dataTest)) testimonios = dataTest;
@@ -1628,7 +1661,6 @@
 
         renderTestimonios();
 
-        // Redes sociales
         try {
           const dataRedes = await fetchJSON(SHEETS_CONFIG.redes);
           if (Array.isArray(dataRedes)) redesSociales = dataRedes;
@@ -1641,10 +1673,6 @@
         document.getElementById('catalogInfo').textContent = 'Error al cargar datos. Usando modo demo.';
       }
     }
-
-    // ==========================
-    // RENDER DEL CATÁLOGO
-    // ==========================
 
     function renderCatalog() {
       const grid = document.getElementById('catalogGrid');
@@ -1707,10 +1735,6 @@
       });
     }
 
-    // ==========================
-    // TESTIMONIOS Y REDES
-    // ==========================
-
     function renderTestimonios() {
       const grid = document.getElementById('testimonialsGrid');
       grid.innerHTML = '';
@@ -1763,10 +1787,6 @@
       });
     }
 
-    // ==========================
-    // CARRITO
-    // ==========================
-
     function addToCart(prod) {
       if (CATALOG_ONLY) return;
 
@@ -1784,7 +1804,6 @@
         });
       }
       renderCart();
-      // Notificación simple (simula "notificación de envío/pedido")
       console.log('Producto agregado al carrito:', prod.nombre);
     }
 
@@ -1914,10 +1933,6 @@
       updateNavCartCount();
     }
 
-    // ==========================
-    // CUPONES
-    // ==========================
-
     function aplicarCupon() {
       const input = document.getElementById('couponInput');
       const status = document.getElementById('couponStatus');
@@ -1930,7 +1945,6 @@
         return;
       }
 
-      // Lógica simple: si el cupón coincide con alguno de los productos, aplica 10% al subtotal
       const existe = productos.some(p => (p.cupon || '').toUpperCase() === code);
       if (!existe) {
         descuentoCupon = 0;
@@ -1953,10 +1967,6 @@
       status.textContent = 'Cupón aplicado: -10%';
       renderCart();
     }
-
-    // ==========================
-    // ENVÍOS Y PAGOS
-    // ==========================
 
     function updateShippingAndPayment() {
       const tipo = document.getElementById('envioSelect').value;
@@ -2019,15 +2029,10 @@
         pagoExtra.placeholder = '¿Con cuánto pagará?';
       }
 
-      // Si es nacional, no tiene sentido "¿con cuánto pagará?" en efectivo
       if (tipo === 'nacional' && pago === 'contraentrega') {
         pagoExtra.style.display = 'none';
       }
     }
-
-    // ==========================
-    // WHATSAPP
-    // ==========================
 
     function buildWhatsAppMessage() {
       let msg = '🛒 *Nuevo pedido desde la tienda SDC*%0A%0A';
@@ -2100,22 +2105,16 @@
       window.open(url, '_blank');
     }
 
-    // ==========================
-    // INICIO
-    // ==========================
-
     document.getElementById('year').textContent = new Date().getFullYear();
     applyTranslations();
     loadData();
 
-    // Modo catálogo: si está activo, ocultar carrito y botón WA
     if (CATALOG_ONLY) {
       document.getElementById('carrito').style.display = 'none';
       document.getElementById('btnWhatsApp').style.display = 'none';
       document.getElementById('navCartText').textContent = isEnglish ? 'Catalog only' : 'Solo catálogo';
     }
 
-    // Admin panel simple: mostrar si la URL tiene ?admin=1
     if (window.location.search.includes('admin=1')) {
       document.getElementById('adminPanel').style.display = 'block';
     }
