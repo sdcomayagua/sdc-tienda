@@ -5,17 +5,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Soluciones Digitales Comayagua · SDC</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --muted: #6c7a89;
-      --accent: #0077ff;
-      --accent-2: #00c78f;
-      --text: #1a1a1a;
+      --bg: #111418;
+      --card: #181c22;
+      --muted: #9aa3b2;
+      --text: #f5f7fb;
+      --accent: #00d4ff;
+      --accent-2: #a855f7;
       --radius: 12px;
-      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow: 0 6px 20px rgba(0,0,0,0.45);
       --ease: cubic-bezier(.2,.9,.3,1);
     }
 
@@ -34,9 +36,9 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: #ffffffee;
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #e0e0e0;
+      background: rgba(17,20,24,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       padding: 10px 0 6px;
     }
 
@@ -57,13 +59,13 @@
       width: 46px;
       height: 46px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #0077ff, #00c78f);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: Poppins;
       font-weight: 700;
-      color: #fff;
+      color: #000;
       font-size: 18px;
       box-shadow: var(--shadow);
     }
@@ -96,8 +98,8 @@
       gap: 6px;
       padding: 8px 12px;
       border-radius: 999px;
-      background: #f0f0f0;
-      border: 1px solid #ddd;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
       font-size: 13px;
       white-space: nowrap;
       cursor: pointer;
@@ -105,7 +107,7 @@
     }
 
     .menu-item:hover {
-      background: #e0e0e0;
+      background: rgba(255,255,255,0.12);
       transform: translateY(-2px);
     }
 
@@ -117,7 +119,7 @@
     .scroll-line {
       height: 2px;
       width: 100%;
-      background: linear-gradient(90deg, #ddd, transparent);
+      background: linear-gradient(90deg, rgba(255,255,255,0.18), transparent);
       margin-top: 4px;
       border-radius: 999px;
     }
@@ -145,7 +147,7 @@
       padding: 16px;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      border: 1px solid #eee;
+      border: 1px solid rgba(255,255,255,0.05);
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -165,7 +167,7 @@
 
     .price {
       font-weight: 600;
-      color: var(--accent-2);
+      color: var(--accent);
       font-size: 15px;
     }
 
@@ -178,7 +180,7 @@
       position: relative;
       border-radius: var(--radius);
       overflow: hidden;
-      background: #f0f0f0;
+      background: #0d0f12;
       min-height: 180px;
     }
 
@@ -214,8 +216,8 @@
       min-width: 120px;
       padding: 8px 10px;
       border-radius: 999px;
-      border: 1px solid #ddd;
-      background: #f9f9f9;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
       font-size: 12px;
       display: flex;
       align-items: center;
@@ -223,10 +225,11 @@
       gap: 6px;
       cursor: pointer;
       transition: all .18s var(--ease);
+      color: var(--text);
     }
 
     .chip-btn:hover {
-      background: #eee;
+      background: rgba(255,255,255,0.12);
       transform: translateY(-1px);
     }
 
@@ -258,8 +261,8 @@
     .btn-add {
       margin-top: 8px;
       padding: 10px 14px;
-      background: var(--accent);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #000;
       border-radius: var(--radius);
       font-weight: 600;
       cursor: pointer;
@@ -269,15 +272,15 @@
     }
 
     .btn-add:hover {
-      background: #3399ff;
+      opacity: 0.85;
     }
 
     #btnPagar {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: var(--accent-2);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #000;
       padding: 14px 20px;
       border-radius: 999px;
       font-weight: 700;
@@ -293,7 +296,7 @@
       padding: 18px;
       background: var(--card);
       border-radius: var(--radius);
-      border: 1px solid #eee;
+      border: 1px solid rgba(255,255,255,0.05);
       font-size: 14px;
       color: var(--muted);
     }
@@ -313,12 +316,50 @@
       height: 52px;
       border-radius: 10px;
       overflow: hidden;
-      border: 1px solid #ccc;
+      border: 1px solid rgba(255,255,255,0.15);
       cursor: pointer;
       flex-shrink: 0;
     }
 
-    .
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumb.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(0,212,255,0.6);
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">SD</div>
+      <div>
+        <div class="title">Soluciones Digitales Comayagua</div>
+        <div class="sub">Gaming · Accesorios · Servicios digitales</div>
+      </div>
+    </div>
+
+    <nav class="menu-scroll">
+      <a href="#inicio" class="menu-item"><span class="menu-icon">🏠</span>Inicio</a>
+      <a href="#catalogo" class="menu-item"><span class="menu-icon">🛒</span>Catálogo</a>
+      <a href="#ofertas" class="menu-item"><span class="menu-icon">🔥</span>Ofertas</a>
+      <a href="#testimonios" class="menu-item"><span class="menu-icon">⭐</span>Testimonios</a>
+      <a href="#faq" class="menu-item"><span class="menu-icon">❓</span>Preguntas</a>
+      <a href="#ubicacion" class="menu-item"><span class="menu-icon">📍</span>Ubicación</a>
+      <a href="#privacidad" class="menu-item"><span class="menu-icon">🔒</span>Privacidad</a>
+      <a href="#contacto" class="menu-item"><span class="menu-icon">📞</span>Contacto</a>
+    </nav>
+
+    <div class="scroll-line"></div>
+  </div>
+</header>
 <!-- Parte 2: MAIN + SECCIONES -->
 <main id="inicio" class="wrap">
 
@@ -366,6 +407,7 @@
 </main>
 
 <div id="btnPagar">Ir a pagar</div>
+
 <!-- Parte 3: SCRIPTS COMPLETOS -->
 <script>
   const productos = [
@@ -466,9 +508,7 @@
 
           <div class="media-wrapper" data-media="${p.id}">
             <img src="${p.imagenPrincipal}">
-            <div class="media-tag">
-              <span>🖼️</span> Imagen principal
-            </div>
+            <div class="media-tag">🖼️ Imagen principal</div>
           </div>
 
           ${thumbsHTML}
@@ -535,7 +575,7 @@
         const prod = productos.find(x => x.id == id);
         const mediaWrapper = document.querySelector(`.media-wrapper[data-media="${id}"]`);
 
-        if (action === "imagenes") {
+        if (action === "imagenes" && prod.imagenes?.length) {
           mediaWrapper.innerHTML = `
             <img src="${prod.imagenes[0]}">
             <div class="media-tag">🖼️ Galería</div>
