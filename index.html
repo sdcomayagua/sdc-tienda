@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Soluciones Digitales Comayagua (SDC)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tipografías -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --azul: #007BFF;
+      --negro: #000000;
+      --blanco: #FFFFFF;
+      --gris-oscuro: #1A1A1A;
+      --verde: #28A745;
+      --bg: #05060a;
+      --texto: #f5f5f5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #101322 0, #05060a 45%, #000000 100%);
+      color: var(--texto);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(5, 6, 10, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 0, #00d4ff 0, #007bff 40%, #4b0082 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(0, 123, 255, 0.7);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .logo-text span:first-child {
+      font-family: 'Poppins', system-ui;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+    }
+
+    .logo-text span:last-child {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .nav-links a {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: rgba(245, 245, 245, 0.85);
+      transition: all 0.18s ease-out;
+    }
+
+    .nav-links a:hover {
+      border-color: rgba(0, 123, 255, 0.7);
+      background: rgba(0, 123, 255, 0.08);
+      color: #fff;
+    }
+
+    .nav-cart {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.18s ease-out;
+    }
+
+    .nav-cart:hover {
+      border-color: rgba(0, 255, 135, 0.7);
+      box-shadow: 0 0 14px rgba(0, 255, 135, 0.35);
+    }
+
+    .nav-cart-count {
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--verde);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #000;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.2fr);
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* Hero / Inicio */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(0, 123, 255, 0.12);
+      border: 1px solid rgba(0, 123, 255, 0.5);
+      font-size: 0.75rem;
+      color: #cfe6ff;
+      width: fit-content;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #00ff95;
+      box-shadow: 0 0 10px rgba(0, 255, 149, 0.9);
+    }
+
+    .hero-title {
+      font-family: 'Poppins', system-ui;
+      font-size: clamp(1.9rem, 3vw, 2.4rem);
+      line-height: 1.1;
+    }
+
+    .hero-title span {
+      background: linear-gradient(120deg, #00d4ff, #00ff95, #ffdd55);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      max-width: 32rem;
+      color: rgba(245, 245, 245, 0.8);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .hero-card {
+      border-radius: 1rem;
+      padding: 0.8rem 0.9rem;
+      background: radial-gradient(circle at top left, rgba(0, 123, 255, 0.25), rgba(0, 0, 0, 0.9));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .hero-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .hero-card p {
+      font-size: 0.8rem;
+      color: rgba(245, 245, 245, 0.75);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 0.55rem 1.1rem;
+      font-size: 0.85rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.18s ease-out;
+      background: none;
+      color: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, #007bff, #00d4ff);
+      color: #fff;
+      box-shadow: 0 0 18px rgba(0, 123, 255, 0.6);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(0, 0, 0, 0.6);
+      color: rgba(245, 245, 245, 0.9);
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(0, 123, 255, 0.7);
+      background: rgba(0, 123, 255, 0.12);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: rgba(245, 245, 245, 0.7);
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Panel derecho: catálogo + carrito */
+    .panel {
+      border-radius: 1.2rem;
+      background: radial-gradient(circle at top, rgba(0, 123, 255, 0.18), rgba(0, 0, 0, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 26px rgba(0, 0, 0, 0.9);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-height: 320px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .panel-header h2 {
+      font-size: 1rem;
+      font-family: 'Poppins', system-ui;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(245, 245, 245, 0.75);
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .tab {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.6);
+      color: rgba(245, 245, 245, 0.75);
+      transition: all 0.16s ease-out;
+    }
+
+    .tab.active {
+      border-color: rgba(0, 123, 255, 0.9);
+      background: rgba(0, 123, 255, 0.18);
+      color: #fff;
+    }
+
+    .catalog-grid {
+      margin-top: 0.6rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+      max-height: 260px;
+      overflow: auto;
+      padding-right: 0.2rem;
+    }
+
+    @media (max-width: 600px) {
+      .catalog-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .product-card {
+      border-radius: 0.9rem;
+      padding: 0.6rem;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+    }
+
+    .product-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .product-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .product-price {
+      font-weight: 600;
+      color: #00ff95;
+    }
+
+    .product-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(0, 123, 255, 0.16);
+      color: #cfe6ff;
+    }
+
+    .product-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
+    }
+
+    .btn-add {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(120deg, #00ff95, #00d4ff);
+      color: #000;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      box-shadow: 0 0 12px rgba(0, 255, 149, 0.6);
+      transition: all 0.16s ease-out;
+    }
+
+    .btn-add:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .product-stock {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    /* Carrito */
+    .cart {
+      margin-top: 0.6rem;
+      border-radius: 0.9rem;
+      padding: 0.6rem;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .cart-items {
+      max-height: 150px;
+      overflow: auto;
+      padding-right: 0.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) auto;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .cart-item-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .cart-item-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .cart-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .cart-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      justify-content: flex-end;
+    }
+
+    .qty-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: transparent;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .qty {
+      min-width: 18px;
+      text-align: center;
+      font-size: 0.75rem;
+    }
+
+    .btn-trash {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 0, 76, 0.16);
+      color: #ff6b9a;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .cart-footer {
+      border-top: 1px dashed rgba(255, 255, 255, 0.12);
+      padding-top: 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .cart-total {
+      font-weight: 600;
+      color: #00ff95;
+    }
+
+    .cart-steps {
+      margin-top: 0.4rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.4rem;
+      font-size: 0.75rem;
+    }
+
+    .cart-step {
+      border-radius: 0.7rem;
+      padding: 0.4rem 0.45rem;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .cart-step label {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    .cart-step select,
+    .cart-step input {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(0, 0, 0, 0.8);
+      color: #f5f5f5;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      outline: none;
+    }
+
+    .cart-actions {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: flex-end;
+    }
+
+    .btn-wa {
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(120deg, #25d366, #00ff95);
+      color: #000;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      box-shadow: 0 0 16px rgba(0, 255, 149, 0.7);
+    }
+
+    .btn-wa:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Secciones inferiores (testimonios, FAQ, etc.) */
+    .sections {
+      grid-column: 1 / -1;
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .sections {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .section-card {
+      border-radius: 1rem;
+      padding: 0.9rem;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .section-card h3 {
+      font-family: 'Poppins', system-ui;
+      font-size: 0.95rem;
+    }
+
+    .section-card p {
+      font-size: 0.8rem;
+      color: rgba(245, 245, 245, 0.8);
+    }
+
+    .section-list {
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      color: rgba(245, 245, 245, 0.8);
+    }
+
+    .section-list li {
+      margin-left: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.9rem 1rem 1.2rem;
+      font-size: 0.75rem;
+      color: rgba(245, 245, 245, 0.7);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    footer span {
+      opacity: 0.8;
+    }
+
+    footer a {
+      color: #cfe6ff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="logo">
+        <div class="logo-icon">SD</div>
+        <div class="logo-text">
+          <span>Soluciones Digitales Comayagua</span>
+          <span>Gaming · Accesorios · Servicios</span>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#inicio">Inicio</a>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#ofertas">Ofertas</a>
+        <a href="#testimonios">Testimonios</a>
+        <a href="#faq">Preguntas</a>
+        <a href="#ubicacion">Ubicación</a>
+        <a href="#privacidad">Privacidad</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+      <button class="nav-cart" type="button" onclick="scrollToCart()">
+        <span>Carrito</span>
+        <span class="nav-cart-count" id="navCartCount">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- INICIO -->
+    <section id="inicio" class="hero">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span>Envíos a todo Honduras · Actualizado desde Google Sheets</span>
+      </div>
+
+      <h1 class="hero-title">
+        Todo tu <span>mundo gamer y digital</span> en un solo lugar.
+      </h1>
+
+      <p class="hero-subtitle">
+        Soluciones Digitales Comayagua (SDC) te ofrece productos Gamer, accesorios tecnológicos y servicios digitales con envíos a todo Honduras. Compra fácil, rápido y seguro desde tu móvil o PC.
+      </p>
+
+      <div class="hero-grid">
+        <article class="hero-card">
+          <h3>Catálogo conectado a Google Sheets</h3>
+          <p>
+            Gestiona tu inventario desde una sola hoja. El catálogo se actualiza automáticamente sin tocar el código.
+          </p>
+        </article>
+        <article class="hero-card">
+          <h3>Carrito + WhatsApp</h3>
+          <p>
+            Tus clientes agregan productos, eligen envío y pago, y confirman el pedido directo por WhatsApp.
+          </p>
+        </article>
+        <article class="hero-card">
+          <h3>Envíos Comayagua y nacionales</h3>
+          <p>
+            Tarifas dinámicas por zona, empresa y tipo de servicio, todo controlado desde Google Sheets.
+          </p>
+        </article>
+        <article class="hero-card">
+          <h3>Diseño gamer, moderno y minimalista</h3>
+          <p>
+            Azul eléctrico, modo oscuro, tipografías Poppins e Inter, y animaciones suaves para una experiencia pro.
+          </p>
+        </article>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" type="button" onclick="scrollToCatalogo()">
+          Ver catálogo en vivo
+        </button>
+        <button class="btn btn-ghost" type="button" onclick="scrollToFaq()">
+          ¿Cómo funciona todo?
+        </button>
+      </div>
+
+      <div class="hero-meta">
+        <span>⚡ Actualizable sin programar</span>
+        <span>🛒 Carrito con resumen completo</span>
+        <span>📲 Pedido final por WhatsApp</span>
+      </div>
+    </section>
+
+    <!-- PANEL DERECHO: CATÁLOGO + CARRITO -->
+    <section id="catalogo" class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Catálogo SDC</h2>
+          <div class="tabs">
+            <button class="tab active" data-category="all" type="button" onclick="setCategory('all', this)">Todo</button>
+            <button class="tab" data-category="Móvil" type="button" onclick="setCategory('Móvil', this)">Móvil</button>
+            <button class="tab" data-category="PC" type="button" onclick="setCategory('PC', this)">PC</button>
+            <button class="tab" data-category="Servicios" type="button" onclick="setCategory('Servicios', this)">Servicios digitales</button>
+            <button class="tab" data-category="Ofertas" type="button" onclick="setCategory('Ofertas', this)">Ofertas</button>
+          </div>
+        </div>
+        <span class="pill" id="catalogInfo">Cargando catálogo…</span>
+      </div>
+
+      <div class="catalog-grid" id="catalogGrid">
+        <!-- Productos dinámicos desde Google Sheets -->
+      </div>
+
+      <!-- CARRITO -->
+      <div id="carrito" class="cart">
+        <div class="cart-header">
+          <span>Carrito de compra</span>
+          <span id="cartStatus">Sin productos</span>
+        </div>
+
+        <div class="cart-items" id="cartItems">
+          <!-- Items del carrito -->
+        </div>
+
+        <div class="cart-footer">
+          <div class="cart-row">
+            <span>Subtotal</span>
+            <span id="cartSubtotal">L 0.00</span>
+          </div>
+          <div class="cart-row">
+            <span>Envío</span>
+            <span id="cartShipping">L 0.00</span>
+          </div>
+          <div class="cart-row">
+            <span class="cart-total">Total</span>
+            <span class="cart-total" id="cartTotal">L 0.00</span>
+          </div>
+
+          <div class="cart-steps">
+            <div class="cart-step">
+              <label for="envioSelect">3. Seleccionar envío</label>
+              <select id="envioSelect" onchange="updateShipping()">
+                <option value="">Selecciona una opción</option>
+                <option value="comayagua">Comayagua (zonas)</option>
+                <option value="nacional">Otros departamentos</option>
+              </select>
+              <select id="envioDetalle" onchange="updateShipping()">
+                <option value="">Detalle de envío</option>
+              </select>
+            </div>
+
+            <div class="cart-step">
+              <label for="pagoSelect">4. Método de pago</label>
+              <select id="pagoSelect">
+                <option value="">Selecciona un método</option>
+                <option value="contraentrega">Pagar al recibir</option>
+                <option value="transferencia">Transferencia bancaria</option>
+                <option value="paypal">PayPal</option>
+                <option value="tigo">Tigo Money</option>
+              </select>
+              <input id="pagoExtra" type="text" placeholder="¿Con cuánto pagará? / Banco / Nota" />
+            </div>
+          </div>
+
+          <div class="cart-actions">
+            <button class="btn-wa" type="button" id="btnWhatsApp" onclick="sendWhatsApp()" disabled>
+              Enviar pedido por WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIONES INFERIORES -->
+    <section class="sections">
+      <article id="ofertas" class="section-card">
+        <h3>Ofertas y cupones</h3>
+        <p>
+          Aprovecha promociones por cantidad, combos especiales, descuentos por temporada y cupones exclusivos. Todo esto puede
+          gestionarse desde tu hoja de productos en Google Sheets usando columnas como <strong>oferta</strong> y <strong>cupón</strong>.
+        </p>
+        <ul class="section-list">
+          <li>Ofertas por cantidad (precio_mayor).</li>
+          <li>Cupones configurables desde Sheets.</li>
+          <li>Sección de “Ofertas” filtrada automáticamente.</li>
+        </ul>
+      </article>
+
+      <article id="testimonios" class="section-card">
+        <h3>Testimonios reales</h3>
+        <p>
+          La opinión de nuestros clientes es nuestra mejor carta de presentación. Conoce sus experiencias reales y aumenta la
+          confianza en tu tienda.
+        </p>
+        <p style="font-size:0.78rem; opacity:0.8;">
+          Esta sección puede leerse desde la hoja <strong>Testimonios</strong> de Google Sheets y mostrarse como tarjetas con nombre,
+          ubicación y tipo de cliente.
+        </p>
+      </article>
+
+      <article id="faq" class="section-card">
+        <h3>Preguntas frecuentes</h3>
+        <p>
+          Aprende cómo comprar, cómo pagar y cómo funcionan nuestros envíos dentro y fuera de Comayagua.
+        </p>
+        <ul class="section-list">
+          <li>¿Cómo agrego productos al carrito?</li>
+          <li>¿Qué métodos de pago aceptan?</li>
+          <li>¿Cuánto tarda el envío a mi ciudad?</li>
+          <li>¿Puedo pagar al recibir?</li>
+        </ul>
+      </article>
+
+      <article id="ubicacion" class="section-card">
+        <h3>Ubicación y cobertura</h3>
+        <p>
+          Tienda en línea con punto físico disponible. Encuéntranos en Google Maps, Waze y Apple Maps. Desde Comayagua enviamos a
+          todo Honduras usando las empresas configuradas en tu hoja de <strong>Envíos Nacionales</strong>.
+        </p>
+      </article>
+
+      <article id="privacidad" class="section-card">
+        <h3>Política de privacidad</h3>
+        <p>
+          Tu información y la de tus clientes se maneja con responsabilidad. Puedes administrar el contenido de esta sección desde
+          la hoja <strong>Política de Privacidad</strong> en Google Sheets, por secciones.
+        </p>
+      </article>
+
+      <article id="contacto" class="section-card">
+        <h3>Contacto y redes sociales</h3>
+        <p>
+          Integra tus redes sociales y canales de contacto desde la hoja <strong>Redes Sociales</strong>. Muestra enlaces a WhatsApp,
+          Facebook, Instagram, TikTok o la plataforma que prefieras.
+        </p>
+        <p style="font-size:0.78rem; opacity:0.8;">
+          El botón de WhatsApp del carrito usa una URL codificada con el resumen del pedido para que el cliente solo toque y envíe.
+        </p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> Soluciones Digitales Comayagua · SDC</span>
+    <span>Desplegado en GitHub Pages · Catálogo desde Google Sheets</span>
+  </footer>
+
+  <script>
+    // ==========================
+    // CONFIGURACIÓN BÁSICA
+    // ==========================
+
+    const SHEETBEST = "https://api.sheetbest.com/sheets/2f50fe4e-6985-4677-b5de-968b83268bc4";
+    const SHEETDB   = "https://sheetdb.io/api/v1/9ynyemsm9a1w1";
+
+    const SHEETS_CONFIG = {
+      productos:        SHEETBEST + "?sheet=Productos",
+      enviosComayagua:  SHEETBEST + "?sheet=Envíos%20Comayagua",
+      enviosNacionales: SHEETBEST + "?sheet=Envíos%20Nacionales",
+      metodosPago:      SHEETBEST + "?sheet=Métodos%20de%20Pago",
+      testimonios:      SHEETBEST + "?sheet=Testimonios",
+      redes:            SHEETBEST + "?sheet=Redes%20Sociales",
+      privacidad:       SHEETBEST + "?sheet=Política%20de%20Privacidad"
+    };
+
+    // Número de WhatsApp al que se enviará el pedido (formato internacional sin +)
+    const WHATSAPP_NUMBER = '504XXXXXXXX'; // cámbialo por tu número real
+
+    // Estado global
+    let productos = [];
+    let productosFiltrados = [];
+    let carrito = [];
+    let enviosComayagua = [];
+    let enviosNacionales = [];
+    let envioSeleccionado = null;
+    let envioTipo = '';
+    let envioCosto = 0;
+
+    // ==========================
+    // UTILIDADES
+    // ==========================
+
+    function formatCurrency(value) {
+      return 'L ' + (Number(value) || 0).toFixed(2);
+    }
+
+    function scrollToCatalogo() {
+      document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function scrollToCart() {
+      document.getElementById('carrito').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function scrollToFaq() {
+      document.getElementById('faq').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function setCategory(category, el) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      el.classList.add('active');
+      if (category === 'all') {
+        productosFiltrados = [...productos];
+      } else if (category === 'Ofertas') {
+        productosFiltrados = productos.filter(p => (p.oferta || '').toString().toLowerCase() === 'true');
+      } else {
+        productosFiltrados = productos.filter(p => (p.categoria || '').toLowerCase() === category.toLowerCase());
+      }
+      renderCatalog();
+    }
+
+    function updateNavCartCount() {
+      const count = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+      document.getElementById('navCartCount').textContent = count;
+    }
+
+    // ==========================
+    // CARGA DESDE GOOGLE SHEETS
+    // ==========================
+
+    async function fetchJSON(url) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Error en SheetBest");
+        return await res.json();
+      } catch (e) {
+        console.warn("SheetBest falló, usando SheetDB:", url);
+        const match = url.match(/sheet=([^&]+)/);
+        const sheetName = match ? decodeURIComponent(match[1]) : '';
+        const backupURL = SHEETDB + "?sheet=" + encodeURIComponent(sheetName);
+        const res2 = await fetch(backupURL);
+        if (!res2.ok) throw new Error("Error en SheetDB");
+        return await res2.json();
+      }
+    }
+
+    async function loadData() {
+      try {
+        document.getElementById('catalogInfo').textContent = 'Cargando catálogo…';
+
+        // Productos
+        const dataProductos = await fetchJSON(SHEETS_CONFIG.productos);
+        if (dataProductos && Array.isArray(dataProductos)) {
+          productos = dataProductos;
+        } else {
+          productos = [];
+        }
+
+        if (!productos.length) {
+          // Datos demo si no hay nada
+          productos = [
+            {
+              id: '1',
+              categoria: 'Móvil',
+              subcategoria: 'Gamer',
+              nombre: 'Gamepad Bluetooth para móvil',
+              descripcion: 'Control inalámbrico compatible con Android y iOS.',
+              precio: 850,
+              precio_mayor: 780,
+              stock: 10,
+              oferta: 'TRUE',
+              cupon: ''
+            },
+            {
+              id: '2',
+              categoria: 'PC',
+              subcategoria: 'Periféricos',
+              nombre: 'Teclado mecánico RGB',
+              descripcion: 'Switches azules, iluminación RGB completa.',
+              precio: 1450,
+              precio_mayor: 1350,
+              stock: 5,
+              oferta: '',
+              cupon: 'GAMER10'
+            },
+            {
+              id: '3',
+              categoria: 'Servicios',
+              subcategoria: 'Streaming',
+              nombre: 'Cuenta de streaming 4K',
+              descripcion: 'Servicio mensual con soporte dedicado.',
+              precio: 320,
+              precio_mayor: 300,
+              stock: 999,
+              oferta: '',
+              cupon: ''
+            }
+          ];
+        }
+
+        productosFiltrados = [...productos];
+        renderCatalog();
+        document.getElementById('catalogInfo').textContent = productos.length + ' productos disponibles';
+
+        // Envíos Comayagua
+        const dataEnviosCom = await fetchJSON(SHEETS_CONFIG.enviosComayagua);
+        if (dataEnviosCom && Array.isArray(dataEnviosCom)) {
+          enviosComayagua = dataEnviosCom;
+        } else {
+          enviosComayagua = [
+            { zona: 'Centro', tarifa: 40, descripcion: 'Centro de Comayagua' },
+            { zona: 'Periferia', tarifa: 60, descripcion: 'Barrios y colonias' }
+          ];
+        }
+
+        // Envíos Nacionales
+        const dataEnviosNac = await fetchJSON(SHEETS_CONFIG.enviosNacionales);
+        if (dataEnviosNac && Array.isArray(dataEnviosNac)) {
+          enviosNacionales = dataEnviosNac;
+        } else {
+          enviosNacionales = [
+            { empresa: 'Cargo Expreso', tipo_servicio: 'Normal', departamento: 'Francisco Morazán', municipio: 'Tegucigalpa', costo: 120 },
+            { empresa: 'Cargo Expreso', tipo_servicio: 'Normal', departamento: 'Cortés', municipio: 'San Pedro Sula', costo: 130 }
+          ];
+        }
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('catalogInfo').textContent = 'Error al cargar datos. Usando modo demo.';
+      }
+    }
+
+    // ==========================
+    // RENDER DEL CATÁLOGO
+    // ==========================
+
+    function renderCatalog() {
+      const grid = document.getElementById('catalogGrid');
+      grid.innerHTML = '';
+
+      if (!productosFiltrados.length) {
+        grid.innerHTML = '<p style="font-size:0.8rem; opacity:0.8;">No hay productos para esta categoría.</p>';
+        return;
+      }
+
+      productosFiltrados.forEach(prod => {
+        const card = document.createElement('article');
+        card.className = 'product-card';
+
+        const title = document.createElement('div');
+        title.className = 'product-title';
+        title.textContent = prod.nombre || 'Producto sin nombre';
+
+        const desc = document.createElement('p');
+        desc.style.fontSize = '0.75rem';
+        desc.style.opacity = '0.8';
+        desc.textContent = prod.descripcion || '';
+
+        const meta = document.createElement('div');
+        meta.className = 'product-meta';
+
+        const price = document.createElement('span');
+        price.className = 'product-price';
+        price.textContent = formatCurrency(prod.precio);
+
+        const tag = document.createElement('span');
+        tag.className = 'product-tag';
+        tag.textContent = (prod.categoria || '') + (prod.subcategoria ? ' · ' + prod.subcategoria : '');
+
+        meta.appendChild(price);
+        meta.appendChild(tag);
+
+        const actions = document.createElement('div');
+        actions.className = 'product-actions';
+
+        const stock = document.createElement('span');
+        stock.className = 'product-stock';
+        stock.textContent = 'Stock: ' + (prod.stock ?? '—');
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-add';
+        btn.type = 'button';
+        btn.innerHTML = '<span>Agregar</span><span>+</span>';
+        btn.onclick = () => addToCart(prod);
+
+        actions.appendChild(stock);
+        actions.appendChild(btn);
+
+        card.appendChild(title);
+        card.appendChild(desc);
+        card.appendChild(meta);
+        card.appendChild(actions);
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ==========================
+    // CARRITO
+    // ==========================
+
+    function addToCart(prod) {
+      const existing = carrito.find(item => item.id === prod.id);
+      if (existing) {
+        existing.cantidad += 1;
+      } else {
+        carrito.push({
+          id: prod.id,
+          nombre: prod.nombre,
+          precio: Number(prod.precio) || 0,
+          cantidad: 1
+        });
+      }
+      renderCart();
+    }
+
+    function changeQty(id, delta) {
+      const item = carrito.find(i => i.id === id);
+      if (!item) return;
+      item.cantidad += delta;
+      if (item.cantidad <= 0) {
+        carrito = carrito.filter(i => i.id !== id);
+      }
+      renderCart();
+    }
+
+    function removeFromCart(id) {
+      carrito = carrito.filter(i => i.id !== id);
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartItems');
+      const status = document.getElementById('cartStatus');
+      const subtotalEl = document.getElementById('cartSubtotal');
+      const shippingEl = document.getElementById('cartShipping');
+      const totalEl = document.getElementById('cartTotal');
+      const btnWa = document.getElementById('btnWhatsApp');
+
+      container.innerHTML = '';
+
+      if (!carrito.length) {
+        status.textContent = 'Sin productos';
+        subtotalEl.textContent = formatCurrency(0);
+        shippingEl.textContent = formatCurrency(envioCosto);
+        totalEl.textContent = formatCurrency(envioCosto);
+        btnWa.disabled = true;
+        updateNavCartCount();
+        return;
+      }
+
+      status.textContent = carrito.length + ' producto(s)';
+      let subtotal = 0;
+
+      carrito.forEach(item => {
+        subtotal += item.precio * item.cantidad;
+
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+
+        const main = document.createElement('div');
+        main.className = 'cart-item-main';
+
+        const title = document.createElement('div');
+        title.className = 'cart-item-title';
+        title.textContent = item.nombre;
+
+        const meta = document.createElement('div');
+        meta.className = 'cart-item-meta';
+        meta.innerHTML = `<span>${formatCurrency(item.precio)}</span><span>x ${item.cantidad}</span>`;
+
+        main.appendChild(title);
+        main.appendChild(meta);
+
+        const actions = document.createElement('div');
+        actions.className = 'cart-item-actions';
+
+        const btnMinus = document.createElement('button');
+        btnMinus.className = 'qty-btn';
+        btnMinus.type = 'button';
+        btnMinus.textContent = '-';
+        btnMinus.onclick = () => changeQty(item.id, -1);
+
+        const qty = document.createElement('span');
+        qty.className = 'qty';
+        qty.textContent = item.cantidad;
+
+        const btnPlus = document.createElement('button');
+        btnPlus.className = 'qty-btn';
+        btnPlus.type = 'button';
+        btnPlus.textContent = '+';
+        btnPlus.onclick = () => changeQty(item.id, 1);
+
+        const btnTrash = document.createElement('button');
+        btnTrash.className = 'btn-trash';
+        btnTrash.type = 'button';
+        btnTrash.innerHTML = '🗑';
+        btnTrash.onclick = () => removeFromCart(item.id);
+
+        actions.appendChild(btnMinus);
+        actions.appendChild(qty);
+        actions.appendChild(btnPlus);
+        actions.appendChild(btnTrash);
+
+        row.appendChild(main);
+        row.appendChild(actions);
+
+        container.appendChild(row);
+      });
+
+      subtotalEl.textContent = formatCurrency(subtotal);
+      shippingEl.textContent = formatCurrency(envioCosto);
+      totalEl.textContent = formatCurrency(subtotal + envioCosto);
+      btnWa.disabled = false;
+      updateNavCartCount();
+    }
+
+    // ==========================
+    // ENVÍOS
+    // ==========================
+
+    function updateShipping() {
+      const tipo = document.getElementById('envioSelect').value;
+      const detalleSelect = document.getElementById('envioDetalle');
+      envioTipo = tipo;
+      envioSeleccionado = null;
+      envioCosto = 0;
+
+      detalleSelect.innerHTML = '<option value="">Detalle de envío</option>';
+
+      if (tipo === 'comayagua') {
+        enviosComayagua.forEach((z, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `${z.zona} (${formatCurrency(z.tarifa)})`;
+          detalleSelect.appendChild(opt);
+        });
+      } else if (tipo === 'nacional') {
+        enviosNacionales.forEach((e, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `${e.empresa} - ${e.departamento}/${e.municipio} (${formatCurrency(e.costo)})`;
+          detalleSelect.appendChild(opt);
+        });
+      }
+
+      const idx = detalleSelect.value;
+      if (tipo === 'comayagua' && idx !== '') {
+        const z = enviosComayagua[idx];
+        envioSeleccionado = z;
+        envioCosto = Number(z.tarifa) || 0;
+      } else if (tipo === 'nacional' && idx !== '') {
+        const e = enviosNacionales[idx];
+        envioSeleccionado = e;
+        envioCosto = Number(e.costo) || 0;
+      } else {
+        envioCosto = 0;
+      }
+
+      renderCart();
+    }
+
+    // ==========================
+    // WHATSAPP
+    // ==========================
+
+    function buildWhatsAppMessage() {
+      let msg = '🛒 *Nuevo pedido desde la tienda SDC*%0A%0A';
+
+      msg += '*Productos:*%0A';
+      carrito.forEach(item => {
+        msg += `• ${item.nombre} x ${item.cantidad} — ${formatCurrency(item.precio * item.cantidad)}%0A`;
+      });
+
+      const subtotalText = document.getElementById('cartSubtotal').textContent;
+      const shippingText = document.getElementById('cartShipping').textContent;
+      const totalText = document.getElementById('cartTotal').textContent;
+
+      msg += `%0A*Subtotal:* ${subtotalText}%0A`;
+      msg += `*Envío:* ${shippingText}%0A`;
+      msg += `*Total:* ${totalText}%0A%0A`;
+
+      const tipoEnvio = document.getElementById('envioSelect').value;
+      const detalleEnvio = document.getElementById('envioDetalle').value;
+      const pago = document.getElementById('pagoSelect').value;
+      const pagoExtra = document.getElementById('pagoExtra').value.trim();
+
+      msg += '*Envío:* ';
+      if (tipoEnvio === 'comayagua' && detalleEnvio !== '') {
+        const z = enviosComayagua[detalleEnvio];
+        msg += `Comayagua - Zona ${z.zona} (${z.descripcion})%0A`;
+      } else if (tipoEnvio === 'nacional' && detalleEnvio !== '') {
+        const e = enviosNacionales[detalleEnvio];
+        msg += `Nacional - ${e.empresa}, ${e.departamento}/${e.municipio}, ${e.tipo_servicio}%0A`;
+      } else {
+        msg += 'No especificado%0A';
+      }
+
+      msg += '*Método de pago:* ';
+      if (pago === 'contraentrega') msg += 'Pagar al recibir';
+      else if (pago === 'transferencia') msg += 'Transferencia bancaria';
+      else if (pago === 'paypal') msg += 'PayPal';
+      else if (pago === 'tigo') msg += 'Tigo Money';
+      else msg += 'No especificado';
+      msg += '%0A';
+
+      if (pagoExtra) {
+        msg += `*Detalle de pago:* ${encodeURIComponent(pagoExtra)}%0A`;
+      }
+
+      msg += '%0A*Datos del cliente:*%0A';
+      msg += 'Nombre:%0A';
+      msg += 'Teléfono:%0A';
+      msg += 'Referencia de dirección:%0A';
+
+      return msg;
+    }
+
+    function sendWhatsApp() {
+      if (!carrito.length) return;
+      const msg = buildWhatsAppMessage();
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    // ==========================
+    // INICIO
+    // ==========================
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+    loadData();
+  </script>
+</body>
+</html>
