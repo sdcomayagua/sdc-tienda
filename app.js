@@ -1,10 +1,4 @@
 /* ============================================================
-   CONFIGURACIÓN: URL DE GOOGLE SHEETS (CSV)
-   ============================================================ */
-const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/1IG2pHnk7XfZgw4qiyEm_8BuGDNOlJByVv6H_O9PWdrs/export?format=csv";
-
-/* ============================================================
    ELEMENTOS DEL DOM
    ============================================================ */
 const contenedor = document.getElementById("productos");
@@ -13,9 +7,69 @@ const departamentoCliente = document.getElementById("departamentoCliente");
 const municipioCliente = document.getElementById("municipioCliente");
 
 /* ============================================================
-   VARIABLES GLOBALES
+   PRODUCTOS DE PRUEBA (LOCALES)
    ============================================================ */
-let productos = [];
+let productos = [
+  {
+    id: 1,
+    nombre: "Teclado Mecánico RGB Gamer",
+    categoria: "Gaming",
+    precio: 1800,
+    precio_oferta: 1500,
+    oferta: true,
+    stock: 5,
+    imagenPrincipal: "https://via.placeholder.com/600x600?text=Teclado+Gamer",
+    imagenes: [
+      "https://via.placeholder.com/600x600?text=Teclado+Vista+1",
+      "https://via.placeholder.com/600x600?text=Teclado+Vista+2"
+    ],
+    video: "",
+    descripcion: "Teclado mecánico con switches rojos, ideal para gaming competitivo.",
+    puntos: [
+      "Switches mecánicos de alta respuesta",
+      "Iluminación RGB personalizable",
+      "Construcción resistente para uso intensivo"
+    ],
+    etiqueta: "Top Ventas",
+    departamento_envio: "Comayagua",
+    municipio_envio: "Comayagua"
+  },
+  {
+    id: 2,
+    nombre: "Mouse Gamer 7200 DPI",
+    categoria: "Gaming",
+    precio: 900,
+    precio_oferta: null,
+    oferta: false,
+    stock: 10,
+    imagenPrincipal: "https://via.placeholder.com/600x600?text=Mouse+Gamer",
+    imagenes: [],
+    video: "",
+    descripcion: "Mouse gamer ergonómico con 7 botones programables.",
+    puntos: [],
+    etiqueta: "Nuevo",
+    departamento_envio: "Francisco Morazán",
+    municipio_envio: "Tegucigalpa"
+  },
+  {
+    id: 3,
+    nombre: "Audífonos Inalámbricos Surround",
+    categoria: "Audio",
+    precio: 2200,
+    precio_oferta: 1990,
+    oferta: true,
+    stock: 3,
+    imagenPrincipal: "https://via.placeholder.com/600x600?text=Audifonos+Gamer",
+    imagenes: [],
+    video: "",
+    descripcion: "Audio envolvente para una experiencia inmersiva en juegos y películas.",
+    puntos: [],
+    etiqueta: "Premium",
+    departamento_envio: "Cortés",
+    municipio_envio: "San Pedro Sula"
+  }
+];
+
 let carrito = [];
 
 /* ============================================================
@@ -31,93 +85,13 @@ const bulletsPorCategoria = {
     "Optimizado para precisión y velocidad",
     "Ideal para juegos competitivos"
   ],
-  "accesorios": [
-    "Diseño práctico y funcional",
-    "Perfecto para uso diario",
-    "Materiales de alta calidad",
-    "Compatibilidad amplia garantizada",
-    "Ideal para mejorar tu setup",
-    "Compacto y fácil de transportar"
-  ],
-  "streaming": [
-    "Calidad estable y confiable",
-    "Ideal para contenido en alta definición",
-    "Acceso rápido y sin complicaciones",
-    "Perfecto para maratones de series",
-    "Optimizado para una experiencia fluida"
-  ],
   "audio": [
     "Sonido claro y envolvente",
     "Diseñado para comodidad prolongada",
     "Ideal para música, juegos y llamadas",
     "Calidad premium en cada detalle"
-  ],
-  "servicios": [
-    "Atención rápida y personalizada",
-    "Proceso seguro y confiable",
-    "Ideal para usuarios frecuentes",
-    "Optimizado para tu comodidad"
-  ],
-  "computadoras": [
-    "Rendimiento optimizado para multitarea",
-    "Componentes de alta calidad",
-    "Perfecta para trabajo y entretenimiento",
-    "Diseñada para durar"
   ]
 };
-
-/* ============================================================
-   PARSEAR CSV A OBJETOS
-   ============================================================ */
-function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const headers = lines[0].split(",").map(h => h.trim());
-  const rows = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    const cols = lines[i].split(",");
-    const obj = {};
-    headers.forEach((h, idx) => {
-      obj[h] = (cols[idx] || "").trim();
-    });
-    rows.push(obj);
-  }
-  return rows;
-}
-
-/* ============================================================
-   MAPEAR FILA DEL CSV A PRODUCTO
-   ============================================================ */
-function mapRowToProducto(row) {
-  const imagenes = [];
-  if (row.imagen_1) imagenes.push(row.imagen_1);
-  if (row.imagen_2) imagenes.push(row.imagen_2);
-  if (row.imagen_3) imagenes.push(row.imagen_3);
-
-  const puntos = [];
-  if (row.punto_1) puntos.push(row.punto_1);
-  if (row.punto_2) puntos.push(row.punto_2);
-  if (row.punto_3) puntos.push(row.punto_3);
-
-  return {
-    id: Number(row.id || 0),
-    nombre: row.nombre || "",
-    categoria: row.categoria || "",
-    precio: Number(row.precio || 0),
-    precio_oferta: row.precio_oferta ? Number(row.precio_oferta) : null,
-    oferta: (row.oferta || "").toLowerCase() === "si",
-    stock: Number(row.stock || 0),
-    imagenPrincipal: row.imagen_principal || "",
-    imagenes,
-    video: row.video || "",
-    descripcion: row.descripcion || "",
-    puntos,
-    etiqueta: row.etiqueta || "",
-    departamento_envio: row.departamento_envio || "",
-    municipio_envio: row.municipio_envio || ""
-  };
-}
 
 /* ============================================================
    GENERAR BULLETS AUTOMÁTICOS
@@ -347,19 +321,6 @@ btnPagar.addEventListener("click", () => {
 });
 
 /* ============================================================
-   CARGAR PRODUCTOS DESDE GOOGLE SHEETS
+   INICIO
    ============================================================ */
-async function cargarProductos() {
-  try {
-    const res = await fetch(SHEET_CSV_URL);
-    const text = await res.text();
-    const rows = parseCSV(text);
-    productos = rows.map(mapRowToProducto).filter(p => p.id);
-    renderProductos();
-  } catch (e) {
-    console.error("Error cargando productos desde Google Sheets:", e);
-    contenedor.innerHTML = "<p>No se pudieron cargar los productos.</p>";
-  }
-}
-
-cargarProductos();
+renderProductos();
