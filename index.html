@@ -1,1 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Soluciones Digitales Comayagua | Catálogo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
 
+<h1 style="text-align:center;">Soluciones Digitales Comayagua</h1>
+
+<div id="grid"></div>
+
+<!-- MODAL -->
+<div class="modalBackdrop" id="productModal">
+  <div class="modalCard">
+    <button onclick="closeProduct()">Cerrar</button>
+    <img id="modalMainImg" style="width:100%;border-radius:12px;">
+    <div id="modalThumbs" class="modalThumbs"></div>
+    <h2 id="modalName"></h2>
+    <p id="modalDesc"></p>
+    <strong id="modalPrice"></strong>
+    <span id="modalOld"></span>
+    <div id="modalVideos"></div>
+    <button id="modalAdd">Agregar al carrito</button>
+  </div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
