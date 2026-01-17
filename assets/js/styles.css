@@ -1,1 +1,62 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #0b1220;
+  color: #fff;
+}
 
+h1, h2, h3 { margin: 0.5rem 0; }
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+.card {
+  background: #111a2e;
+  border-radius: 14px;
+  padding: 10px;
+  text-align: center;
+}
+
+.card img {
+  width: 100%;
+  border-radius: 12px;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  margin-top: 6px;
+}
+
+/* MODAL */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.modalCard {
+  background: #111a2e;
+  border-radius: 20px;
+  width: 95%;
+  max-width: 500px;
+  padding: 12px;
+}
+
+.modalThumbs img {
+  width: 50px;
+  height: 50px;
+  margin: 4px;
+  border-radius: 8px;
+}
