@@ -2,34 +2,47 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Soluciones Digitales Comayagua | Catálogo</title>
+  <title>SDC Tienda | Diagnóstico</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    body{font-family:system-ui,Arial; margin:0; padding:14px; background:#0b1220; color:#fff}
+    .box{background:#111a2e; border-radius:14px; padding:12px; margin-top:12px}
+    code{white-space:pre-wrap; word-break:break-word; color:#9fb2d6}
+    a{color:#7aa2ff}
+  </style>
 </head>
 <body>
-
-<h1 style="text-align:center;">Soluciones Digitales Comayagua</h1>
-
-<div id="grid"></div>
-
-<!-- MODAL -->
-<div class="modalBackdrop" id="productModal">
-  <div class="modalCard">
-    <button onclick="closeProduct()">Cerrar</button>
-    <img id="modalMainImg" style="width:100%;border-radius:12px;">
-    <div id="modalThumbs" class="modalThumbs"></div>
-    <h2 id="modalName"></h2>
-    <p id="modalDesc"></p>
-    <strong id="modalPrice"></strong>
-    <span id="modalOld"></span>
-    <div id="modalVideos"></div>
-    <button id="modalAdd">Agregar al carrito</button>
+  <h2>SDC Tienda (Diagnóstico)</h2>
+  <div class="box">
+    <div>Si ves esta pantalla, el HTML cargó bien.</div>
+    <div style="margin-top:8px;">Ahora revisaremos API y JS.</div>
   </div>
-</div>
 
-<script src="assets/js/api.js"></script>
-<script src="assets/js/cart.js"></script>
-<script src="assets/js/ui.js"></script>
-<script src="assets/js/app.js"></script>
+  <div class="box">
+    <div><b>API_URL:</b></div>
+    <code id="apiUrl"></code>
+  </div>
+
+  <div class="box">
+    <div><b>Resultado:</b></div>
+    <code id="out">Cargando...</code>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
+    document.getElementById("apiUrl").textContent = API_URL;
+
+    async function run(){
+      try{
+        const res = await fetch(API_URL, { cache:"no-store" });
+        const text = await res.text();
+        document.getElementById("out").textContent =
+          "HTTP " + res.status + "\n\n" + text.slice(0, 4000);
+      }catch(e){
+        document.getElementById("out").textContent = "ERROR: " + (e && e.message ? e.message : String(e));
+      }
+    }
+    run();
+  </script>
 </body>
 </html>
