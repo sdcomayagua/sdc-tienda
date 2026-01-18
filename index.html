@@ -18,268 +18,97 @@
   --radius:18px;
   --shadow: 0 14px 30px rgba(0,0,0,.45);
 }
-body{
-  margin:0;
-  font-family:system-ui,Segoe UI,Roboto;
-  background:var(--bg);
-  color:var(--text);
-}
+body{margin:0;font-family:system-ui,Segoe UI,Roboto;background:var(--bg);color:var(--text);}
 
-/* ===== TOPBAR ===== */
-.topbar{
-  position:sticky; top:0; z-index:20;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(8px);
-}
-.brand{display:flex; gap:10px; align-items:center; min-width:0; cursor:pointer;}
-.logo{
-  width:42px; height:42px; border-radius:14px;
-  background:var(--primary);
-  display:grid; place-items:center;
-  font-weight:900;
-}
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);}
+.brand{display:flex;gap:10px;align-items:center;min-width:0;cursor:pointer;}
+.logo{width:42px;height:42px;border-radius:14px;background:var(--primary);display:grid;place-items:center;font-weight:900;}
 .brandText{min-width:0}
-#storeName{
-  font-weight:900;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-#storeSub{font-size:12px; color:var(--muted)}
+#storeName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#storeSub{font-size:12px;color:var(--muted)}
 @media(max-width:720px){
-  #storeName{color:transparent; position:relative}
-  #storeName::after{content:"SDComayagua"; color:var(--text); position:absolute; left:0; top:0}
+  #storeName{color:transparent;position:relative}
+  #storeName::after{content:"SDComayagua";color:var(--text);position:absolute;left:0;top:0}
 }
+.actions{display:flex;gap:10px;align-items:center;}
+.iconBtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:900;}
+.cartBtn{position:relative;height:42px;padding:0 14px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:900;}
+.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--primary);color:#fff;font-size:12px;margin-left:6px;}
 
-/* ===== ACTIONS ===== */
-.actions{display:flex; gap:10px; align-items:center;}
-.iconBtn{
-  width:42px;height:42px;border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--text);
-  font-weight:900;
-}
-.cartBtn{
-  position:relative;
-  height:42px; padding:0 14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--text);
-  font-weight:900;
-}
-.badge{
-  display:inline-grid; place-items:center;
-  min-width:22px;height:22px;
-  padding:0 6px;
-  border-radius:999px;
-  background:var(--primary);
-  color:#fff;
-  font-size:12px;
-  margin-left:6px;
-}
-
-/* ===== SEARCH ===== */
+/* SEARCH */
 .searchWrap{padding:12px}
-.search{
-  width:100%;
-  padding:14px 14px;
-  border-radius:16px;
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--text);
-  outline:none;
-}
+.search{width:100%;padding:14px;border-radius:16px;border:1px solid var(--border);background:var(--card);color:var(--text);outline:none;}
 
-/* ===== CATEGORÍAS ===== */
-.chips{
-  display:flex; gap:10px;
-  overflow:auto; padding:0 12px 12px;
-}
-.chip{
-  padding:8px 14px;
-  border-radius:999px;
-  background:var(--card);
-  border:1px solid var(--border);
-  font-weight:800;
-  white-space:nowrap;
-}
+/* CATS */
+.chips{display:flex;gap:10px;overflow:auto;padding:0 12px 12px;}
+.chip{padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--border);font-weight:800;white-space:nowrap;}
 .chip.active{background:var(--primary)}
 
-/* ===== GRID ===== */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  padding:12px;
-}
-@media(min-width:840px){
-  .grid{grid-template-columns:repeat(4,1fr)}
-}
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  overflow:hidden;
-  position:relative;
-  box-shadow: var(--shadow);
-}
-.cardImg{
-  width:100%; aspect-ratio:1/1;
-  object-fit:cover; background:#000;
-}
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px;}
+@media(min-width:840px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;position:relative;box-shadow:var(--shadow);}
+.cardImg{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;}
 .cardBody{padding:10px}
-.cardName{font-weight:900;font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.cardDesc{color:var(--muted); font-size:12px; margin-top:4px; min-height:30px;}
-.priceRow{display:flex; gap:8px; align-items:baseline; margin-top:8px;}
+.cardName{font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cardDesc{color:var(--muted);font-size:12px;margin-top:4px;min-height:30px;}
+.priceRow{display:flex;gap:8px;align-items:baseline;margin-top:8px;}
 .price{font-weight:1000}
 .price.offer{color:var(--danger)}
 .old{text-decoration:line-through;color:var(--muted);font-size:12px}
-
-.btn{
-  margin-top:8px;
-  width:100%;
-  padding:10px;
-  border-radius:12px;
-  border:none;
-  font-weight:900;
-  background:var(--primary);
-  color:#fff;
-}
+.btn{margin-top:8px;width:100%;padding:10px;border-radius:12px;border:none;font-weight:900;background:var(--primary);color:#fff;}
 .btn[disabled]{background:#555}
-
-/* AGOTADO */
-.card.agotado{
-  filter:grayscale(1);
-  opacity:.9;
-}
+.offerTag{position:absolute;top:10px;left:10px;padding:6px 10px;border-radius:999px;font-weight:1000;font-size:12px;background:rgba(255,59,48,.18);border:1px solid rgba(255,59,48,.35);color:var(--danger);}
+.card.agotado{filter:grayscale(1);opacity:.9;}
 .card.agotado::after{
-  content:"AGOTADO";
-  position:absolute; inset:0;
-  display:grid; place-items:center;
-  font-weight:1000;
-  letter-spacing:2px;
-  color:rgba(255,0,0,.45);
-  background:rgba(0,0,0,.20);
-  transform:rotate(-16deg);
+  content:"AGOTADO";position:absolute;inset:0;display:grid;place-items:center;
+  font-weight:1000;letter-spacing:2px;color:rgba(255,0,0,.45);
+  background:rgba(0,0,0,.20);transform:rotate(-16deg);
   font-size:clamp(22px,6vw,42px);
 }
 
-/* OFERTA TAG */
-.offerTag{
-  position:absolute; top:10px; left:10px;
-  padding:6px 10px;
-  border-radius:999px;
-  font-weight:1000;
-  font-size:12px;
-  background:rgba(255,59,48,.18);
-  border:1px solid rgba(255,59,48,.35);
-  color:var(--danger);
-}
-
-/* ===== MODAL BASE ===== */
-.backdrop{
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.6);
-  display:none; z-index:50;
-}
-.modal{
-  position:fixed;
-  inset:auto 10px 10px 10px;
-  max-width:680px; margin:auto;
-  background:var(--card);
-  border-radius:18px;
-  display:none; z-index:60;
-  box-shadow: var(--shadow);
-  overflow:hidden;
-}
-.modalHeader{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:12px;
-  border-bottom:1px solid var(--border);
-}
+/* MODAL */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:50;}
+.modal{position:fixed;inset:auto 10px 10px 10px;max-width:720px;margin:auto;background:var(--card);border-radius:18px;display:none;z-index:60;box-shadow:var(--shadow);overflow:hidden;}
+.modalHeader{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border);}
 .modalTitle{font-weight:1000}
-.closeBtn{
-  width:42px;height:42px;border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--card2);
-  color:var(--text);
-  font-weight:1000;
-}
-.modalBody{padding:12px; max-height:70vh; overflow:auto;}
-.modalFooter{
-  padding:12px;
-  border-top:1px solid var(--border);
-  display:flex; gap:10px;
-}
+.closeBtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:1000;}
+.modalBody{padding:12px;max-height:72vh;overflow:auto;}
+.modalFooter{padding:12px;border-top:1px solid var(--border);display:flex;gap:10px;}
 .modalFooter button{flex:1}
 
-/* ===== PRODUCT MODAL ===== */
-.mImg{width:100%; border-radius:14px; aspect-ratio:1/1; object-fit:cover; background:#000;}
-.mMeta{color:var(--muted); font-size:13px; line-height:1.35; margin-top:10px}
+/* PRODUCT MODAL */
+.mImg{width:100%;border-radius:14px;aspect-ratio:1/1;object-fit:cover;background:#000;}
+.mMeta{color:var(--muted);font-size:13px;line-height:1.35;margin-top:10px}
 
-/* ===== CART ===== */
-.cartEmpty{
-  padding:12px;
-  border:1px dashed var(--border);
-  border-radius:14px;
-  color:var(--muted);
-}
-.cartList{display:flex; flex-direction:column; gap:10px; margin-top:12px}
-.cartItem{
-  display:flex; gap:10px; align-items:center;
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:10px;
-  background:var(--card2);
-}
-.cartItem img{
-  width:62px;height:62px;border-radius:14px;
-  object-fit:cover;background:#000; flex:0 0 auto;
-}
-.cartMeta{flex:1; min-width:0}
-.cartMeta .n{font-weight:1000; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.cartMeta .p{color:var(--muted); font-size:12px; margin-top:4px}
+/* CART */
+.tabs{display:flex;gap:10px;margin-bottom:12px;}
+.tab{flex:1;padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-weight:1000;}
+.tab.active{background:rgba(11,87,255,.18);border-color:rgba(11,87,255,.40);}
+.cartEmpty{padding:12px;border:1px dashed var(--border);border-radius:14px;color:var(--muted);}
+.cartList{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.cartItem{display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:10px;background:var(--card2);}
+.cartItem img{width:62px;height:62px;border-radius:14px;object-fit:cover;background:#000;flex:0 0 auto;}
+.cartMeta{flex:1;min-width:0}
+.cartMeta .n{font-weight:1000;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cartMeta .p{color:var(--muted);font-size:12px;margin-top:4px}
+.qty{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.qty button{width:34px;height:34px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:1000;}
+.qty .trash{background:rgba(255,255,255,.04);color:var(--muted);}
+.totals{margin-top:12px;border:1px solid var(--border);border-radius:16px;padding:10px 12px;background:var(--card2);}
+.totals .row{display:flex;justify-content:space-between;padding:6px 0;color:var(--muted)}
+.totals .row.total{color:var(--text);font-weight:1000;border-top:1px solid var(--border);margin-top:8px;padding-top:10px}
+.hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.35}
+.formGrid{display:grid;gap:10px}
 
-.qty{
-  display:flex; align-items:center; gap:8px; margin-top:8px;
-}
-.qty button{
-  width:34px;height:34px;border-radius:12px;
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--text);
-  font-weight:1000;
-}
-.qty .trash{
-  background:rgba(255,255,255,.04);
-  color:var(--muted);
-}
-
-.totals{
-  margin-top:12px;
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:10px 12px;
-  background:var(--card2);
-}
-.totals .row{display:flex; justify-content:space-between; padding:6px 0; color:var(--muted)}
-.totals .row.total{color:var(--text); font-weight:1000; border-top:1px solid var(--border); margin-top:8px; padding-top:10px}
-
-/* ===== WHATSAPP FLOAT ===== */
-.wa{
-  position:fixed; right:16px; bottom:16px;
-  background:#25D366;color:#fff;
-  padding:14px;border-radius:999px;
-  font-weight:900;text-decoration:none;
-  z-index:30;
-}
+/* WA FLOAT */
+.wa{position:fixed;right:16px;bottom:16px;background:#25D366;color:#fff;padding:14px;border-radius:999px;font-weight:900;text-decoration:none;z-index:30;}
 </style>
 </head>
 
 <body>
 
-<!-- TOP -->
 <div class="topbar">
   <div class="brand" onclick="window.scrollTo({top:0,behavior:'smooth'})">
     <div class="logo">SDC</div>
@@ -295,22 +124,16 @@ body{
   </div>
 </div>
 
-<!-- SEARCH -->
 <div class="searchWrap">
   <input id="q" class="search" placeholder="Buscar producto..." oninput="onSearch(this.value)">
 </div>
 
-<!-- CATEGORÍAS -->
 <div class="chips" id="chips"></div>
 
-<!-- GRID -->
 <div class="grid" id="grid">
-  <div style="grid-column:1/-1;text-align:center">
-    <b>CARGANDO…</b>
-  </div>
+  <div style="grid-column:1/-1;text-align:center"><b>CARGANDO…</b></div>
 </div>
 
-<!-- BACKDROP -->
 <div class="backdrop" id="backdrop" onclick="closeAny()"></div>
 
 <!-- PRODUCT MODAL -->
@@ -336,49 +159,128 @@ body{
 <!-- CART MODAL -->
 <div class="modal" id="cartModal">
   <div class="modalHeader">
-    <div class="modalTitle">Carrito</div>
+    <div class="modalTitle">Carrito y pedido</div>
     <button class="closeBtn" onclick="closeCart()">✕</button>
   </div>
-  <div class="modalBody">
-    <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
-    <div class="cartList" id="cartList"></div>
 
-    <div class="totals">
-      <div class="row"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
-      <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
+  <div class="modalBody">
+    <div class="tabs">
+      <button class="tab active" id="tCart" onclick="showStep('cart')">Carrito</button>
+      <button class="tab" id="tShip" onclick="showStep('ship')">Entrega</button>
+      <button class="tab" id="tPay" onclick="showStep('pay')">Pago</button>
     </div>
 
-    <div style="margin-top:12px;color:var(--muted);font-size:12px">
-      En el siguiente paso agregamos envíos, pagos y cambio estimado.
+    <!-- STEP CART -->
+    <div id="stepCart">
+      <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
+      <div class="cartList" id="cartList"></div>
+
+      <div class="totals">
+        <div class="row"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
+        <div class="row"><span>Envío</span><span id="shipCost">Por confirmar</span></div>
+        <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
+      </div>
+      <div class="hint" id="shipHint">Selecciona entrega para calcular el envío.</div>
+    </div>
+
+    <!-- STEP SHIP -->
+    <div id="stepShip" style="display:none;">
+      <div class="formGrid">
+        <input id="custName" class="search" placeholder="Tu nombre">
+        <input id="custPhone" class="search" placeholder="Teléfono (Ej: 9999-9999)">
+      </div>
+
+      <div style="margin-top:12px;font-weight:900">Ubicación</div>
+      <div class="formGrid" style="margin-top:8px">
+        <select id="depto" class="search"></select>
+        <select id="muni" class="search"></select>
+      </div>
+
+      <div style="margin-top:12px;font-weight:900">Tipo de entrega</div>
+      <div class="formGrid" style="margin-top:8px">
+        <select id="deliveryType" class="search"></select>
+
+        <div id="boxComa" class="formGrid" style="display:none;">
+          <select id="comaZona" class="search"></select>
+          <input id="comaColonia" class="search" placeholder="Colonia / referencia (opcional)">
+        </div>
+
+        <div id="boxPropia" class="formGrid" style="display:none;">
+          <select id="propiaLugar" class="search"></select>
+        </div>
+
+        <div id="boxEmpresa" class="formGrid" style="display:none;">
+          <select id="empresa" class="search"></select>
+          <select id="empresaModalidad" class="search"></select>
+        </div>
+
+        <div id="boxBus" class="formGrid" style="display:none;">
+          <select id="busLugar" class="search"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP PAY -->
+    <div id="stepPay" style="display:none;">
+      <div style="font-weight:900">Método de pago</div>
+      <div class="formGrid" style="margin-top:8px">
+        <select id="payMethod" class="search"></select>
+        <input id="cashAmount" class="search" type="number" inputmode="numeric" placeholder="¿Con cuánto pagará? (solo efectivo en Comayagua)" style="display:none;">
+        <div class="hint" id="payInfo"></div>
+      </div>
+
+      <div class="totals" style="margin-top:12px">
+        <div class="row"><span>Subtotal</span><span id="subTotal2">Lps. 0</span></div>
+        <div class="row"><span>Envío</span><span id="shipCost2">Por confirmar</span></div>
+        <div class="row total"><span>Total</span><span id="grandTotal2">Lps. 0</span></div>
+      </div>
     </div>
   </div>
+
   <div class="modalFooter">
-    <button class="btn" style="background:#2d3bff" onclick="sendWA()">Enviar por WhatsApp</button>
+    <button class="btn" style="background:#2d3bff" onclick="copySummary()">Copiar resumen</button>
+    <button class="btn" onclick="sendWA()">Enviar por WhatsApp</button>
   </div>
 </div>
 
-<!-- WHATSAPP FLOAT -->
 <a class="wa" id="wa" target="_blank">WhatsApp</a>
 
 <script>
 /* ========= CONFIG ========= */
 const API="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-const WA_NUMBER="50431517755";
-const CART_KEY="sdc_cart_single_v1";
+const CART_KEY="sdc_cart_single_v2";
 
-let DB=[], ALL=[], CURRENT=null, FILTER_CAT="Todas", FILTER_Q="";
+let DATA=null;
+let ALL=[], CURRENT=null;
+let FILTER_CAT="Todas", FILTER_Q="";
 let CART=[];
 
 /* ========= INIT ========= */
 loadCart();
 updateBadge();
-wa.href="https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent("Hola, quiero hacer un pedido.");
+wa.href="https://wa.me/50431517755?text="+encodeURIComponent("Hola, quiero hacer un pedido.");
 
 fetch(API).then(r=>r.json()).then(j=>{
-  ALL=j.productos||[];
-  DB=ALL;
+  DATA=j;
+  ALL=(j.productos||[]).map(p=>({
+    ...p,
+    precio:Number(p.precio||0),
+    precio_anterior:Number(p.precio_anterior||0),
+    stock:Number(p.stock||0),
+    categoria:String(p.categoria||"General"),
+    subcategoria:String(p.subcategoria||"")
+  }));
   renderCats();
-  render(DB);
+  render(ALL);
+
+  // Deptos/munis
+  fillDeptos();
+  fillZonaComayagua();
+  fillPropia();
+  fillEmpresa();
+  fillBus();
+  fillEmpresaModalidad();
+  fillPagos();
 });
 
 /* ========= SEARCH ========= */
@@ -400,7 +302,7 @@ function applyFilters(){
 function renderCats(){
   chips.innerHTML="";
   const cats=["Todas",...new Set(ALL.map(p=>p.categoria).filter(Boolean))];
-  cats.forEach((c,i)=>{
+  cats.forEach(c=>{
     const b=document.createElement("button");
     b.className="chip"+(c===FILTER_CAT?" active":"");
     b.textContent=c;
@@ -418,8 +320,8 @@ function renderCats(){
 function render(list){
   grid.innerHTML="";
   list.forEach(p=>{
-    const isOut=(Number(p.stock||0)<=0);
-    const isOffer=(Number(p.precio_anterior||0)>Number(p.precio||0));
+    const isOut=(p.stock<=0);
+    const isOffer=(p.precio_anterior>p.precio);
     const d=document.createElement("div");
     d.className="card"+(isOut?" agotado":"");
     d.innerHTML=`
@@ -429,8 +331,8 @@ function render(list){
         <div class="cardName">${p.nombre||""}</div>
         <div class="cardDesc">${p.descripcion||""}</div>
         <div class="priceRow">
-          <div class="price ${isOffer?'offer':''}">Lps. ${Number(p.precio||0)}</div>
-          ${isOffer?`<div class="old">Lps. ${Number(p.precio_anterior||0)}</div>`:""}
+          <div class="price ${isOffer?'offer':''}">Lps. ${p.precio}</div>
+          ${isOffer?`<div class="old">Lps. ${p.precio_anterior}</div>`:""}
         </div>
         <button class="btn" ${isOut?"disabled":""} onclick='openProduct(${encodeURIComponent(JSON.stringify(p))})'>
           ${isOut?"Agotado":"Ver detalles"}
@@ -448,10 +350,10 @@ function openProduct(encoded){
   mCat.textContent=(p.categoria||"")+(p.subcategoria?(" · "+p.subcategoria):"");
   mImg.src=p.imagen||"";
   mDesc.textContent=p.descripcion||"";
-  mPrice.textContent="Lps. "+Number(p.precio||0);
-  const off=Number(p.precio_anterior||0)>Number(p.precio||0);
-  mOld.textContent=off?("Lps. "+Number(p.precio_anterior||0)):"";
-  btnAdd.disabled=(Number(p.stock||0)<=0);
+  mPrice.textContent="Lps. "+(p.precio||0);
+  const off=p.precio_anterior>p.precio;
+  mOld.textContent=off?("Lps. "+(p.precio_anterior||0)):"";
+  btnAdd.disabled=(p.stock<=0);
 
   backdrop.style.display="block";
   prodModal.style.display="block";
@@ -465,7 +367,7 @@ function closeAny(){
   closeCart();
 }
 
-/* ========= CART ========= */
+/* ========= CART STORAGE ========= */
 function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(CART)); }
 function loadCart(){
   try{ CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; }
@@ -473,6 +375,8 @@ function loadCart(){
 function updateBadge(){
   cartCount.textContent=String(CART.reduce((a,it)=>a+it.qty,0));
 }
+
+/* ========= CART OPS ========= */
 function addToCart(){
   if(!CURRENT) return;
   const id=String(CURRENT.id);
@@ -489,6 +393,50 @@ function addToCart(){
   saveCart();
   updateBadge();
   closeProduct();
+}
+
+function incItem(i){
+  const it=CART[i];
+  const prod=ALL.find(p=>String(p.id)===String(it.id));
+  const stock=prod?Number(prod.stock||0):9999;
+  if(it.qty+1>stock){ alert("Stock disponible: "+stock); return; }
+  it.qty++;
+  saveCart(); updateBadge(); renderCart();
+}
+function decItem(i){
+  const it=CART[i];
+  it.qty--;
+  if(it.qty<=0) CART.splice(i,1);
+  saveCart(); updateBadge(); renderCart();
+}
+function delItem(i){
+  CART.splice(i,1);
+  saveCart(); updateBadge(); renderCart();
+}
+
+/* ========= CART UI ========= */
+function openCart(){
+  renderCart();
+  syncTotals();
+  backdrop.style.display="block";
+  cartModal.style.display="block";
+  showStep('cart');
+}
+function closeCart(){
+  cartModal.style.display="none";
+  if(prodModal.style.display!=="block") backdrop.style.display="none";
+}
+
+function showStep(which){
+  stepCart.style.display = (which==='cart')?'block':'none';
+  stepShip.style.display = (which==='ship')?'block':'none';
+  stepPay.style.display  = (which==='pay')?'block':'none';
+
+  tCart.classList.toggle('active', which==='cart');
+  tShip.classList.toggle('active', which==='ship');
+  tPay.classList.toggle('active', which==='pay');
+
+  syncTotals();
 }
 
 function renderCart(){
@@ -513,51 +461,299 @@ function renderCart(){
     `;
     cartList.appendChild(row);
   });
-
-  const sub=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
-  subTotal.textContent="Lps. "+sub;
-  grandTotal.textContent="Lps. "+sub;
 }
 
-function incItem(i){
-  const it=CART[i];
-  const prod=ALL.find(p=>String(p.id)===String(it.id));
-  const stock=prod?Number(prod.stock||0):9999;
-  if(it.qty+1>stock){ alert("Stock disponible: "+stock); return; }
-  it.qty++;
-  saveCart(); updateBadge(); renderCart();
-}
-function decItem(i){
-  const it=CART[i];
-  it.qty--;
-  if(it.qty<=0) CART.splice(i,1);
-  saveCart(); updateBadge(); renderCart();
-}
-function delItem(i){
-  CART.splice(i,1);
-  saveCart(); updateBadge(); renderCart();
+/* ========= LOCATION / DELIVERY / PAY ========= */
+function fillSelect(sel, items, placeholder){
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  items.forEach(v=>{
+    const o=document.createElement('option');
+    o.value=v; o.textContent=v;
+    sel.appendChild(o);
+  });
 }
 
-function openCart(){
-  renderCart();
-  backdrop.style.display="block";
-  cartModal.style.display="block";
+function fillDeptos(){
+  const deps=[...new Set((DATA.municipios_hn||[]).map(x=>x.departamento).filter(Boolean))].sort();
+  fillSelect(depto, deps, "Departamento");
+  depto.onchange=()=>{ fillMunis(); updateDeliveryTypeOptions(); syncTotals(); };
+  muni.onchange=()=>{ updateDeliveryTypeOptions(); syncTotals(); };
 }
-function closeCart(){
-  cartModal.style.display="none";
-  if(prodModal.style.display!=="block") backdrop.style.display="none";
+function fillMunis(){
+  const dep=depto.value;
+  const munis=(DATA.municipios_hn||[]).filter(x=>x.departamento===dep).map(x=>x.municipio).filter(Boolean).sort();
+  fillSelect(muni, munis, "Municipio");
+}
+
+function findCobertura(dep, mun){
+  return (DATA.cobertura_entrega||[]).find(x=>x.departamento===dep && x.municipio===mun) || null;
+}
+
+function updateDeliveryTypeOptions(){
+  const dep=depto.value, mun=muni.value;
+  const opts=[];
+  if(!dep||!mun){ fillSelect(deliveryType, [], "Tipo de entrega"); return; }
+
+  if(dep==="Comayagua" && mun==="Comayagua"){
+    opts.push({v:"comayagua_ciudad", t:"Comayagua (ciudad) - entrega local"});
+  }else{
+    const cov=findCobertura(dep,mun);
+    if(cov){
+      if(String(cov.permite_entrega_propia||"").toLowerCase()==="true" || String(cov.permite_entrega_propia)==="1") opts.push({v:"entrega_propia",t:"Entrega propia (cercanos)"});
+      if(String(cov.permite_empresa||"1")==="1" || String(cov.permite_empresa).toLowerCase()==="true") opts.push({v:"empresa",t:"Empresa de envío"});
+      if(String(cov.permite_bus||"1")==="1" || String(cov.permite_bus).toLowerCase()==="true") opts.push({v:"bus",t:"Bus local (encomienda)"});
+    }else{
+      opts.push({v:"empresa",t:"Empresa de envío"});
+      opts.push({v:"bus",t:"Bus local (encomienda)"});
+    }
+  }
+
+  deliveryType.innerHTML=`<option value="">Tipo de entrega</option>`+opts.map(o=>`<option value="${o.v}">${o.t}</option>`).join("");
+  deliveryType.onchange=()=>{ updateBoxes(); fillPagos(); syncTotals(); };
+}
+
+function updateBoxes(){
+  const t=deliveryType.value;
+  boxComa.style.display = (t==="comayagua_ciudad")?"grid":"none";
+  boxPropia.style.display = (t==="entrega_propia")?"grid":"none";
+  boxEmpresa.style.display = (t==="empresa")?"grid":"none";
+  boxBus.style.display = (t==="bus")?"grid":"none";
+}
+
+function fillZonaComayagua(){
+  const zonas=[...new Set((DATA.zonas_comayagua_ciudad||[]).map(x=>x.zona).filter(Boolean))].sort();
+  fillSelect(comaZona, zonas, "Zona (Comayagua)");
+  comaZona.onchange=()=>syncTotals();
+}
+
+function fillPropia(){
+  const lugares=[...new Set((DATA.tarifas_entrega_propia||[]).map(x=>x.municipio||x.lugar).filter(Boolean))].sort();
+  fillSelect(propiaLugar, lugares, "Lugar (entrega propia)");
+  propiaLugar.onchange=()=>syncTotals();
+}
+
+function fillEmpresa(){
+  const emps=[...new Set((DATA.empresas_envio||[]).map(x=>x.empresa).filter(Boolean))].sort();
+  fillSelect(empresa, emps, "Empresa de envío");
+  empresa.onchange=()=>syncTotals();
+}
+
+function fillEmpresaModalidad(){
+  empresaModalidad.innerHTML=`<option value="">Modalidad</option>
+  <option value="normal">Normal (anticipado)</option>
+  <option value="contra_entrega">Contra entrega</option>`;
+  empresaModalidad.onchange=()=>{ fillPagos(); syncTotals(); };
+}
+
+function fillBus(){
+  const lugares=[...new Set((DATA.bus_local_tarifas||[]).map(x=>x.municipio||x.lugar).filter(Boolean))].sort();
+  fillSelect(busLugar, lugares, "Lugar (bus local)");
+  busLugar.onchange=()=>syncTotals();
+}
+
+function calcShipping(){
+  const t=deliveryType.value;
+  if(!t) return {text:"Por confirmar",min:0,max:0,range:false};
+
+  if(t==="comayagua_ciudad"){
+    const z=comaZona.value;
+    const row=(DATA.zonas_comayagua_ciudad||[]).find(x=>x.zona===z);
+    const c=Number((row&& (row.costo??row.precio))||0);
+    return {text:"Lps. "+c,min:c,max:c,range:false};
+  }
+  if(t==="entrega_propia"){
+    const l=propiaLugar.value;
+    const row=(DATA.tarifas_entrega_propia||[]).find(x=>(x.municipio||x.lugar)===l);
+    const c=Number((row&& (row.costo??row.precio))||0);
+    return {text:"Lps. "+c,min:c,max:c,range:false};
+  }
+  if(t==="empresa"){
+    const e=empresa.value, m=empresaModalidad.value;
+    const row=(DATA.empresas_envio||[]).find(x=>x.empresa===e && x.modalidad===m);
+    const c=Number((row&& (row.precio??row.costo))||0);
+    return {text:"Lps. "+c,min:c,max:c,range:false};
+  }
+  if(t==="bus"){
+    const l=busLugar.value;
+    const row=(DATA.bus_local_tarifas||[]).find(x=>(x.municipio||x.lugar)===l);
+    const mn=Number((row&& (row.tarifa_min||row.min))||0);
+    const mx=Number((row&& (row.tarifa_max||row.max))||mn);
+    return {text:`Lps. ${mn} – ${mx}`,min:mn,max:mx,range:true};
+  }
+  return {text:"Por confirmar",min:0,max:0,range:false};
+}
+
+function fillPagos(){
+  const t=deliveryType.value;
+  const modalidad=empresaModalidad.value;
+
+  let pays=(DATA.pagos||[]).filter(p=>String(p.activo||"1")!=="0");
+  // Empresa normal -> no efectivo
+  if(t==="empresa" && modalidad==="normal"){
+    pays=pays.filter(p=>p.metodo!=="efectivo");
+  }
+  payMethod.innerHTML=`<option value="">Método de pago</option>`+pays.map(p=>`<option value="${p.metodo}">${p.titulo||p.metodo}</option>`).join("");
+  payMethod.onchange=()=>{ updateCashBox(); syncTotals(); };
+  cashAmount.oninput=()=>syncTotals();
+}
+
+function updateCashBox(){
+  const show = (deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo");
+  cashAmount.style.display = show ? "block" : "none";
+  if(!show) cashAmount.value="";
+}
+
+/* ========= TOTALS + CAMBIO ========= */
+function syncTotals(){
+  const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
+  const ship=calcShipping();
+  const totalMin=subtotal+ship.min;
+  const totalMax=subtotal+ship.max;
+
+  subTotal.textContent="Lps. "+subtotal;
+  shipCost.textContent=ship.text;
+  grandTotal.textContent=ship.range?`Lps. ${totalMin} – ${totalMax}`:`Lps. ${totalMin}`;
+
+  subTotal2.textContent="Lps. "+subtotal;
+  shipCost2.textContent=ship.text;
+  grandTotal2.textContent=ship.range?`Lps. ${totalMin} – ${totalMax}`:`Lps. ${totalMin}`;
+
+  updateCashBox();
+
+  // Pay info + cambio estimado
+  const p=(DATA.pagos||[]).find(x=>x.metodo===payMethod.value);
+  let base=p?String(p.detalle||""):"";
+  if(deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo"){
+    const amt=Number(cashAmount.value||0);
+    if(amt<=0){
+      payInfo.textContent="Efectivo (Comayagua): escribe con cuánto pagará para calcular el cambio.";
+    }else{
+      const diff=amt-totalMin;
+      payInfo.textContent = diff<0 ? `Faltan Lps. ${Math.abs(diff)}.` : `Cambio estimado: Lps. ${diff}.`;
+    }
+  }else{
+    payInfo.textContent=base;
+  }
+
+  shipHint.textContent = ship.range ? "Bus local: envío estimado (rango), se confirma antes de enviar." : "Tarifa calculada desde Sheets.";
 }
 
 /* ========= WhatsApp ========= */
+function validate(){
+  if(!CART.length){ alert("Carrito vacío"); showStep('cart'); return false; }
+
+  if(!custName.value.trim() || !custPhone.value.trim()){
+    alert("Completa tu nombre y teléfono.");
+    showStep('ship'); return false;
+  }
+  if(!depto.value || !muni.value){
+    alert("Selecciona departamento y municipio.");
+    showStep('ship'); return false;
+  }
+  if(!deliveryType.value){
+    alert("Selecciona tipo de entrega.");
+    showStep('ship'); return false;
+  }
+  // validar selects por tipo
+  if(deliveryType.value==="comayagua_ciudad" && !comaZona.value){
+    alert("Selecciona tu zona en Comayagua.");
+    showStep('ship'); return false;
+  }
+  if(deliveryType.value==="entrega_propia" && !propiaLugar.value){
+    alert("Selecciona el lugar de entrega propia.");
+    showStep('ship'); return false;
+  }
+  if(deliveryType.value==="empresa" && (!empresa.value || !empresaModalidad.value)){
+    alert("Selecciona empresa y modalidad.");
+    showStep('ship'); return false;
+  }
+  if(deliveryType.value==="bus" && !busLugar.value){
+    alert("Selecciona lugar de bus.");
+    showStep('ship'); return false;
+  }
+
+  if(!payMethod.value){
+    alert("Selecciona método de pago.");
+    showStep('pay'); return false;
+  }
+  if(deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo"){
+    const amt=Number(cashAmount.value||0);
+    const ship=calcShipping();
+    const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
+    const total=subtotal+ship.min;
+    if(amt<=0){ alert("Indica con cuánto pagará."); showStep('pay'); return false; }
+    if(amt<total){ alert("El efectivo es menor al total."); showStep('pay'); return false; }
+  }
+  return true;
+}
+
 function sendWA(){
-  if(!CART.length){ alert("Carrito vacío"); return; }
-  let msg="🛒 PEDIDO SDC%0A%0A";
+  if(!validate()) return;
+
+  const ship=calcShipping();
+  const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
+  const totalMin=subtotal+ship.min;
+
+  let msg=[];
+  msg.push("🛒 PEDIDO SDC");
+  msg.push("");
+  msg.push("👤 "+custName.value.trim());
+  msg.push("📞 "+custPhone.value.trim());
+  msg.push("📍 "+depto.value+" / "+muni.value);
+  msg.push("");
+
+  msg.push("Productos:");
   CART.forEach(it=>{
-    msg+=`- ${it.qty} x ${it.nombre} (Lps. ${it.precio})%0A`;
+    msg.push(`- ${it.qty} x ${it.nombre} (Lps. ${it.precio})`);
   });
-  const total=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
-  msg+=`%0ATotal: Lps. ${total}`;
-  window.open("https://wa.me/"+WA_NUMBER+"?text="+msg,"_blank");
+
+  msg.push("");
+  msg.push("Subtotal: Lps. "+subtotal);
+  msg.push("Envío: "+ship.text);
+  msg.push("Total: Lps. "+totalMin);
+
+  msg.push("");
+  msg.push("Entrega: "+deliveryType.options[deliveryType.selectedIndex].text);
+  if(deliveryType.value==="comayagua_ciudad"){
+    msg.push("Zona: "+comaZona.value);
+    if(comaColonia.value.trim()) msg.push("Ref: "+comaColonia.value.trim());
+  }
+  if(deliveryType.value==="entrega_propia"){
+    msg.push("Lugar: "+propiaLugar.value);
+  }
+  if(deliveryType.value==="empresa"){
+    msg.push("Empresa: "+empresa.value);
+    msg.push("Modalidad: "+empresaModalidad.value);
+  }
+  if(deliveryType.value==="bus"){
+    msg.push("Bus: "+busLugar.value);
+  }
+
+  msg.push("");
+  msg.push("Pago: "+payMethod.options[payMethod.selectedIndex].text);
+
+  const p=(DATA.pagos||[]).find(x=>x.metodo===payMethod.value);
+  if(p && p.detalle) msg.push("Info: "+p.detalle);
+
+  if(deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo"){
+    const amt=Number(cashAmount.value||0);
+    const diff=amt-totalMin;
+    msg.push("Efectivo: paga con Lps. "+amt);
+    msg.push(diff<0 ? ("Faltan Lps. "+Math.abs(diff)) : ("Cambio estimado: Lps. "+diff));
+  }
+
+  const link="https://wa.me/50431517755?text="+encodeURIComponent(msg.join("\n"));
+  window.open(link,"_blank");
+}
+
+/* ========= Copy summary ========= */
+function copySummary(){
+  const ship=calcShipping();
+  const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
+  const total=subtotal+ship.min;
+  const text=`Pedido SDC\nSubtotal: Lps. ${subtotal}\nEnvío: ${ship.text}\nTotal: Lps. ${total}`;
+  navigator.clipboard.writeText(text);
+  alert("Resumen copiado");
 }
 </script>
 
