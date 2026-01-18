@@ -1,12 +1,49 @@
-// ui.js (sin choques con app.js)
-
 (function () {
-  // helper interno
-  function getEl(id) { return document.getElementById(id); }
+  function getEl(id){ return document.getElementById(id); }
+  const fallback = "assets/img/no-image.png";
 
-  // Modal de producto (solo funcionará cuando tengas el modal en index.html)
-  window.openProduct = function (p) {
-    // Si el modal no existe todavía, no rompas la página
+  function closeModal(){
+    const modal = getEl("prodModal");
+    const backdrop = getEl("backdrop");
+    if (modal){
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden","true");
+    }
+    if (backdrop) backdrop.style.display = "none";
+  }
+
+  function openModal(){
+    const modal = getEl("prodModal");
+    const backdrop = getEl("backdrop");
+    if (backdrop) backdrop.style.display = "block";
+    if (modal){
+      modal.style.display = "block";
+      modal.setAttribute("aria-hidden","false");
+    }
+  }
+
+  function parseGallery(p){
+    const urls = [];
+    if (p.imagen) urls.push(String(p.imagen).trim());
+    for (let i=1;i<=8;i++){
+      const g = p[`galeria_${i}`];
+      if (g && String(g).trim()) urls.push(String(g).trim());
+    }
+    if (p.galeria){
+      String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean).forEach(u=>urls.push(u));
+    }
+    return Array.from(new Set(urls)).slice(0,8);
+  }
+
+  function videoLabel(url){
+    const u = (url||"").toLowerCase();
+    if (u.includes("tiktok.com")) return "Ver en TikTok";
+    if (u.includes("youtube.com") || u.includes("youtu.be")) return "Ver en YouTube";
+    if (u.includes("facebook.com") || u.includes("fb.watch")) return "Ver en Facebook";
+    return "Ver video";
+  }
+
+  window.openProduct = function(p){
     const modal = getEl("prodModal");
     if (!modal) return;
 
@@ -18,54 +55,42 @@
     const mainImg = getEl("modalMainImg");
     const thumbs = getEl("modalThumbs");
     const vids = getEl("modalVideos");
+    const addBtn = getEl("modalAdd");
+    const shareBtn = getEl("btnShareProduct");
 
-    if (!name || !mainImg) return;
-
-    name.textContent = p.nombre || "Producto";
+    if (name) name.textContent = p.nombre || "Producto";
     if (sub) sub.textContent = (p.categoria || "—") + (p.subcategoria ? " · " + p.subcategoria : "");
     if (desc) desc.textContent = p.descripcion || "";
-    if (price) price.textContent = (window.fmtLps ? window.fmtLps(p.precio || 0) : `Lps. ${p.precio || 0}`);
 
-    const oldOk = Number(p.precio_anterior || 0) > Number(p.precio || 0);
-    if (old) old.textContent = oldOk ? (window.fmtLps ? window.fmtLps(p.precio_anterior) : `Lps. ${p.precio_anterior}`) : "";
+    const f = window.fmtLps ? window.fmtLps : (x)=>`Lps. ${Number(x||0).toFixed(0)}`;
+    if (price) price.textContent = f(p.precio||0);
 
-    // Galería
-    const urls = [];
-    if (p.imagen) urls.push(String(p.imagen).trim());
-    for (let i = 1; i <= 8; i++) {
-      const g = p[`galeria_${i}`];
-      if (g && String(g).trim()) urls.push(String(g).trim());
+    const oldOk = Number(p.precio_anterior||0) > Number(p.precio||0);
+    if (old) old.textContent = oldOk ? f(p.precio_anterior) : "";
+
+    const gallery = parseGallery(p);
+
+    if (mainImg){
+      mainImg.src = gallery[0] || fallback;
+      mainImg.onerror = function(){ this.onerror=null; this.src=fallback; };
+      mainImg.alt = p.nombre || "";
     }
-    const gallery = Array.from(new Set(urls)).slice(0, 8);
 
-   mainImg.src = gallery[0] || "assets/img/no-image.png";
-mainImg.alt = p.nombre || "";
-
-// ✅ fallback si la imagen falla
-mainImg.onerror = function () {
-  this.onerror = null;
-  this.src = "assets/img/no-image.png";
-};
-
-
-    if (thumbs) {
+    if (thumbs){
       thumbs.innerHTML = "";
-      if (gallery.length <= 1) {
+      if (gallery.length <= 1){
         thumbs.style.display = "none";
       } else {
         thumbs.style.display = "flex";
-        gallery.forEach((src, idx) => {
+        gallery.forEach((src, idx)=>{
           const im = document.createElement("img");
-          im.className = "thumb" + (idx === 0 ? " active" : "");
-        im.src = src;
-im.alt = "thumb";
-im.onerror = function () {
-  this.onerror = null;
-  this.src = "assets/img/no-image.png";
-};
-          im.onclick = () => {
+          im.className = "thumb" + (idx===0 ? " active" : "");
+          im.src = src;
+          im.onerror = function(){ this.onerror=null; this.src=fallback; };
+          im.onclick = ()=>{
+            if (!mainImg) return;
             mainImg.src = src;
-            Array.from(thumbs.children).forEach(x => x.classList.remove("active"));
+            Array.from(thumbs.children).forEach(x=>x.classList.remove("active"));
             im.classList.add("active");
           };
           thumbs.appendChild(im);
@@ -73,34 +98,46 @@ im.onerror = function () {
       }
     }
 
-    // Video
-    if (vids) {
+    if (vids){
       vids.innerHTML = "";
-      const videoUrl = (p.video || p.video_url || "").toString().trim();
-      if (!videoUrl) {
+      const url = (p.video || p.video_url || p.video_tiktok || p.video_facebook || p.video_youtube || "").toString().trim();
+      if (!url){
         vids.style.display = "none";
       } else {
         vids.style.display = "flex";
         const a = document.createElement("a");
         a.className = "vbtn";
-        a.href = videoUrl;
+        a.href = url;
         a.target = "_blank";
         a.rel = "noopener";
-        const u = videoUrl.toLowerCase();
-        a.textContent =
-          u.includes("tiktok.com") ? "Ver en TikTok" :
-          (u.includes("youtube.com") || u.includes("youtu.be")) ? "Ver en YouTube" :
-          (u.includes("facebook.com") || u.includes("fb.watch")) ? "Ver en Facebook" :
-          "Ver video";
+        a.textContent = videoLabel(url);
         vids.appendChild(a);
       }
     }
 
-    // Abrir modal/backdrop si existen
+    if (addBtn){
+      const agotado = Number(p.stock||0) <= 0;
+      addBtn.disabled = agotado;
+      addBtn.textContent = agotado ? "Agotado" : "Agregar al carrito";
+      addBtn.onclick = ()=>{ if (!agotado && window.addToCart) window.addToCart(p); };
+    }
+
+    if (shareBtn){
+      shareBtn.onclick = async ()=>{
+        const url = location.origin + location.pathname + "#p=" + encodeURIComponent(p.id||"");
+        try{ await navigator.clipboard.writeText(url); alert("Enlace copiado"); }
+        catch(e){ alert("No se pudo copiar"); }
+      };
+    }
+
+    // ✅ Cerrar SIEMPRE
+    const closeBtn = getEl("btnCloseProd");
+    if (closeBtn) closeBtn.onclick = closeModal;
+
     const backdrop = getEl("backdrop");
-    if (backdrop) backdrop.style.display = "block";
-    modal.style.display = "block";
-    modal.setAttribute("aria-hidden", "false");
+    if (backdrop) backdrop.onclick = closeModal;
+
+    openModal();
   };
 
 })();
