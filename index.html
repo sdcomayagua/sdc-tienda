@@ -16,32 +16,28 @@
     <div class="brand">
       <div class="logo" id="logoText">SDC</div>
       <div class="brandText">
-        <!-- ✅ al tocar, vuelve al inicio -->
         <a class="brandName" id="storeName" href="#" title="Ir al inicio">Soluciones Digitales Comayagua</a>
         <div class="brandSub" id="storeSub">Catálogo</div>
       </div>
     </div>
 
     <div class="topActions">
-      <button class="iconBtn" id="btnSearch" title="Buscar">🔎</button>
-      <button class="iconBtn" id="btnTheme" title="Día / Noche">🌙</button>
-      <button class="cartBtn" id="btnCart" title="Carrito">
+      <button class="iconBtn" id="btnSearch" title="Buscar" type="button">🔎</button>
+      <button class="iconBtn" id="btnTheme" title="Día / Noche" type="button">🌙</button>
+      <button class="cartBtn" id="btnCart" title="Carrito" type="button">
         🛒 <span class="badge" id="cartCount">0</span>
       </button>
     </div>
   </header>
 
-  <!-- Categorías -->
   <nav class="chips" id="chips"></nav>
-
-  <!-- Subcategorías (aparece solo si hay) -->
   <nav class="subchips" id="subchips" style="display:none;"></nav>
 
   <section class="searchWrap">
     <input id="searchInput" class="search" placeholder="Buscar producto, nombre o descripción…" autocomplete="off" />
     <div class="sectionHeader">
       <div class="sectionTitle" id="sectionTitle">Productos</div>
-      <button class="btn btnSoft" id="btnShareCategory" style="display:none">Compartir categoría</button>
+      <button class="btn btnSoft" id="btnShareCategory" style="display:none" type="button">Compartir categoría</button>
     </div>
   </section>
 
@@ -62,15 +58,17 @@
 
   <a class="waFloat" id="waFloat" target="_blank" rel="noopener">WhatsApp</a>
 
+  <!-- BACKDROP -->
   <div class="modalBackdrop" id="backdrop"></div>
 
+  <!-- MODAL PRODUCTO -->
   <div class="modal" id="prodModal" aria-hidden="true">
     <div class="modalHeader">
       <div>
         <div class="modalTitle" id="modalName">Producto</div>
         <div class="modalSub" id="modalSub">—</div>
       </div>
-      <button class="iconBtn" id="btnCloseProd">✕</button>
+      <button class="iconBtn" id="btnCloseProd" type="button">✕</button>
     </div>
 
     <div class="modalBody">
@@ -86,9 +84,84 @@
       <div class="videoBtns" id="modalVideos"></div>
 
       <div style="display:flex; gap:10px; margin-top:12px;">
-        <button class="btn btnPrimary btnFull" id="modalAdd">Agregar al carrito</button>
-        <button class="btn btnSoft btnFull" id="btnShareProduct">Compartir</button>
+        <button class="btn btnPrimary btnFull" id="modalAdd" type="button">Agregar al carrito</button>
+        <button class="btn btnSoft btnFull" id="btnShareProduct" type="button">Compartir</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL CARRITO -->
+  <div class="modal" id="cartModal" aria-hidden="true">
+    <div class="modalHeader">
+      <div>
+        <div class="modalTitle">Carrito y pedido</div>
+        <div class="modalSub">Completa tus datos y envía por WhatsApp.</div>
+      </div>
+      <button class="iconBtn" id="btnCloseCart" type="button">✕</button>
+    </div>
+
+    <div class="modalBody">
+      <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
+      <div class="cartList" id="cartList"></div>
+
+      <div class="sectionTitle" style="margin-top:10px;">Datos</div>
+
+      <div style="display:grid; gap:10px; margin-top:10px;">
+        <input id="custName" class="search" placeholder="Tu nombre" />
+        <input id="custPhone" class="search" placeholder="Teléfono (Ej: 9999-9999)" />
+      </div>
+
+      <div class="sectionTitle" style="margin-top:14px;">Entrega</div>
+
+      <!-- Tipo de entrega -->
+      <div style="display:grid; gap:10px; margin-top:10px;">
+        <select id="deliveryType" class="search">
+          <option value="">Selecciona tipo de entrega</option>
+          <option value="comayagua_ciudad">Comayagua (ciudad) - entrega local</option>
+          <option value="entrega_propia">Entrega propia (cercanos)</option>
+          <option value="empresa">Empresa de envío (Cargo Expreso / Forza / C807)</option>
+          <option value="bus">Bus local (encomienda)</option>
+        </select>
+
+        <!-- Comayagua ciudad -->
+        <div id="boxComa" style="display:none; gap:10px;">
+          <select id="comaZona" class="search"></select>
+          <input id="comaColonia" class="search" placeholder="Colonia / referencia (opcional)" />
+        </div>
+
+        <!-- Entrega propia -->
+        <div id="boxPropia" style="display:none; gap:10px;">
+          <select id="propiaLugar" class="search"></select>
+        </div>
+
+        <!-- Empresa -->
+        <div id="boxEmpresa" style="display:none; gap:10px;">
+          <select id="empresa" class="search"></select>
+          <select id="empresaModalidad" class="search">
+            <option value="">Modalidad</option>
+            <option value="normal">Normal (pago anticipado)</option>
+            <option value="contra_entrega">Pagar al recibir</option>
+          </select>
+        </div>
+
+        <!-- Bus -->
+        <div id="boxBus" style="display:none; gap:10px;">
+          <select id="busLugar" class="search"></select>
+        </div>
+      </div>
+
+      <div class="totals">
+        <div class="row"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
+        <div class="row"><span>Envío</span><span id="shippingCost">Por confirmar</span></div>
+        <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
+      </div>
+
+      <div class="hint" id="shipHint">Las tarifas se calculan desde Google Sheets. Si es bus local se mostrará rango estimado.</div>
+    </div>
+
+    <div class="modalFooter">
+      <button class="btn btnSoft" id="btnCopyCart" type="button">Copiar resumen</button>
+      <button class="btn btnPrimary" id="btnSendWA" type="button">Enviar por WhatsApp</button>
     </div>
   </div>
 
