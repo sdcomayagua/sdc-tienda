@@ -9,6 +9,9 @@
   --border:rgba(255,255,255,.10);
   --shadow: 0 12px 30px rgba(0,0,0,.35);
   --radius:18px;
+
+  --danger:#ff3b30; /* rojo oferta */
+  --gray:#8e9bb6;
 }
 
 body.light{
@@ -20,6 +23,9 @@ body.light{
   --soft:#e9efff;
   --border:rgba(0,0,0,.10);
   --shadow: 0 12px 30px rgba(0,0,0,.10);
+
+  --danger:#d61f1f;
+  --gray:#6b7a97;
 }
 
 *{box-sizing:border-box}
@@ -75,7 +81,6 @@ body{
   color:inherit;
   cursor:pointer;
 }
-
 #storeSub{ color:var(--muted); font-size:12px; }
 
 .topActions{
@@ -113,7 +118,7 @@ body{
   margin-left:6px;
 }
 
-/* Móvil: mostrar SDComayagua sin amontonarse */
+/* Móvil: mostrar SDComayagua */
 @media (max-width: 720px){
   #storeName{
     color: transparent;
@@ -157,7 +162,7 @@ body{
 }
 .chip.active{background:var(--primary); border-color:transparent; color:#fff}
 
-/* Subcategorías (fila secundaria bonita) */
+/* Subcategorías */
 .subchips{
   display:flex;
   gap:8px;
@@ -241,6 +246,39 @@ body{
   overflow:hidden;
   position:relative;
 }
+
+/* ✅ Agotado: todo gris */
+.card.isOut{
+  filter: grayscale(1);
+  opacity: .85;
+}
+.card.isOut .cardName,
+.card.isOut .cardDesc,
+.card.isOut .priceRow{
+  color: var(--gray);
+}
+.card.isOut .btnPrimary{
+  background: rgba(255,255,255,.06);
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+/* ✅ Oferta: precio rojo */
+.price.offer{ color: var(--danger); }
+.offerTag{
+  position:absolute;
+  top:10px;
+  left:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(255,59,48,.18);
+  border:1px solid rgba(255,59,48,.35);
+  color: var(--danger);
+  font-weight:1000;
+  font-size:12px;
+  z-index:2;
+}
+
 .cardImg{
   width:100%;
   aspect-ratio: 1 / 1;
@@ -268,6 +306,7 @@ body{
 .btnPrimary{background:var(--primary); border-color:transparent; color:#fff;}
 .btnFull{width:100%}
 
+/* ✅ AGOTADO watermark: ya no se corta */
 .watermark{
   position:absolute;
   inset:0;
@@ -275,11 +314,12 @@ body{
   place-items:center;
   pointer-events:none;
   font-weight:1000;
-  font-size:40px;
   letter-spacing:2px;
   transform: rotate(-18deg);
-  color: rgba(255,0,0,.33);
+  color: rgba(255,0,0,.35);
   text-transform:uppercase;
+  z-index:1;
+  font-size: clamp(26px, 7vw, 44px);
 }
 
 /* =========================
@@ -395,7 +435,7 @@ body{
 }
 
 /* =========================
-   MODAL PRODUCTO (galería)
+   MODAL PRODUCTO
 ========================= */
 .modalBackdrop{
   position:fixed; inset:0; z-index:40;
