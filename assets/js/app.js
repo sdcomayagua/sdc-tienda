@@ -1,7 +1,19 @@
+/* =========================
+   SDC TIENDA - app.js (tolerante)
+   - Carrito real
+   - Envíos y pagos desde Sheets
+   - Doble toque categoría copia enlace
+   - Compartir subcategoría
+========================= */
+
 let DB = {
   productos: [],
   categorias: [],
+  subcategorias: [],
   ajustes: [],
+  pagos: [],
+  municipios_hn: [],
+  cobertura_entrega: [],
   zonas_comayagua_ciudad: [],
   tarifas_entrega_propia: [],
   empresas_envio: [],
@@ -13,21 +25,76 @@ let STATE = { categoria: "Todas", subcategoria: "Todas", query: "" };
 const $ = (id) => document.getElementById(id);
 function fmtLps(n){ return `Lps. ${Number(n||0).toFixed(0)}`; }
 
-/* ===== Helpers hash ===== */
+/* -------------------------
+   Utilidades tolerantes
+-------------------------- */
+function s(v){ return (v===null || v===undefined) ? "" : String(v).trim(); }
+function n(v){ const x = Number(v); return Number.isFinite(x) ? x : 0; }
+function pick(obj, keys, fallback=""){
+  for (const k of keys){
+    if (obj && obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== "") return obj[k];
+  }
+  return fallback;
+}
+function eq(a,b){ return s(a).toLowerCase() === s(b).toLowerCase(); }
+
+function normalizeProduct(p){
+  const out = {
+    id: s(pick(p, ["id","ID"])),
+    nombre: s(pick(p, ["nombre","name"])),
+    precio: n(pick(p, ["precio","price"], 0)),
+    precio_anterior: n(pick(p, ["precio_anterior","precioAnterior","old_price"], 0)),
+    stock: n(pick(p, ["stock"], 0)),
+    categoria: s(pick(p, ["categoria"], "General")) || "General",
+    subcategoria: s(pick(p, ["subcategoria"], "")),
+    imagen: s(pick(p, ["imagen"], "")),
+    descripcion: s(pick(p, ["descripcion"], "")),
+    orden: n(pick(p, ["orden"], 0)),
+    video: s(pick(p, ["video","video_url","video_tiktok","video_facebook","video_youtube"], "")),
+  };
+
+  // Galería: soporta galeria CSV o galeria_1..8
+  if (p.galeria && !p.galeria_1){
+    const parts = s(p.galeria).split(",").map(x=>x.trim()).filter(Boolean);
+    for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
+  } else {
+    for (let i=1;i<=8;i++) out[`galeria_${i}`] = s(p[`galeria_${i}`]);
+  }
+
+  return out;
+}
+
+function ajustesMap(){
+  const map = {};
+  (DB.ajustes||[]).forEach(r=>{
+    const k = s(r.clave);
+    const v = s(r.valor);
+    if (k) map[k]=v;
+  });
+  return map;
+}
+
+/* -------------------------
+   Hash share
+-------------------------- */
 function setHash(cat, sub){
   let h = `#cat=${encodeURIComponent(cat||"Todas")}`;
   if (sub && sub !== "Todas") h += `&sub=${encodeURIComponent(sub)}`;
   history.replaceState(null, "", location.pathname + location.search + h);
 }
 function parseHash(){
-  const h = (location.hash || "").replace("#","");
-  const params = new URLSearchParams(h);
-  const cat = params.get("cat");
-  const sub = params.get("sub");
-  return { cat, sub };
+  const h = (location.hash||"").replace("#","");
+  const p = new URLSearchParams(h);
+  return { cat: p.get("cat"), sub: p.get("sub") };
+}
+async function copyText(txt){
+  try{ await navigator.clipboard.writeText(txt); alert("Enlace copiado"); }
+  catch{ alert("No se pudo copiar"); }
 }
 
-/* ===== Tema ===== */
+/* -------------------------
+   Tema
+-------------------------- */
 function setTheme(next){
   document.body.classList.toggle("light", next === "light");
   localStorage.setItem("sdc_theme", next);
@@ -35,69 +102,21 @@ function setTheme(next){
   if (b) b.textContent = next === "light" ? "🌙" : "☀️";
 }
 
-/* ===== Ajustes ===== */
-function ajustesMap(){
-  const map = {};
-  (DB.ajustes||[]).forEach(r=>{
-    const k = String(r.clave||"").trim();
-    const v = String(r.valor||"").trim();
-    if (k) map[k]=v;
-  });
-  return map;
-}
-function applyAjustes(){
-  const a = ajustesMap();
-  if ($("storeName")) $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
-  if ($("storeSub")) $("storeSub").textContent = a["subtitulo"] || "Catálogo";
-  if ($("logoText")) $("logoText").textContent = a["siglas"] || "SDC";
-  if ($("footerBrand")) $("footerBrand").textContent = a["siglas"] || "SDC";
-
-  const aviso = [a["aviso_precios"], a["aviso_stock"], a["aviso_envio"]].filter(Boolean).join(" ");
-  if (aviso && $("footerInfo")) $("footerInfo").textContent = aviso;
-
-  const wa = (a["whatsapp_numero"] || "50431517755").replace(/\D/g,"");
-  const msg = a["mensaje_whatsapp"] || "Hola, quiero consultar el catálogo.";
-  if ($("waFloat")) $("waFloat").href = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
-
-  if ($("year")) $("year").textContent = new Date().getFullYear();
-}
-
-/* ===== Normalizar ===== */
-function normalizeProduct(p){
-  const out = {
-    id: String(p.id||"").trim(),
-    nombre: String(p.nombre||"").trim(),
-    precio: Number(p.precio||0),
-    precio_anterior: Number(p.precio_anterior||0),
-    stock: Number(p.stock||0),
-    categoria: String(p.categoria||"General").trim() || "General",
-    subcategoria: String(p.subcategoria||"").trim(),
-    imagen: String(p.imagen||"").trim(),
-    descripcion: String(p.descripcion||"").trim(),
-    orden: Number(p.orden||0),
-    video: String(p.video||p.video_url||"").trim(),
-  };
-
-  if (p.galeria && !p.galeria_1){
-    const parts = String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean);
-    for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
-  } else {
-    for (let i=1;i<=8;i++) out[`galeria_${i}`] = String(p[`galeria_${i}`]||"").trim();
-  }
-  return out;
-}
-
-/* ===== Loading ===== */
+/* -------------------------
+   Loading UI
+-------------------------- */
 let LOADING_TIMER=null;
 function showSkeleton(){
   const grid = $("grid");
   if (!grid) return;
+
   grid.innerHTML = `
     <div class="loadingWrap fadeIn">
       <div class="loadingTitle" id="loadingTitle">Cargando catálogo…</div>
       <div class="loadingSub" id="loadingSub">Estamos preparando los productos de Soluciones Digitales Comayagua.</div>
       <div class="spinner"></div>
     </div>
+
     <div class="skelGrid fadeIn">
       ${Array.from({ length: 8 }, () => `
         <div class="skelCard">
@@ -125,14 +144,36 @@ function stopLoadingMessageSwap(){
   LOADING_TIMER=null;
 }
 
-/* ===== Categorías + Sub ===== */
+/* -------------------------
+   Ajustes -> UI
+-------------------------- */
+function applyAjustes(){
+  const a = ajustesMap();
+  if ($("storeName")) $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
+  if ($("storeSub")) $("storeSub").textContent = a["subtitulo"] || "Catálogo";
+  if ($("logoText")) $("logoText").textContent = a["siglas"] || "SDC";
+  if ($("footerBrand")) $("footerBrand").textContent = a["siglas"] || "SDC";
+
+  const aviso = [a["aviso_precios"], a["aviso_stock"], a["aviso_envio"]].filter(Boolean).join(" ");
+  if ($("footerInfo")) $("footerInfo").textContent = aviso || $("footerInfo").textContent;
+
+  const wa = (a["whatsapp_numero"] || "50431517755").replace(/\D/g,"");
+  const msg = a["mensaje_whatsapp"] || "Hola, quiero consultar el catálogo.";
+  if ($("waFloat")) $("waFloat").href = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
+
+  if ($("year")) $("year").textContent = new Date().getFullYear();
+}
+
+/* -------------------------
+   Categorías + Subcategorías
+-------------------------- */
 function getCategorias(){
-  let cats=[];
+  let cats = [];
   if (DB.categorias && DB.categorias.length){
     cats = DB.categorias
-      .filter(c => String(c.visible ?? 1) === "1" || c.visible === 1)
-      .sort((a,b)=>Number(a.orden||0)-Number(b.orden||0))
-      .map(c=>String(c.categoria||"").trim())
+      .filter(c => String(pick(c,["visible"],1)) === "1" || pick(c,["visible"],1) === 1)
+      .sort((a,b)=>n(pick(a,["orden"],0))-n(pick(b,["orden"],0)))
+      .map(c=>s(pick(c,["categoria"],"")))
       .filter(Boolean);
   } else {
     cats = Array.from(new Set(DB.productos.map(p=>p.categoria))).filter(Boolean).sort((a,b)=>a.localeCompare(b));
@@ -142,25 +183,20 @@ function getCategorias(){
 
 let lastTapCat = { name:null, t:0 };
 
-async function copyText(text){
-  try{ await navigator.clipboard.writeText(text); alert("Enlace copiado"); }
-  catch(e){ alert("No se pudo copiar"); }
-}
-
 function renderCategorias(){
   const chips = $("chips");
   if (!chips) return;
   chips.innerHTML = "";
 
   getCategorias().forEach(c=>{
-    const b=document.createElement("button");
-    b.className="chip"+(STATE.categoria===c?" active":"");
-    b.textContent=c;
+    const b = document.createElement("button");
+    b.className = "chip" + (STATE.categoria===c ? " active" : "");
+    b.textContent = c;
 
     b.onclick = async ()=>{
-      const now=Date.now();
-      // ✅ doble toque: copiar enlace
-      if (lastTapCat.name===c && (now-lastTapCat.t)<600){
+      const now = Date.now();
+      // ✅ doble toque: copiar enlace categoría
+      if (lastTapCat.name===c && (now-lastTapCat.t) < 650){
         const url = location.origin + location.pathname + `#cat=${encodeURIComponent(c)}`;
         await copyText(url);
         lastTapCat = {name:null,t:0};
@@ -168,14 +204,16 @@ function renderCategorias(){
       }
       lastTapCat = {name:c,t:now};
 
-      STATE.categoria=c;
-      STATE.subcategoria="Todas";
+      STATE.categoria = c;
+      STATE.subcategoria = "Todas";
       renderCategorias();
       renderSubcategorias();
       renderProductos();
 
-      $("btnShareCategory").style.display = (c==="Todas") ? "none" : "inline-flex";
-      $("btnShareSubcat").style.display = "none";
+      // botones compartir
+      if ($("btnShareCategory")) $("btnShareCategory").style.display = (c==="Todas") ? "none" : "inline-flex";
+      if ($("btnShareSubcat")) $("btnShareSubcat").style.display = "none";
+
       setHash(c, "Todas");
     };
 
@@ -184,103 +222,124 @@ function renderCategorias(){
 }
 
 function getSubcategoriasDeCategoria(cat){
-  const set=new Set();
+  // Si existe hoja subcategorias, úsala (ordenada)
+  if (DB.subcategorias && DB.subcategorias.length){
+    return DB.subcategorias
+      .filter(r => (cat==="Todas" ? true : eq(pick(r,["categoria"]), cat)))
+      .filter(r => String(pick(r,["visible"],1))==="1" || pick(r,["visible"],1)===1)
+      .sort((a,b)=>n(pick(a,["orden"],0))-n(pick(b,["orden"],0)))
+      .map(r=>s(pick(r,["subcategoria"],"")))
+      .filter(Boolean);
+  }
+
+  // fallback: detectar desde productos
+  const set = new Set();
   DB.productos.forEach(p=>{
-    if (cat!=="Todas" && p.categoria!==cat) return;
-    if (p.subcategoria && p.subcategoria.trim()) set.add(p.subcategoria.trim());
+    if (cat !== "Todas" && p.categoria !== cat) return;
+    if (p.subcategoria) set.add(p.subcategoria);
   });
   return Array.from(set).sort((a,b)=>a.localeCompare(b));
 }
 
 function renderSubcategorias(){
-  const sub=$("subchips");
+  const sub = $("subchips");
   if (!sub) return;
 
   if (STATE.categoria==="Todas"){
     sub.style.display="none";
     sub.innerHTML="";
     STATE.subcategoria="Todas";
-    $("btnShareSubcat").style.display="none";
+    if ($("btnShareSubcat")) $("btnShareSubcat").style.display="none";
     return;
   }
 
-  const subs=getSubcategoriasDeCategoria(STATE.categoria);
+  const subs = getSubcategoriasDeCategoria(STATE.categoria);
   if (!subs.length){
     sub.style.display="none";
     sub.innerHTML="";
     STATE.subcategoria="Todas";
-    $("btnShareSubcat").style.display="none";
+    if ($("btnShareSubcat")) $("btnShareSubcat").style.display="none";
     return;
   }
 
   sub.style.display="flex";
   sub.innerHTML="";
 
-  const all=document.createElement("button");
-  all.className="chip subchip"+(STATE.subcategoria==="Todas"?" active":"");
-  all.textContent="Todas";
-  all.onclick=()=>{
+  const all = document.createElement("button");
+  all.className = "chip subchip" + (STATE.subcategoria==="Todas" ? " active" : "");
+  all.textContent = "Todas";
+  all.onclick = ()=>{
     STATE.subcategoria="Todas";
     renderSubcategorias();
     renderProductos();
-    $("btnShareSubcat").style.display="none";
-    setHash(STATE.categoria, "Todas");
+    if ($("btnShareSubcat")) $("btnShareSubcat").style.display="none";
+    setHash(STATE.categoria,"Todas");
   };
   sub.appendChild(all);
 
   subs.forEach(sc=>{
-    const b=document.createElement("button");
-    b.className="chip subchip"+(STATE.subcategoria===sc?" active":"");
-    b.textContent=sc;
-    b.onclick=()=>{
-      STATE.subcategoria=sc;
+    const b = document.createElement("button");
+    b.className = "chip subchip" + (STATE.subcategoria===sc ? " active" : "");
+    b.textContent = sc;
+    b.onclick = ()=>{
+      STATE.subcategoria = sc;
       renderSubcategorias();
       renderProductos();
-      $("btnShareSubcat").style.display="inline-flex";
+      if ($("btnShareSubcat")) $("btnShareSubcat").style.display="inline-flex";
       setHash(STATE.categoria, sc);
     };
     sub.appendChild(b);
   });
 }
 
-/* ===== Productos ===== */
+/* -------------------------
+   Productos
+-------------------------- */
 function filteredProductos(){
-  const q=STATE.query.trim().toLowerCase();
+  const q = STATE.query.trim().toLowerCase();
+
   return DB.productos
     .filter(p => STATE.categoria==="Todas" ? true : p.categoria===STATE.categoria)
-    .filter(p => STATE.subcategoria==="Todas" ? true : (p.subcategoria||"")===STATE.subcategoria)
-    .filter(p => !q ? true : ((p.nombre||"").toLowerCase().includes(q) || (p.descripcion||"").toLowerCase().includes(q)))
+    .filter(p => STATE.subcategoria==="Todas" ? true : p.subcategoria===STATE.subcategoria)
+    .filter(p => !q ? true : (
+      p.nombre.toLowerCase().includes(q) ||
+      p.descripcion.toLowerCase().includes(q) ||
+      p.subcategoria.toLowerCase().includes(q)
+    ))
     .sort((a,b)=>{
-      const av=a.stock>0?0:1, bv=b.stock>0?0:1;
+      const av = a.stock>0 ? 0 : 1;
+      const bv = b.stock>0 ? 0 : 1;
       if (av!==bv) return av-bv;
-      return (a.nombre||"").localeCompare(b.nombre||"");
+      return a.nombre.localeCompare(b.nombre);
     });
 }
 
 function productCard(p){
-  const card=document.createElement("div");
-  card.className="card";
-  const isOut=Number(p.stock||0)<=0;
-  const isOffer=Number(p.precio_anterior||0)>Number(p.precio||0);
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const isOut = p.stock <= 0;
+  const isOffer = p.precio_anterior > p.precio;
+
   if (isOut) card.classList.add("isOut");
 
   if (isOffer){
-    const tag=document.createElement("div");
-    tag.className="offerTag";
-    tag.textContent="OFERTA";
+    const tag = document.createElement("div");
+    tag.className = "offerTag";
+    tag.textContent = "OFERTA";
     card.appendChild(tag);
   }
 
-  const imgSrc=p.imagen || "assets/img/no-image.png";
+  const imgSrc = p.imagen || "assets/img/no-image.png";
 
   card.innerHTML += `
     <img class="cardImg" src="${imgSrc}" alt=""
       onerror="this.onerror=null; this.src='assets/img/no-image.png';">
     <div class="cardBody">
-      <div class="cardName">${p.nombre||""}</div>
-      <div class="cardDesc">${p.descripcion || p.subcategoria || p.categoria || ""}</div>
+      <div class="cardName">${p.nombre}</div>
+      <div class="cardDesc">${p.descripcion || p.subcategoria || p.categoria}</div>
       <div class="priceRow">
-        <div class="price ${isOffer?"offer":""}">${fmtLps(p.precio||0)}</div>
+        <div class="price ${isOffer ? "offer":""}">${fmtLps(p.precio)}</div>
         <div class="old">${isOffer ? fmtLps(p.precio_anterior) : ""}</div>
       </div>
       <div class="cardActions">
@@ -290,50 +349,386 @@ function productCard(p){
   `;
 
   if (isOut){
-    const wm=document.createElement("div");
-    wm.className="watermark";
-    wm.textContent="AGOTADO";
+    const wm = document.createElement("div");
+    wm.className = "watermark";
+    wm.textContent = "AGOTADO";
     card.appendChild(wm);
   }
 
-  card.onclick=()=>{ if (window.openProduct) window.openProduct(p); };
+  card.onclick = ()=>{ if (window.openProduct) window.openProduct(p); };
   return card;
 }
 
 function renderProductos(){
-  const grid=$("grid");
+  const grid = $("grid");
   if (!grid) return;
-  grid.innerHTML="";
+  grid.innerHTML = "";
 
-  const list=filteredProductos();
+  const list = filteredProductos();
+
   const labelCat = (STATE.categoria==="Todas") ? "Productos" : STATE.categoria;
   const labelSub = (STATE.subcategoria!=="Todas") ? ` · ${STATE.subcategoria}` : "";
-  $("sectionTitle").textContent = `${labelCat}${labelSub} (${list.length})`;
+  if ($("sectionTitle")) $("sectionTitle").textContent = `${labelCat}${labelSub} (${list.length})`;
 
   if (!list.length){
-    const empty=document.createElement("div");
+    const empty = document.createElement("div");
     empty.style.color="var(--muted)";
     empty.style.padding="10px 2px";
     empty.textContent="No hay productos en esta sección.";
     grid.appendChild(empty);
     return;
   }
+
   list.forEach(p=>grid.appendChild(productCard(p)));
 }
 
-/* ===== Share buttons ===== */
-$("btnShareCategory")?.addEventListener("click", async ()=>{
-  if (STATE.categoria==="Todas") return;
-  const url = location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}`;
-  await copyText(url);
-});
-$("btnShareSubcat")?.addEventListener("click", async ()=>{
-  if (STATE.categoria==="Todas" || STATE.subcategoria==="Todas") return;
-  const url = location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}&sub=${encodeURIComponent(STATE.subcategoria)}`;
-  await copyText(url);
-});
+/* -------------------------
+   Carrito real
+-------------------------- */
+const CART_KEY="sdc_cart_v2";
+let CART = [];
 
-/* ===== UI ===== */
+function loadCart(){ try{ CART = JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; } }
+function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(CART)); }
+function cartCount(){ return CART.reduce((a,it)=>a+it.qty,0); }
+function updateCartBadge(){ if ($("cartCount")) $("cartCount").textContent = String(cartCount()); }
+
+function addToCart(p){
+  const id = String(p.id);
+  let it = CART.find(x=>String(x.id)===id);
+  if (!it){
+    it = { id, nombre:p.nombre, precio:p.precio, imagen:p.imagen, qty:0 };
+    CART.push(it);
+  }
+  it.qty += 1;
+  saveCart();
+  updateCartBadge();
+  renderCart();
+  updateDeliveryUI();
+  if (window.openCartModal) window.openCartModal();
+}
+window.addToCart = addToCart;
+
+function cartSubtotal(){ return CART.reduce((a,it)=>a + (n(it.precio)*n(it.qty)), 0); }
+
+function renderCart(){
+  const empty=$("cartEmpty"), list=$("cartList");
+  if (!empty || !list) return;
+
+  empty.style.display = CART.length ? "none" : "block";
+  list.innerHTML = "";
+
+  CART.forEach((it, idx)=>{
+    const row=document.createElement("div");
+    row.className="cartItem";
+    row.innerHTML = `
+      <img src="${it.imagen || "assets/img/no-image.png"}"
+           onerror="this.onerror=null;this.src='assets/img/no-image.png';">
+      <div class="cartMeta">
+        <div class="n">${it.nombre}</div>
+        <div class="p">${fmtLps(it.precio)} · Cant: ${it.qty}</div>
+        <div class="qty">
+          <button class="dec">-</button>
+          <div>${it.qty}</div>
+          <button class="inc">+</button>
+          <button class="trash" title="Eliminar">🗑️</button>
+        </div>
+      </div>
+    `;
+    row.querySelector(".dec").onclick=()=>{ it.qty--; if (it.qty<=0) CART.splice(idx,1); saveCart(); updateCartBadge(); renderCart(); updateTotals(); };
+    row.querySelector(".inc").onclick=()=>{ it.qty++; saveCart(); updateCartBadge(); renderCart(); updateTotals(); };
+    row.querySelector(".trash").onclick=()=>{ CART.splice(idx,1); saveCart(); updateCartBadge(); renderCart(); updateTotals(); };
+    list.appendChild(row);
+  });
+
+  updateTotals();
+}
+
+/* -------------------------
+   Ubicación (depto/muni)
+-------------------------- */
+function fillSelect(selId, items, placeholder="Selecciona"){
+  const sel = $(selId);
+  if (!sel) return;
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  items.forEach(x=>{
+    const opt = document.createElement("option");
+    opt.value = x.value;
+    opt.textContent = x.label;
+    sel.appendChild(opt);
+  });
+}
+
+function getDepartamentos(){
+  const set = new Set(DB.municipios_hn.map(r=>s(pick(r,["departamento"],""))).filter(Boolean));
+  return Array.from(set).sort((a,b)=>a.localeCompare(b));
+}
+
+function getMunicipios(dep){
+  return DB.municipios_hn
+    .filter(r=>eq(pick(r,["departamento"]), dep))
+    .map(r=>s(pick(r,["municipio"],"")))
+    .filter(Boolean)
+    .sort((a,b)=>a.localeCompare(b));
+}
+
+function refreshMunicipios(){
+  const dep = $("depto")?.value || "";
+  const munis = dep ? getMunicipios(dep) : [];
+  fillSelect("muni", munis.map(m=>({value:m,label:m})), "Municipio");
+}
+
+/* -------------------------
+   Reglas de entrega desde cobertura_entrega
+-------------------------- */
+function findCobertura(dep, muni){
+  return DB.cobertura_entrega.find(r =>
+    eq(pick(r,["departamento"]), dep) && eq(pick(r,["municipio"]), muni)
+  ) || null;
+}
+
+function normalizeBool(v){
+  const x = s(v).toLowerCase();
+  return x==="1" || x==="true" || x==="si" || x==="sí";
+}
+
+/* -------------------------
+   Entrega + Pago
+-------------------------- */
+function buildDeliveryOptions(){
+  const dep = $("depto")?.value || "";
+  const muni = $("muni")?.value || "";
+  const opts = [{value:"", label:"Selecciona tipo de entrega"}];
+
+  // default si no hay nada seleccionado
+  if (!dep || !muni) return opts;
+
+  // Comayagua ciudad
+  if (eq(dep,"Comayagua") && eq(muni,"Comayagua")){
+    opts.push({value:"comayagua_ciudad", label:"Comayagua (ciudad) - entrega local"});
+    return opts;
+  }
+
+  // Cobertura personalizada
+  const cov = findCobertura(dep, muni);
+
+  if (cov){
+    if (normalizeBool(pick(cov,["permite_entrega_propia"]))){
+      opts.push({value:"entrega_propia", label:"Entrega propia (cercanos)"});
+    }
+    if (normalizeBool(pick(cov,["permite_empresa"]))){
+      opts.push({value:"empresa", label:"Empresa de envío"});
+    }
+    if (normalizeBool(pick(cov,["permite_bus"]))){
+      opts.push({value:"bus", label:"Bus local (encomienda)"});
+    }
+  } else {
+    // si no está en cobertura_entrega: por defecto empresa + bus
+    opts.push({value:"empresa", label:"Empresa de envío"});
+    opts.push({value:"bus", label:"Bus local (encomienda)"});
+  }
+
+  return opts;
+}
+
+function updateDeliveryUI(){
+  const t = $("deliveryType")?.value || "";
+  const boxComa=$("boxComa"), boxPropia=$("boxPropia"), boxEmpresa=$("boxEmpresa"), boxBus=$("boxBus");
+
+  if (boxComa) boxComa.style.display = (t==="comayagua_ciudad") ? "grid" : "none";
+  if (boxPropia) boxPropia.style.display = (t==="entrega_propia") ? "grid" : "none";
+  if (boxEmpresa) boxEmpresa.style.display = (t==="empresa") ? "grid" : "none";
+  if (boxBus) boxBus.style.display = (t==="bus") ? "grid" : "none";
+
+  // efectivo “con cuánto” solo comayagua ciudad
+  const pay = $("payMethod")?.value || "";
+  const info = $("payInfo");
+  if (info){
+    const row = DB.pagos.find(r=>eq(pick(r,["metodo"]), pay));
+    info.textContent = row ? s(pick(row,["detalle"])) : "";
+  }
+
+  updatePayOptions();
+  updateTotals();
+}
+
+function updatePayOptions(){
+  const dep = $("depto")?.value || "";
+  const muni = $("muni")?.value || "";
+  const t = $("deliveryType")?.value || "";
+  const empresaModalidad = $("empresaModalidad")?.value || "";
+
+  const sel = $("payMethod");
+  if (!sel) return;
+
+  let allowed = [];
+
+  // pagos: si tu hoja tiene flags permite_en_...
+  const hasFlags = DB.pagos.some(p => p.hasOwnProperty("permite_en_ciudad_comayagua") || p.hasOwnProperty("permite_en_empresa_envio"));
+
+  DB.pagos.forEach(p=>{
+    const metodo = s(pick(p,["metodo"]));
+    const titulo = s(pick(p,["titulo"], metodo));
+    const activo = normalizeBool(pick(p,["activo"],"1"));
+    if (!activo) return;
+
+    if (hasFlags){
+      if (t==="comayagua_ciudad" && !normalizeBool(pick(p,["permite_en_ciudad_comayagua"],"1"))) return;
+      if (t==="entrega_propia" && !normalizeBool(pick(p,["permite_en_entrega_propia"],"1"))) return;
+      if (t==="empresa" && !normalizeBool(pick(p,["permite_en_empresa_envio"],"1"))) return;
+      if (t==="bus" && !normalizeBool(pick(p,["permite_en_bus_local"],"1"))) return;
+    }
+
+    // regla extra: si empresa normal, no permitir efectivo (a menos que lo quieras)
+    if (t==="empresa" && empresaModalidad==="normal" && metodo==="efectivo"){
+      // lo bloqueamos en normal
+      return;
+    }
+
+    allowed.push({value: metodo, label: titulo});
+  });
+
+  // fallback: si por algo no hay pagos, deja transferencia
+  if (!allowed.length) allowed = [{value:"transferencia", label:"Transferencia"}];
+
+  const current = sel.value;
+  fillSelect("payMethod", allowed, "Selecciona método de pago");
+  if (allowed.some(x=>x.value===current)) sel.value = current;
+}
+
+function calcShipping(){
+  const t = $("deliveryType")?.value || "";
+  const subtotal = cartSubtotal();
+
+  if (!t) return { text:"Por confirmar", min:0, max:0, isRange:false };
+
+  if (t==="comayagua_ciudad"){
+    const zona = $("comaZona")?.value || "";
+    if (!zona) return { text:"Por confirmar", min:0, max:0, isRange:false };
+    const row = DB.zonas_comayagua_ciudad.find(r=>eq(pick(r,["zona"]), zona));
+    const cost = n(pick(row||{},["costo","precio"],0));
+    return { text: fmtLps(cost), min: cost, max: cost, isRange:false };
+  }
+
+  if (t==="entrega_propia"){
+    const lugar = $("propiaLugar")?.value || "";
+    if (!lugar) return { text:"Por confirmar", min:0, max:0, isRange:false };
+    const row = DB.tarifas_entrega_propia.find(r=>eq(pick(r,["municipio","lugar"]), lugar));
+    const cost = n(pick(row||{},["costo","precio"],0));
+    return { text: fmtLps(cost), min: cost, max: cost, isRange:false };
+  }
+
+  if (t==="empresa"){
+    const emp = $("empresa")?.value || "";
+    const mod = $("empresaModalidad")?.value || "";
+    if (!emp || !mod) return { text:"Por confirmar", min:0, max:0, isRange:false };
+    const row = DB.empresas_envio.find(r=>eq(pick(r,["empresa"]), emp) && eq(pick(r,["modalidad"]), mod));
+    const cost = n(pick(row||{},["precio","costo"],0));
+    return { text: fmtLps(cost), min: cost, max: cost, isRange:false };
+  }
+
+  if (t==="bus"){
+    const lugar = $("busLugar")?.value || "";
+    if (!lugar) return { text:"Por confirmar", min:0, max:0, isRange:false };
+    const row = DB.bus_local_tarifas.find(r=>eq(pick(r,["municipio","lugar"]), lugar));
+    const mn = n(pick(row||{},["tarifa_min","min","precio_min"],0));
+    const mx = n(pick(row||{},["tarifa_max","max","precio_max"],mn));
+    return { text: `${fmtLps(mn)} – ${fmtLps(mx)}`, min: mn, max: mx, isRange:true };
+  }
+
+  return { text:"Por confirmar", min:0, max:0, isRange:false };
+}
+
+function updateTotals(){
+  const sub = cartSubtotal();
+  const ship = calcShipping();
+
+  if ($("subTotal")) $("subTotal").textContent = fmtLps(sub);
+  if ($("shippingCost")) $("shippingCost").textContent = ship.text;
+
+  const totalMin = sub + ship.min;
+  const totalMax = sub + ship.max;
+
+  if ($("grandTotal")){
+    $("grandTotal").textContent = ship.isRange
+      ? `${fmtLps(totalMin)} – ${fmtLps(totalMax)}`
+      : fmtLps(totalMin);
+  }
+
+  if ($("shipHint")){
+    $("shipHint").textContent = ship.isRange
+      ? "Bus local: el envío es estimado (rango). Se confirma por WhatsApp antes de enviar."
+      : "Tarifas calculadas desde Google Sheets.";
+  }
+
+  // info pago
+  const pay = $("payMethod")?.value || "";
+  const row = DB.pagos.find(r=>eq(pick(r,["metodo"]), pay));
+  if ($("payInfo")) $("payInfo").textContent = row ? s(pick(row,["detalle"])) : "";
+}
+
+function buildWhatsAppLink(){
+  const a = ajustesMap();
+  const wa = (a["whatsapp_numero"] || "50431517755").replace(/\D/g,"");
+
+  const name = s($("custName")?.value);
+  const phone = s($("custPhone")?.value);
+
+  const dep = s($("depto")?.value);
+  const muni = s($("muni")?.value);
+
+  const delivery = s($("deliveryType")?.value);
+  const ship = calcShipping();
+  const pay = s($("payMethod")?.value);
+  const payRow = DB.pagos.find(r=>eq(pick(r,["metodo"]), pay));
+  const payTitle = payRow ? s(pick(payRow,["titulo"], pay)) : pay;
+  const payDetail = payRow ? s(pick(payRow,["detalle"])) : "";
+
+  const subtotal = cartSubtotal();
+
+  let lines=[];
+  lines.push("🛒 *PEDIDO - SDC*");
+  lines.push(`👤 Nombre: ${name||"-"}`);
+  lines.push(`📞 Tel: ${phone||"-"}`);
+  lines.push(`📍 Ubicación: ${dep||"-"} / ${muni||"-"}`);
+  lines.push("");
+  lines.push("*Productos:*");
+  CART.forEach(it=>{
+    lines.push(`- ${it.qty} x ${it.nombre} (${fmtLps(it.precio)})`);
+  });
+  lines.push("");
+  lines.push(`Subtotal: ${fmtLps(subtotal)}`);
+  lines.push(`Envío: ${ship.text}`);
+  lines.push(`Total: ${ship.isRange ? (fmtLps(subtotal+ship.min)+" – "+fmtLps(subtotal+ship.max)) : fmtLps(subtotal+ship.min)}`);
+  lines.push("");
+
+  lines.push(`🚚 Entrega: ${delivery||"-"}`);
+  if (delivery==="comayagua_ciudad"){
+    lines.push(`Zona: ${s($("comaZona")?.value) || "-"}`);
+    const col = s($("comaColonia")?.value);
+    if (col) lines.push(`Ref: ${col}`);
+  }
+  if (delivery==="entrega_propia"){
+    lines.push(`Lugar: ${s($("propiaLugar")?.value) || "-"}`);
+  }
+  if (delivery==="empresa"){
+    lines.push(`Empresa: ${s($("empresa")?.value) || "-"}`);
+    lines.push(`Modalidad: ${s($("empresaModalidad")?.value) || "-"}`);
+  }
+  if (delivery==="bus"){
+    lines.push(`Bus (lugar): ${s($("busLugar")?.value) || "-"}`);
+  }
+
+  lines.push("");
+  lines.push(`💳 Pago: ${payTitle||"-"}`);
+  if (payDetail) lines.push(`Info pago: ${payDetail}`);
+
+  return `https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`;
+}
+
+/* -------------------------
+   Eventos UI
+-------------------------- */
 function wireUI(){
   const saved = localStorage.getItem("sdc_theme") || "dark";
   setTheme(saved);
@@ -349,7 +744,7 @@ function wireUI(){
     renderProductos();
   });
 
-  // ir al inicio
+  // Ir al inicio
   document.addEventListener("click",(e)=>{
     const el=e.target.closest("#storeName");
     if (!el) return;
@@ -357,16 +752,71 @@ function wireUI(){
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
-  // abrir carrito
+  // Share buttons
+  $("btnShareCategory")?.addEventListener("click", async ()=>{
+    if (STATE.categoria==="Todas") return;
+    await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}`);
+  });
+  $("btnShareSubcat")?.addEventListener("click", async ()=>{
+    if (STATE.categoria==="Todas" || STATE.subcategoria==="Todas") return;
+    await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}&sub=${encodeURIComponent(STATE.subcategoria)}`);
+  });
+
+  // Carrito
   $("btnCart")?.addEventListener("click", ()=>{
+    renderCart();
+    updateTotals();
     if (window.openCartModal) window.openCartModal();
   });
+
+  $("btnCopyCart")?.addEventListener("click", async ()=>{
+    const ship = calcShipping();
+    const subtotal = cartSubtotal();
+    const txt = `Pedido SDC\nSubtotal: ${fmtLps(subtotal)}\nEnvío: ${ship.text}\nTotal: ${ship.isRange ? (fmtLps(subtotal+ship.min)+" – "+fmtLps(subtotal+ship.max)) : fmtLps(subtotal+ship.min)}`;
+    await copyText(txt);
+  });
+
+  $("btnSendWA")?.addEventListener("click", ()=>{
+    if (!CART.length){ alert("Tu carrito está vacío."); return; }
+    if (!s($("custName")?.value) || !s($("custPhone")?.value)){ alert("Completa tu nombre y teléfono."); return; }
+    if (!s($("depto")?.value) || !s($("muni")?.value)){ alert("Selecciona departamento y municipio."); return; }
+    if (!s($("deliveryType")?.value)){ alert("Selecciona tipo de entrega."); return; }
+    if (!s($("payMethod")?.value)){ alert("Selecciona método de pago."); return; }
+    window.open(buildWhatsAppLink(), "_blank");
+  });
+
+  // Ubicación
+  $("depto")?.addEventListener("change", ()=>{
+    refreshMunicipios();
+    const opts = buildDeliveryOptions();
+    fillSelect("deliveryType", opts.map(o=>({value:o.value,label:o.label})), "Tipo de entrega");
+    updateDeliveryUI();
+  });
+  $("muni")?.addEventListener("change", ()=>{
+    const opts = buildDeliveryOptions();
+    fillSelect("deliveryType", opts.map(o=>({value:o.value,label:o.label})), "Tipo de entrega");
+    updateDeliveryUI();
+  });
+
+  // Entrega
+  $("deliveryType")?.addEventListener("change", updateDeliveryUI);
+  $("comaZona")?.addEventListener("change", updateTotals);
+  $("propiaLugar")?.addEventListener("change", updateTotals);
+  $("empresa")?.addEventListener("change", updateTotals);
+  $("empresaModalidad")?.addEventListener("change", updateTotals);
+  $("busLugar")?.addEventListener("change", updateTotals);
+  $("payMethod")?.addEventListener("change", updateTotals);
 }
 
-/* ===== INIT ===== */
+/* -------------------------
+   Init
+-------------------------- */
 async function init(){
   try{
+    loadCart();
+    updateCartBadge();
     wireUI();
+
     showSkeleton();
     startLoadingMessageSwap();
 
@@ -375,31 +825,77 @@ async function init(){
 
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
+    DB.subcategorias = data.subcategorias || [];
     DB.ajustes = data.ajustes || [];
+    DB.pagos = data.pagos || [];
+    DB.municipios_hn = data.municipios_hn || [];
+    DB.cobertura_entrega = data.cobertura_entrega || [];
+    DB.zonas_comayagua_ciudad = data.zonas_comayagua_ciudad || [];
+    DB.tarifas_entrega_propia = data.tarifas_entrega_propia || [];
+    DB.empresas_envio = data.empresas_envio || [];
+    DB.bus_local_tarifas = data.bus_local_tarifas || [];
 
     applyAjustes();
+
+    // categorías + productos
     renderCategorias();
     renderSubcategorias();
     renderProductos();
 
-    // aplicar hash si viene link compartido
+    // aplicar hash compartido
     const h = parseHash();
     if (h.cat){
       STATE.categoria = decodeURIComponent(h.cat);
-      renderCategorias();
-      renderSubcategorias();
     }
     if (h.sub){
       STATE.subcategoria = decodeURIComponent(h.sub);
-      renderSubcategorias();
     }
+    renderCategorias();
+    renderSubcategorias();
     renderProductos();
+
+    // llenar deptos/munis
+    fillSelect("depto", getDepartamentos().map(d=>({value:d,label:d})), "Departamento");
+    refreshMunicipios();
+
+    // llenar selects de entrega base (cuando elijan depto/muni)
+    fillSelect("deliveryType", [{value:"",label:"Selecciona tipo de entrega"}], "Tipo de entrega");
+
+    // llenar selects de envíos
+    fillSelect("comaZona",
+      Array.from(new Set(DB.zonas_comayagua_ciudad.map(r=>s(pick(r,["zona"],""))).filter(Boolean)))
+        .map(z=>({value:z,label:z})),
+      "Zona (Comayagua)"
+    );
+    fillSelect("propiaLugar",
+      Array.from(new Set(DB.tarifas_entrega_propia.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
+        .map(z=>({value:z,label:z})),
+      "Lugar (entrega propia)"
+    );
+    fillSelect("empresa",
+      Array.from(new Set(DB.empresas_envio.map(r=>s(pick(r,["empresa"],""))).filter(Boolean)))
+        .map(z=>({value:z,label:z})),
+      "Empresa de envío"
+    );
+    fillSelect("empresaModalidad",
+      [{value:"",label:"Modalidad"},{value:"normal",label:"Normal (anticipado)"},{value:"contra_entrega",label:"Pagar al recibir"}],
+      "Modalidad"
+    );
+    fillSelect("busLugar",
+      Array.from(new Set(DB.bus_local_tarifas.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
+        .map(z=>({value:z,label:z})),
+      "Lugar (bus local)"
+    );
+
+    // pagos
+    updatePayOptions();
+    updateTotals();
 
   }catch(err){
     stopLoadingMessageSwap();
     console.error(err);
-    $("sectionTitle").textContent="No se pudo cargar el catálogo.";
-    $("grid").innerHTML=`<div style="color:var(--muted);padding:10px 2px;">${String(err.message||err)}</div>`;
+    if ($("sectionTitle")) $("sectionTitle").textContent="No se pudo cargar el catálogo.";
+    if ($("grid")) $("grid").innerHTML=`<div style="color:var(--muted);padding:10px 2px;">${String(err.message||err)}</div>`;
   }
 }
 
