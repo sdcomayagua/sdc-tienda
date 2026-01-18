@@ -1,5 +1,10 @@
 /* =========================
-   SDC TIENDA - app.js FULL (con efectivo + cambio estimado)
+   SDC TIENDA - app.js FULL
+   - Carrito real + stock límite
+   - Envíos: Comayagua / Propia / Empresa / Bus (rango)
+   - Pago: efectivo (solo Comayagua) + cambio estimado
+   - Doble toque categoría: copiar enlace
+   - Compartir subcategoría
 ========================= */
 
 let DB = {
@@ -72,7 +77,6 @@ function showSkeleton(){
       <div class="loadingSub" id="loadingSub">Estamos preparando los productos de Soluciones Digitales Comayagua.</div>
       <div class="spinner"></div>
     </div>
-
     <div class="skelGrid fadeIn">
       ${Array.from({ length: 8 }, () => `
         <div class="skelCard">
@@ -211,7 +215,6 @@ function renderCategorias(){
 }
 
 function getSubcategoriasDeCategoria(cat){
-  // Si existe hoja subcategorias -> ordenada
   if (DB.subcategorias && DB.subcategorias.length){
     return DB.subcategorias
       .filter(r => (cat==="Todas" ? true : eq(pick(r,["categoria"]), cat)))
@@ -221,7 +224,6 @@ function getSubcategoriasDeCategoria(cat){
       .filter(Boolean);
   }
 
-  // fallback: detectar desde productos
   const set = new Set();
   DB.productos.forEach(p=>{
     if (cat !== "Todas" && p.categoria !== cat) return;
@@ -374,7 +376,7 @@ function renderProductos(){
 /* -------------------------
    Carrito real (stock limitado)
 -------------------------- */
-const CART_KEY="sdc_cart_full_v2";
+const CART_KEY="sdc_cart_full_v3";
 let CART = [];
 
 function loadCart(){ try{ CART = JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; } }
@@ -552,7 +554,7 @@ function updateDeliveryUI(){
 }
 
 /* -------------------------
-   Pagos + efectivo con cambio
+   Pagos + efectivo + cambio
 -------------------------- */
 function updatePayOptions(){
   const t = $("deliveryType")?.value || "";
@@ -576,9 +578,7 @@ function updatePayOptions(){
       if (t==="bus" && !normalizeBool(pick(p,["permite_en_bus_local"],"1"))) return;
     }
 
-    // empresa normal: no efectivo
     if (t==="empresa" && empresaModalidad==="normal" && metodo==="efectivo") return;
-
     allowed.push({value:metodo,label:titulo});
   });
 
@@ -599,13 +599,9 @@ function updateCashAmountVisibility(){
   cash.style.display = show ? "block" : "none";
   if (!show) cash.value = "";
 
-  // Mostrar cambio estimado en payInfo si aplica
   updateChangeHint();
 }
 
-/* -------------------------
-   Envíos + totales
--------------------------- */
 function calcShipping(){
   const t = $("deliveryType")?.value || "";
   if (!t) return { text:"Por confirmar", min:0, max:0, isRange:false };
@@ -682,29 +678,24 @@ function updateChangeHint(){
   const info = $("payInfo");
 
   if (!cash || !info) return;
-
-  // Solo efectivo en Comayagua ciudad
   if (!(delivery==="comayagua_ciudad" && pay==="efectivo")) return;
 
   const amount = n(cash.value || 0);
   const ship = calcShipping();
   const total = cartSubtotal() + ship.min;
 
-  // No hay amount
+  const base = "Efectivo (solo Comayagua ciudad).";
+
   if (amount <= 0){
-    // dejamos el detalle de pago (si existe) y agregamos hint
-    const base = info.textContent || "Efectivo (solo Comayagua ciudad).";
-    info.textContent = base + " | Ingresa con cuánto pagarás para calcular el cambio.";
+    info.textContent = `${base} Ingresa con cuánto pagarás para calcular el cambio.`;
     return;
   }
 
   const diff = amount - total;
-  const base = "Efectivo (solo Comayagua ciudad).";
-
   if (diff < 0){
-    info.textContent = `${base} | Faltan ${fmtLps(Math.abs(diff))}.`;
+    info.textContent = `${base} Faltan ${fmtLps(Math.abs(diff))}.`;
   } else {
-    info.textContent = `${base} | Cambio estimado: ${fmtLps(diff)}.`;
+    info.textContent = `${base} Cambio estimado: ${fmtLps(diff)}.`;
   }
 }
 
@@ -769,7 +760,7 @@ function buildWhatsAppLink(){
   lines.push(`💳 Pago: ${payTitle||"-"}`);
   if (payDetail) lines.push(`Info pago: ${payDetail}`);
 
-  // ✅ efectivo en Comayagua: con cuánto pagará + cambio
+  // efectivo en Comayagua: monto + cambio
   if (delivery==="comayagua_ciudad" && pay==="efectivo"){
     const amount = n($("cashAmount")?.value || 0);
     if (amount > 0){
@@ -809,7 +800,7 @@ function wireUI(){
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
-  // Share
+  // Share buttons
   $("btnShareCategory")?.addEventListener("click", async ()=>{
     if (STATE.categoria==="Todas") return;
     await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}`);
@@ -819,7 +810,7 @@ function wireUI(){
     await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}&sub=${encodeURIComponent(STATE.subcategoria)}`);
   });
 
-  // Carrito open
+  // Carrito
   $("btnCart")?.addEventListener("click", ()=>{
     renderCart();
     updateTotals();
@@ -828,17 +819,7 @@ function wireUI(){
     if (window.openCartModal) window.openCartModal();
   });
 
-  // Copy cart summary
-  $("btnCopyCart")?.addEventListener("click", async ()=>{
-    const ship = calcShipping();
-    const subtotal = cartSubtotal();
-    const totalMin = subtotal + ship.min;
-    const totalMax = subtotal + ship.max;
-    const txt = `Pedido SDC\nSubtotal: ${fmtLps(subtotal)}\nEnvío: ${ship.text}\nTotal: ${ship.isRange ? (fmtLps(totalMin)+" – "+fmtLps(totalMax)) : fmtLps(totalMin)}`;
-    await copyText(txt);
-  });
-
-  // Send WA
+  // Enviar WhatsApp
   $("btnSendWA")?.addEventListener("click", ()=>{
     if (!CART.length){ alert("Tu carrito está vacío."); return; }
     if (!s($("custName")?.value) || !s($("custPhone")?.value)){ alert("Completa tu nombre y teléfono."); return; }
@@ -866,7 +847,7 @@ function wireUI(){
     window.open(buildWhatsAppLink(), "_blank");
   });
 
-  // Ubicación
+  // Ubicación depto/muni
   $("depto")?.addEventListener("change", ()=>{
     refreshMunicipios();
     fillSelect("deliveryType", buildDeliveryOptions().map(o=>({value:o.value,label:o.label})), "Tipo de entrega");
@@ -877,19 +858,87 @@ function wireUI(){
     updateDeliveryUI();
   });
 
-  // Entrega + pago
+  // Entrega
   $("deliveryType")?.addEventListener("change", updateDeliveryUI);
   $("comaZona")?.addEventListener("change", updateTotals);
   $("propiaLugar")?.addEventListener("change", updateTotals);
   $("empresa")?.addEventListener("change", updateTotals);
   $("empresaModalidad")?.addEventListener("change", ()=>{ updatePayOptions(); updateTotals(); updateCashAmountVisibility(); });
   $("busLugar")?.addEventListener("change", updateTotals);
-  $("payMethod")?.addEventListener("change", ()=>{ updateTotals(); updateCashAmountVisibility(); });
 
-  $("cashAmount")?.addEventListener("input", ()=>{
-    updateTotals();
-    updateCashAmountVisibility();
+  // Pago + efectivo
+  $("payMethod")?.addEventListener("change", ()=>{ updateTotals(); updateCashAmountVisibility(); });
+  $("cashAmount")?.addEventListener("input", ()=>{ updateTotals(); updateCashAmountVisibility(); });
+}
+
+/* -------------------------
+   Carrito: helpers UI selects
+-------------------------- */
+function fillSelect(selId, items, placeholder="Selecciona"){
+  const sel = $(selId);
+  if (!sel) return;
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  items.forEach(x=>{
+    const opt = document.createElement("option");
+    opt.value = x.value;
+    opt.textContent = x.label;
+    sel.appendChild(opt);
   });
+}
+
+function getDepartamentos(){
+  const set = new Set(DB.municipios_hn.map(r=>s(pick(r,["departamento"],""))).filter(Boolean));
+  return Array.from(set).sort((a,b)=>a.localeCompare(b));
+}
+function getMunicipios(dep){
+  return DB.municipios_hn
+    .filter(r=>eq(pick(r,["departamento"]), dep))
+    .map(r=>s(pick(r,["municipio"],"")))
+    .filter(Boolean)
+    .sort((a,b)=>a.localeCompare(b));
+}
+function refreshMunicipios(){
+  const dep = $("depto")?.value || "";
+  const munis = dep ? getMunicipios(dep) : [];
+  fillSelect("muni", munis.map(m=>({value:m,label:m})), "Municipio");
+}
+
+/* -------------------------
+   Cobertura / entrega options
+-------------------------- */
+function findCobertura(dep, muni){
+  return DB.cobertura_entrega.find(r =>
+    eq(pick(r,["departamento"]), dep) && eq(pick(r,["municipio"]), muni)
+  ) || null;
+}
+function normalizeBool(v){
+  const x = s(v).toLowerCase();
+  return x==="1" || x==="true" || x==="si" || x==="sí";
+}
+
+function buildDeliveryOptions(){
+  const dep = $("depto")?.value || "";
+  const muni = $("muni")?.value || "";
+  const opts = [{value:"", label:"Selecciona tipo de entrega"}];
+
+  if (!dep || !muni) return opts;
+
+  if (eq(dep,"Comayagua") && eq(muni,"Comayagua")){
+    opts.push({value:"comayagua_ciudad", label:"Comayagua (ciudad) - entrega local"});
+    return opts;
+  }
+
+  const cov = findCobertura(dep, muni);
+  if (cov){
+    if (normalizeBool(pick(cov,["permite_entrega_propia"],"0"))) opts.push({value:"entrega_propia", label:"Entrega propia (cercanos)"});
+    if (normalizeBool(pick(cov,["permite_empresa"],"1"))) opts.push({value:"empresa", label:"Empresa de envío"});
+    if (normalizeBool(pick(cov,["permite_bus"],"1"))) opts.push({value:"bus", label:"Bus local (encomienda)"});
+  } else {
+    opts.push({value:"empresa", label:"Empresa de envío"});
+    opts.push({value:"bus", label:"Bus local (encomienda)"});
+  }
+
+  return opts;
 }
 
 /* -------------------------
@@ -930,28 +979,24 @@ async function init(){
     renderSubcategorias();
     renderProductos();
 
-    // llenar deptos/munis
+    // llenar selects del carrito
     fillSelect("depto", getDepartamentos().map(d=>({value:d,label:d})), "Departamento");
     refreshMunicipios();
-
-    // tipo de entrega (se rellena al elegir depto/muni)
     fillSelect("deliveryType", [{value:"",label:"Selecciona tipo de entrega"}], "Tipo de entrega");
 
-    // zonas comayagua
+    // llenar selects envíos (tolerante)
     fillSelect("comaZona",
       Array.from(new Set(DB.zonas_comayagua_ciudad.map(r=>s(pick(r,["zona"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
       "Zona (Comayagua)"
     );
 
-    // entrega propia
     fillSelect("propiaLugar",
       Array.from(new Set(DB.tarifas_entrega_propia.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
       "Lugar (entrega propia)"
     );
 
-    // empresas
     fillSelect("empresa",
       Array.from(new Set(DB.empresas_envio.map(r=>s(pick(r,["empresa"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
@@ -963,7 +1008,6 @@ async function init(){
       "Modalidad"
     );
 
-    // bus
     fillSelect("busLugar",
       Array.from(new Set(DB.bus_local_tarifas.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
@@ -983,3 +1027,4 @@ async function init(){
 }
 
 init();
+```0
