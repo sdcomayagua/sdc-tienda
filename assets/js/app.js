@@ -243,6 +243,27 @@ function wireUI(){
 }
 
 function showSkeleton(){
+  let LOADING_TIMER = null;
+
+function startLoadingMessageSwap(){
+  // limpia si ya había un timer anterior
+  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
+
+  LOADING_TIMER = setTimeout(() => {
+    const title = document.getElementById("loadingTitle");
+    const sub = document.getElementById("loadingSub");
+    if (!title || !sub) return;
+
+    title.textContent = "Sigue cargando…";
+    sub.textContent = "Si no aparece en unos segundos, recarga la página o escríbenos por WhatsApp.";
+  }, 4000);
+}
+
+function stopLoadingMessageSwap(){
+  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
+  LOADING_TIMER = null;
+}
+
   $("grid").innerHTML = `
     <div class="skelGrid">
       ${Array.from({ length: 8 }, () => `
