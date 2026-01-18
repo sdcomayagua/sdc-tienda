@@ -284,10 +284,15 @@ async function init(){
   try{
     wireUI();
     showSkeleton();
-    startLoadingMessageSwap();
+   showSkeleton();
+startLoadingMessageSwap();
 
-    const data = await apiGetAll(); // JSON directo
-    stopLoadingMessageSwap();
+console.log("Antes de apiGetAll()");
+const data = await apiGetAll();
+console.log("Después de apiGetAll()", data);
+
+stopLoadingMessageSwap();
+
 
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
