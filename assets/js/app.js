@@ -122,7 +122,7 @@ function getCategorias(){
       .filter(Boolean)
       .sort((a,b)=>a.localeCompare(b));
   }
-  return ["Todas", ...cats.filter(c=>c!=="Todas")];
+  return ["Todas", ...cats.filter(c => c && c !== "Todas")];
 }
 
 function renderCategorias(){
