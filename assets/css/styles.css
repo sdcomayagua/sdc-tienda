@@ -452,3 +452,8 @@ body{
   #storeName{ max-width: 46vw; }
   .logo{ width:38px; height:38px; border-radius:12px; }
 }
+#storeName{
+  text-decoration:none;
+  color:inherit;
+  cursor:pointer;
+}
