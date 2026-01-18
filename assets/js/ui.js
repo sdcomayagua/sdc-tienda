@@ -1,65 +1,95 @@
-const $ = (id) => document.getElementById(id);
-function fmtLps(n) { return `Lps. ${Number(n || 0).toFixed(0)}`; }
+// ui.js (sin choques con app.js)
 
-let CURRENT_PRODUCT = null;
+(function () {
+  // helper interno
+  function getEl(id) { return document.getElementById(id); }
 
-function openProduct(p) {
-  CURRENT_PRODUCT = p;
+  // Modal de producto (solo funcionará cuando tengas el modal en index.html)
+  window.openProduct = function (p) {
+    // Si el modal no existe todavía, no rompas la página
+    const modal = getEl("prodModal");
+    if (!modal) return;
 
-  $("modalName").textContent = p.nombre || "";
-  $("modalDesc").textContent = p.descripcion || "";
-  $("modalPrice").textContent = fmtLps(p.precio || 0);
-  $("modalOld").textContent =
-    Number(p.precio_anterior) > Number(p.precio)
-      ? fmtLps(p.precio_anterior)
-      : "";
+    const name = getEl("modalName");
+    const sub = getEl("modalSub");
+    const desc = getEl("modalDesc");
+    const price = getEl("modalPrice");
+    const old = getEl("modalOld");
+    const mainImg = getEl("modalMainImg");
+    const thumbs = getEl("modalThumbs");
+    const vids = getEl("modalVideos");
 
-  // Galería
-  const imgs = [];
-  if (p.imagen) imgs.push(p.imagen);
-  for (let i = 1; i <= 8; i++) {
-    if (p[`galeria_${i}`]) imgs.push(p[`galeria_${i}`]);
-  }
+    if (!name || !mainImg) return;
 
-  $("modalMainImg").src = imgs[0] || "";
-  const thumbs = $("modalThumbs");
-  thumbs.innerHTML = "";
+    name.textContent = p.nombre || "Producto";
+    if (sub) sub.textContent = (p.categoria || "—") + (p.subcategoria ? " · " + p.subcategoria : "");
+    if (desc) desc.textContent = p.descripcion || "";
+    if (price) price.textContent = (window.fmtLps ? window.fmtLps(p.precio || 0) : `Lps. ${p.precio || 0}`);
 
-  if (imgs.length > 1) {
-    imgs.forEach((src, i) => {
-      const im = document.createElement("img");
-      im.src = src;
-      if (i === 0) im.classList.add("active");
-      im.onclick = () => {
-        $("modalMainImg").src = src;
-        [...thumbs.children].forEach(t => t.classList.remove("active"));
-        im.classList.add("active");
-      };
-      thumbs.appendChild(im);
-    });
-  }
+    const oldOk = Number(p.precio_anterior || 0) > Number(p.precio || 0);
+    if (old) old.textContent = oldOk ? (window.fmtLps ? window.fmtLps(p.precio_anterior) : `Lps. ${p.precio_anterior}`) : "";
 
-  // Video
-  const videos = $("modalVideos");
-  videos.innerHTML = "";
-  if (p.video) {
-    let txt = "Ver video";
-    const l = p.video.toLowerCase();
-    if (l.includes("tiktok")) txt = "TikTok";
-    else if (l.includes("youtube")) txt = "YouTube";
-    else if (l.includes("facebook")) txt = "Facebook";
+    // Galería
+    const urls = [];
+    if (p.imagen) urls.push(String(p.imagen).trim());
+    for (let i = 1; i <= 8; i++) {
+      const g = p[`galeria_${i}`];
+      if (g && String(g).trim()) urls.push(String(g).trim());
+    }
+    const gallery = Array.from(new Set(urls)).slice(0, 8);
 
-    const a = document.createElement("a");
-    a.href = p.video;
-    a.target = "_blank";
-    a.textContent = txt;
-    videos.appendChild(a);
-  }
+    mainImg.src = gallery[0] || "";
+    mainImg.alt = p.nombre || "";
 
-  $("modalAdd").onclick = () => addToCart(p);
-  $("productModal").style.display = "flex";
-}
+    if (thumbs) {
+      thumbs.innerHTML = "";
+      if (gallery.length <= 1) {
+        thumbs.style.display = "none";
+      } else {
+        thumbs.style.display = "flex";
+        gallery.forEach((src, idx) => {
+          const im = document.createElement("img");
+          im.className = "thumb" + (idx === 0 ? " active" : "");
+          im.src = src;
+          im.alt = "thumb";
+          im.onclick = () => {
+            mainImg.src = src;
+            Array.from(thumbs.children).forEach(x => x.classList.remove("active"));
+            im.classList.add("active");
+          };
+          thumbs.appendChild(im);
+        });
+      }
+    }
 
-function closeProduct() {
-  $("productModal").style.display = "none";
-}
+    // Video
+    if (vids) {
+      vids.innerHTML = "";
+      const videoUrl = (p.video || p.video_url || "").toString().trim();
+      if (!videoUrl) {
+        vids.style.display = "none";
+      } else {
+        vids.style.display = "flex";
+        const a = document.createElement("a");
+        a.className = "vbtn";
+        a.href = videoUrl;
+        a.target = "_blank";
+        a.rel = "noopener";
+        const u = videoUrl.toLowerCase();
+        a.textContent =
+          u.includes("tiktok.com") ? "Ver en TikTok" :
+          (u.includes("youtube.com") || u.includes("youtu.be")) ? "Ver en YouTube" :
+          (u.includes("facebook.com") || u.includes("fb.watch")) ? "Ver en Facebook" :
+          "Ver video";
+        vids.appendChild(a);
+      }
+    }
+
+    // Abrir modal/backdrop si existen
+    const backdrop = getEl("backdrop");
+    if (backdrop) backdrop.style.display = "block";
+    modal.style.display = "block";
+    modal.setAttribute("aria-hidden", "false");
+  };
+
+})();
