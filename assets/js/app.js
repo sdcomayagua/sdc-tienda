@@ -1,5 +1,5 @@
 /* =========================
-   SDC TIENDA - app.js FULL
+   SDC TIENDA - app.js FULL (con efectivo + cambio estimado)
 ========================= */
 
 let DB = {
@@ -157,7 +157,7 @@ function applyAjustes(){
 }
 
 /* -------------------------
-   Categorías (doble toque copia link)
+   Categorías + Subcategorías
 -------------------------- */
 function getCategorias(){
   let cats = [];
@@ -187,8 +187,6 @@ function renderCategorias(){
 
     b.onclick = async ()=>{
       const now = Date.now();
-
-      // doble toque copia link categoría
       if (lastTapCat.name===c && (now-lastTapCat.t) < 650){
         await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(c)}`);
         lastTapCat = {name:null,t:0};
@@ -213,7 +211,7 @@ function renderCategorias(){
 }
 
 function getSubcategoriasDeCategoria(cat){
-  // hoja subcategorias (si existe) => ordenada
+  // Si existe hoja subcategorias -> ordenada
   if (DB.subcategorias && DB.subcategorias.length){
     return DB.subcategorias
       .filter(r => (cat==="Todas" ? true : eq(pick(r,["categoria"]), cat)))
@@ -376,18 +374,18 @@ function renderProductos(){
 /* -------------------------
    Carrito real (stock limitado)
 -------------------------- */
-const CART_KEY="sdc_cart_full_v1";
+const CART_KEY="sdc_cart_full_v2";
 let CART = [];
 
 function loadCart(){ try{ CART = JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; } }
 function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(CART)); }
 function cartCount(){ return CART.reduce((a,it)=>a+it.qty,0); }
 function updateCartBadge(){ if ($("cartCount")) $("cartCount").textContent = String(cartCount()); }
-
 function getStockById(id){
   const p = DB.productos.find(x => String(x.id) === String(id));
   return p ? Number(p.stock||0) : 0;
 }
+function cartSubtotal(){ return CART.reduce((a,it)=>a + (n(it.precio)*n(it.qty)), 0); }
 
 function addToCart(p){
   const id = String(p.id);
@@ -413,27 +411,11 @@ function addToCart(p){
   saveCart();
   updateCartBadge();
   renderCart();
-   function updateCashAmountVisibility(){
-  const delivery = $("deliveryType")?.value || "";
-  const pay = $("payMethod")?.value || "";
-
-  const cash = $("cashAmount");
-  if (!cash) return;
-
-  const show = (delivery === "comayagua_ciudad" && pay === "efectivo");
-
-  cash.style.display = show ? "block" : "none";
-  if (!show) cash.value = "";
-}
-
   updateTotals();
+  updateCashAmountVisibility();
   if (window.openCartModal) window.openCartModal();
 }
 window.addToCart = addToCart;
-
-function cartSubtotal(){
-  return CART.reduce((a,it)=>a + (n(it.precio)*n(it.qty)), 0);
-}
 
 function renderCart(){
   const empty=$("cartEmpty"), list=$("cartList");
@@ -463,7 +445,7 @@ function renderCart(){
     row.querySelector(".dec").onclick=()=>{
       it.qty--;
       if (it.qty<=0) CART.splice(idx,1);
-      saveCart(); updateCartBadge(); renderCart(); updateTotals();
+      saveCart(); updateCartBadge(); renderCart(); updateTotals(); updateCashAmountVisibility();
     };
 
     row.querySelector(".inc").onclick=()=>{
@@ -471,12 +453,12 @@ function renderCart(){
       if (maxStock<=0){ alert("Este producto está agotado."); return; }
       if (it.qty + 1 > maxStock){ alert(`Stock disponible: ${maxStock}.`); return; }
       it.qty++;
-      saveCart(); updateCartBadge(); renderCart(); updateTotals();
+      saveCart(); updateCartBadge(); renderCart(); updateTotals(); updateCashAmountVisibility();
     };
 
     row.querySelector(".trash").onclick=()=>{
       CART.splice(idx,1);
-      saveCart(); updateCartBadge(); renderCart(); updateTotals();
+      saveCart(); updateCartBadge(); renderCart(); updateTotals(); updateCashAmountVisibility();
     };
 
     list.appendChild(row);
@@ -566,8 +548,12 @@ function updateDeliveryUI(){
 
   updatePayOptions();
   updateTotals();
+  updateCashAmountVisibility();
 }
 
+/* -------------------------
+   Pagos + efectivo con cambio
+-------------------------- */
 function updatePayOptions(){
   const t = $("deliveryType")?.value || "";
   const empresaModalidad = $("empresaModalidad")?.value || "";
@@ -603,6 +589,23 @@ function updatePayOptions(){
   if (allowed.some(x=>x.value===current)) sel.value=current;
 }
 
+function updateCashAmountVisibility(){
+  const delivery = $("deliveryType")?.value || "";
+  const pay = $("payMethod")?.value || "";
+  const cash = $("cashAmount");
+  if (!cash) return;
+
+  const show = (delivery === "comayagua_ciudad" && pay === "efectivo");
+  cash.style.display = show ? "block" : "none";
+  if (!show) cash.value = "";
+
+  // Mostrar cambio estimado en payInfo si aplica
+  updateChangeHint();
+}
+
+/* -------------------------
+   Envíos + totales
+-------------------------- */
 function calcShipping(){
   const t = $("deliveryType")?.value || "";
   if (!t) return { text:"Por confirmar", min:0, max:0, isRange:false };
@@ -664,11 +667,50 @@ function updateTotals(){
       : "Tarifas calculadas desde Google Sheets.";
   }
 
+  // info pago
   const pay = $("payMethod")?.value || "";
   const row = DB.pagos.find(r=>eq(pick(r,["metodo"]), pay));
   if ($("payInfo")) $("payInfo").textContent = row ? s(pick(row,["detalle"])) : "";
+
+  updateChangeHint();
 }
 
+function updateChangeHint(){
+  const delivery = $("deliveryType")?.value || "";
+  const pay = $("payMethod")?.value || "";
+  const cash = $("cashAmount");
+  const info = $("payInfo");
+
+  if (!cash || !info) return;
+
+  // Solo efectivo en Comayagua ciudad
+  if (!(delivery==="comayagua_ciudad" && pay==="efectivo")) return;
+
+  const amount = n(cash.value || 0);
+  const ship = calcShipping();
+  const total = cartSubtotal() + ship.min;
+
+  // No hay amount
+  if (amount <= 0){
+    // dejamos el detalle de pago (si existe) y agregamos hint
+    const base = info.textContent || "Efectivo (solo Comayagua ciudad).";
+    info.textContent = base + " | Ingresa con cuánto pagarás para calcular el cambio.";
+    return;
+  }
+
+  const diff = amount - total;
+  const base = "Efectivo (solo Comayagua ciudad).";
+
+  if (diff < 0){
+    info.textContent = `${base} | Faltan ${fmtLps(Math.abs(diff))}.`;
+  } else {
+    info.textContent = `${base} | Cambio estimado: ${fmtLps(diff)}.`;
+  }
+}
+
+/* -------------------------
+   WhatsApp pedido
+-------------------------- */
 function buildWhatsAppLink(){
   const a = ajustesMap();
   const wa = (a["whatsapp_numero"] || "50431517755").replace(/\D/g,"");
@@ -687,6 +729,8 @@ function buildWhatsAppLink(){
   const payDetail = payRow ? s(pick(payRow,["detalle"])) : "";
 
   const subtotal = cartSubtotal();
+  const totalMin = subtotal + ship.min;
+  const totalMax = subtotal + ship.max;
 
   let lines=[];
   lines.push("🛒 *PEDIDO - SDC*");
@@ -701,7 +745,7 @@ function buildWhatsAppLink(){
   lines.push("");
   lines.push(`Subtotal: ${fmtLps(subtotal)}`);
   lines.push(`Envío: ${ship.text}`);
-  lines.push(`Total: ${ship.isRange ? (fmtLps(subtotal+ship.min)+" – "+fmtLps(subtotal+ship.max)) : fmtLps(subtotal+ship.min)}`);
+  lines.push(`Total: ${ship.isRange ? (fmtLps(totalMin)+" – "+fmtLps(totalMax)) : fmtLps(totalMin)}`);
   lines.push("");
 
   lines.push(`🚚 Entrega: ${delivery||"-"}`);
@@ -725,11 +769,22 @@ function buildWhatsAppLink(){
   lines.push(`💳 Pago: ${payTitle||"-"}`);
   if (payDetail) lines.push(`Info pago: ${payDetail}`);
 
+  // ✅ efectivo en Comayagua: con cuánto pagará + cambio
+  if (delivery==="comayagua_ciudad" && pay==="efectivo"){
+    const amount = n($("cashAmount")?.value || 0);
+    if (amount > 0){
+      lines.push(`💵 Efectivo: paga con ${fmtLps(amount)}`);
+      const diff = amount - totalMin;
+      if (diff < 0) lines.push(`⚠️ Faltan: ${fmtLps(Math.abs(diff))}`);
+      else lines.push(`🔁 Cambio estimado: ${fmtLps(diff)}`);
+    }
+  }
+
   return `https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
 
 /* -------------------------
-   Eventos UI
+   UI events
 -------------------------- */
 function wireUI(){
   const saved = localStorage.getItem("sdc_theme") || "dark";
@@ -754,7 +809,7 @@ function wireUI(){
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
-  // Share category / subcat
+  // Share
   $("btnShareCategory")?.addEventListener("click", async ()=>{
     if (STATE.categoria==="Todas") return;
     await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}`);
@@ -764,27 +819,50 @@ function wireUI(){
     await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}&sub=${encodeURIComponent(STATE.subcategoria)}`);
   });
 
-  // Carrito
+  // Carrito open
   $("btnCart")?.addEventListener("click", ()=>{
     renderCart();
     updateTotals();
     updateDeliveryUI();
+    updateCashAmountVisibility();
     if (window.openCartModal) window.openCartModal();
   });
 
+  // Copy cart summary
   $("btnCopyCart")?.addEventListener("click", async ()=>{
     const ship = calcShipping();
     const subtotal = cartSubtotal();
-    const txt = `Pedido SDC\nSubtotal: ${fmtLps(subtotal)}\nEnvío: ${ship.text}\nTotal: ${ship.isRange ? (fmtLps(subtotal+ship.min)+" – "+fmtLps(subtotal+ship.max)) : fmtLps(subtotal+ship.min)}`;
+    const totalMin = subtotal + ship.min;
+    const totalMax = subtotal + ship.max;
+    const txt = `Pedido SDC\nSubtotal: ${fmtLps(subtotal)}\nEnvío: ${ship.text}\nTotal: ${ship.isRange ? (fmtLps(totalMin)+" – "+fmtLps(totalMax)) : fmtLps(totalMin)}`;
     await copyText(txt);
   });
 
+  // Send WA
   $("btnSendWA")?.addEventListener("click", ()=>{
     if (!CART.length){ alert("Tu carrito está vacío."); return; }
     if (!s($("custName")?.value) || !s($("custPhone")?.value)){ alert("Completa tu nombre y teléfono."); return; }
     if (!s($("depto")?.value) || !s($("muni")?.value)){ alert("Selecciona departamento y municipio."); return; }
     if (!s($("deliveryType")?.value)){ alert("Selecciona tipo de entrega."); return; }
     if (!s($("payMethod")?.value)){ alert("Selecciona método de pago."); return; }
+
+    // Validación efectivo Comayagua
+    const delivery = $("deliveryType")?.value || "";
+    const pay = $("payMethod")?.value || "";
+    if (delivery==="comayagua_ciudad" && pay==="efectivo"){
+      const amt = n($("cashAmount")?.value || 0);
+      if (amt <= 0){
+        alert("Por favor indica con cuánto pagarás (efectivo).");
+        return;
+      }
+      const ship = calcShipping();
+      const total = cartSubtotal() + ship.min;
+      if (amt < total){
+        alert(`El efectivo es menor al total. Faltan ${fmtLps(total-amt)}.`);
+        return;
+      }
+    }
+
     window.open(buildWhatsAppLink(), "_blank");
   });
 
@@ -804,9 +882,14 @@ function wireUI(){
   $("comaZona")?.addEventListener("change", updateTotals);
   $("propiaLugar")?.addEventListener("change", updateTotals);
   $("empresa")?.addEventListener("change", updateTotals);
-  $("empresaModalidad")?.addEventListener("change", updateTotals);
+  $("empresaModalidad")?.addEventListener("change", ()=>{ updatePayOptions(); updateTotals(); updateCashAmountVisibility(); });
   $("busLugar")?.addEventListener("change", updateTotals);
-  $("payMethod")?.addEventListener("change", updateTotals);
+  $("payMethod")?.addEventListener("change", ()=>{ updateTotals(); updateCashAmountVisibility(); });
+
+  $("cashAmount")?.addEventListener("input", ()=>{
+    updateTotals();
+    updateCashAmountVisibility();
+  });
 }
 
 /* -------------------------
@@ -851,22 +934,24 @@ async function init(){
     fillSelect("depto", getDepartamentos().map(d=>({value:d,label:d})), "Departamento");
     refreshMunicipios();
 
-    // entregar select (se llena al elegir dep/muni)
+    // tipo de entrega (se rellena al elegir depto/muni)
     fillSelect("deliveryType", [{value:"",label:"Selecciona tipo de entrega"}], "Tipo de entrega");
 
-    // llenar selects de envíos
+    // zonas comayagua
     fillSelect("comaZona",
       Array.from(new Set(DB.zonas_comayagua_ciudad.map(r=>s(pick(r,["zona"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
       "Zona (Comayagua)"
     );
 
+    // entrega propia
     fillSelect("propiaLugar",
       Array.from(new Set(DB.tarifas_entrega_propia.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
       "Lugar (entrega propia)"
     );
 
+    // empresas
     fillSelect("empresa",
       Array.from(new Set(DB.empresas_envio.map(r=>s(pick(r,["empresa"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
@@ -878,15 +963,16 @@ async function init(){
       "Modalidad"
     );
 
+    // bus
     fillSelect("busLugar",
       Array.from(new Set(DB.bus_local_tarifas.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
       "Lugar (bus local)"
     );
 
-    // pagos
     updatePayOptions();
     updateTotals();
+    updateCashAmountVisibility();
 
   }catch(err){
     stopLoadingMessageSwap();
