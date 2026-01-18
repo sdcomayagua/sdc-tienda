@@ -413,6 +413,19 @@ function addToCart(p){
   saveCart();
   updateCartBadge();
   renderCart();
+   function updateCashAmountVisibility(){
+  const delivery = $("deliveryType")?.value || "";
+  const pay = $("payMethod")?.value || "";
+
+  const cash = $("cashAmount");
+  if (!cash) return;
+
+  const show = (delivery === "comayagua_ciudad" && pay === "efectivo");
+
+  cash.style.display = show ? "block" : "none";
+  if (!show) cash.value = "";
+}
+
   updateTotals();
   if (window.openCartModal) window.openCartModal();
 }
