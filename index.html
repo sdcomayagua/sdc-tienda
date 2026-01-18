@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Soluciones Digitales Comayagua | Catálogo</title>
-
   <link rel="stylesheet" href="./assets/css/styles.css?v=2026" />
   <link rel="preconnect" href="https://script.google.com">
   <link rel="dns-prefetch" href="https://script.google.com">
@@ -22,18 +21,13 @@
     </div>
 
     <div class="topActions">
-      <button class="iconBtn" id="btnSearch" title="Buscar" type="button">🔎</button>
-      <button class="iconBtn" id="btnTheme" title="Día / Noche" type="button">🌙</button>
-      <button class="cartBtn" id="btnCart" title="Carrito" type="button">
-        🛒 <span class="badge" id="cartCount">0</span>
-      </button>
+      <button class="iconBtn" id="btnSearch" type="button">🔎</button>
+      <button class="iconBtn" id="btnTheme" type="button">🌙</button>
+      <button class="cartBtn" id="btnCart" type="button">🛒 <span class="badge" id="cartCount">0</span></button>
     </div>
   </header>
 
-  <!-- CATEGORÍAS -->
   <nav class="chips" id="chips"></nav>
-
-  <!-- SUBCATEGORÍAS -->
   <nav class="subchips" id="subchips" style="display:none;"></nav>
 
   <section class="searchWrap">
@@ -54,17 +48,13 @@
   <footer class="footer">
     <div class="footerBox">
       <div class="footerTitle">Información</div>
-      <div class="footerText" id="footerInfo">
-        Precios sujetos a cambios sin previo aviso. Stock sujeto a disponibilidad.
-        Tarifas de envío pueden variar según zona/empresa; se confirma antes de enviar.
-      </div>
+      <div class="footerText" id="footerInfo"></div>
     </div>
     <div class="footerSmall">© <span id="year"></span> <span id="footerBrand">SDC</span></div>
   </footer>
 
   <a class="waFloat" id="waFloat" target="_blank" rel="noopener">WhatsApp</a>
 
-  <!-- BACKDROP -->
   <div class="modalBackdrop" id="backdrop"></div>
 
   <!-- MODAL PRODUCTO -->
@@ -76,7 +66,6 @@
       </div>
       <button class="iconBtn" id="btnCloseProd" type="button">✕</button>
     </div>
-
     <div class="modalBody">
       <img id="modalMainImg" class="prodMainImg" alt="" />
       <div class="thumbs" id="modalThumbs"></div>
@@ -101,7 +90,7 @@
     <div class="modalHeader">
       <div>
         <div class="modalTitle">Carrito y pedido</div>
-        <div class="modalSub">Completa tus datos y envía por WhatsApp.</div>
+        <div class="modalSub">Completa y envía por WhatsApp.</div>
       </div>
       <button class="iconBtn" id="btnCloseCart" type="button">✕</button>
     </div>
@@ -110,21 +99,21 @@
       <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
       <div class="cartList" id="cartList"></div>
 
-      <div class="sectionTitle" style="margin-top:10px;">Datos</div>
+      <div class="sectionTitle" style="margin-top:12px;">Datos</div>
       <div style="display:grid; gap:10px; margin-top:10px;">
         <input id="custName" class="search" placeholder="Tu nombre" />
         <input id="custPhone" class="search" placeholder="Teléfono (Ej: 9999-9999)" />
       </div>
 
+      <div class="sectionTitle" style="margin-top:14px;">Ubicación</div>
+      <div style="display:grid; gap:10px; margin-top:10px;">
+        <select id="depto" class="search"></select>
+        <select id="muni" class="search"></select>
+      </div>
+
       <div class="sectionTitle" style="margin-top:14px;">Entrega</div>
       <div style="display:grid; gap:10px; margin-top:10px;">
-        <select id="deliveryType" class="search">
-          <option value="">Selecciona tipo de entrega</option>
-          <option value="comayagua_ciudad">Comayagua (ciudad) - entrega local</option>
-          <option value="entrega_propia">Entrega propia (cercanos)</option>
-          <option value="empresa">Empresa de envío</option>
-          <option value="bus">Bus local (encomienda)</option>
-        </select>
+        <select id="deliveryType" class="search"></select>
 
         <div id="boxComa" style="display:none; gap:10px;">
           <select id="comaZona" class="search"></select>
@@ -137,16 +126,18 @@
 
         <div id="boxEmpresa" style="display:none; gap:10px;">
           <select id="empresa" class="search"></select>
-          <select id="empresaModalidad" class="search">
-            <option value="">Modalidad</option>
-            <option value="normal">Normal (pago anticipado)</option>
-            <option value="contra_entrega">Pagar al recibir</option>
-          </select>
+          <select id="empresaModalidad" class="search"></select>
         </div>
 
         <div id="boxBus" style="display:none; gap:10px;">
           <select id="busLugar" class="search"></select>
         </div>
+      </div>
+
+      <div class="sectionTitle" style="margin-top:14px;">Pago</div>
+      <div style="display:grid; gap:10px; margin-top:10px;">
+        <select id="payMethod" class="search"></select>
+        <div class="hint" id="payInfo"></div>
       </div>
 
       <div class="totals">
@@ -155,7 +146,7 @@
         <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
       </div>
 
-      <div class="hint" id="shipHint">Las tarifas se calculan desde Google Sheets. Si es bus local se mostrará rango estimado.</div>
+      <div class="hint" id="shipHint"></div>
     </div>
 
     <div class="modalFooter">
