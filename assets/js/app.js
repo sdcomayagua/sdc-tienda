@@ -139,7 +139,11 @@ function productCard(p){
   const isOffer = Number(p.precio_anterior||0) > Number(p.precio||0);
 
   card.innerHTML = `
-    <img class="cardImg" src="${p.imagen || ""}" alt="">
+  <img class="cardImg" 
+     src="${p.imagen || "assets/img/no-image.png"}" 
+     alt=""
+     onerror="this.onerror=null; this.src='assets/img/no-image.png';">
+
     <div class="cardBody">
       <div class="cardName">${p.nombre || ""}</div>
       <div class="cardDesc">${p.descripcion || p.subcategoria || p.categoria || ""}</div>
