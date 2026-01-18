@@ -6,6 +6,8 @@
   <title>Soluciones Digitales Comayagua | Catálogo</title>
 
   <link rel="stylesheet" href="./assets/css/styles.css?v=2026" />
+  <link rel="stylesheet" href="./assets/css/checkout.css?v=2026" />
+
   <link rel="preconnect" href="https://script.google.com">
   <link rel="dns-prefetch" href="https://script.google.com">
   <meta name="theme-color" content="#0b57ff" />
@@ -30,13 +32,13 @@
     </div>
   </header>
 
-  <!-- CATEGORÍAS -->
+  <!-- Categorías -->
   <nav class="chips" id="chips"></nav>
 
-  <!-- SUBCATEGORÍAS -->
+  <!-- Subcategorías -->
   <nav class="subchips" id="subchips" style="display:none;"></nav>
 
-  <!-- BUSCADOR -->
+  <!-- Buscador -->
   <section class="searchWrap">
     <input id="searchInput" class="search" placeholder="Buscar producto, nombre o descripción…" autocomplete="off" />
     <div class="sectionHeader">
@@ -48,30 +50,31 @@
     </div>
   </section>
 
-  <!-- PRODUCTOS -->
+  <!-- Productos -->
   <main class="container">
     <div class="grid" id="grid"></div>
   </main>
 
-  <!-- FOOTER -->
+  <!-- Confianza / venta -->
   <footer class="footer">
     <div class="footerBox">
-      <div class="footerTitle">Información</div>
+      <div class="footerTitle">Compra segura por WhatsApp</div>
       <div class="footerText" id="footerInfo">
-        Precios sujetos a cambios sin previo aviso. Stock sujeto a disponibilidad.
-        Tarifas de envío pueden variar según zona/empresa; se confirma antes de enviar.
+        ✅ Precios sujetos a cambios · ✅ Stock sujeto a disponibilidad · ✅ Envíos se confirman antes de enviar.
+      </div>
+      <div class="footerText" id="footerTrust">
+        📍 Comayagua, Honduras · 🕘 Horario según disponibilidad · 📲 Atención por WhatsApp
       </div>
     </div>
     <div class="footerSmall">© <span id="year"></span> <span id="footerBrand">SDC</span></div>
   </footer>
 
-  <!-- WhatsApp flotante -->
   <a class="waFloat" id="waFloat" target="_blank" rel="noopener">WhatsApp</a>
 
-  <!-- BACKDROP -->
+  <!-- Backdrop -->
   <div class="modalBackdrop" id="backdrop"></div>
 
-  <!-- MODAL PRODUCTO -->
+  <!-- Modal producto -->
   <div class="modal" id="prodModal" aria-hidden="true">
     <div class="modalHeader">
       <div>
@@ -93,15 +96,14 @@
       <div class="prodMeta" id="modalDesc"></div>
       <div class="videoBtns" id="modalVideos"></div>
 
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <!-- ✅ Agregar NO abre carrito (opción A). checkout.js solo suma -->
+      <div class="prodActions">
         <button class="btn btnPrimary btnFull" id="modalAdd" type="button">Agregar al carrito</button>
         <button class="btn btnSoft btnFull" id="btnShareProduct" type="button">Compartir</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL CARRITO (por pasos) -->
+  <!-- Modal carrito (3 pasos) -->
   <div class="modal" id="cartModal" aria-hidden="true">
     <div class="modalHeader">
       <div>
@@ -112,14 +114,13 @@
     </div>
 
     <div class="modalBody">
-      <!-- Tabs -->
-      <div style="display:flex; gap:10px; margin-bottom:12px;">
-        <button class="btn btnSoft" id="tabCart" type="button">Carrito</button>
-        <button class="btn btnSoft" id="tabShip" type="button">Entrega</button>
-        <button class="btn btnSoft" id="tabPay" type="button">Pago</button>
+      <div class="tabsRow">
+        <button class="tabBtn active" id="tabCart" type="button">Carrito</button>
+        <button class="tabBtn" id="tabShip" type="button">Entrega</button>
+        <button class="tabBtn" id="tabPay" type="button">Pago</button>
       </div>
 
-      <!-- Paso 1: Carrito -->
+      <!-- Paso 1 -->
       <div id="stepCart">
         <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
         <div class="cartList" id="cartList"></div>
@@ -129,59 +130,58 @@
           <div class="row"><span>Envío</span><span id="shippingCost">Por confirmar</span></div>
           <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
         </div>
-
         <div class="hint" id="shipHint">Selecciona entrega para calcular el envío.</div>
       </div>
 
-      <!-- Paso 2: Entrega -->
+      <!-- Paso 2 -->
       <div id="stepShip" style="display:none;">
         <div class="sectionTitle">Datos</div>
-        <div style="display:grid; gap:10px; margin-top:10px;">
+        <div class="formGrid">
           <input id="custName" class="search" placeholder="Tu nombre" />
           <input id="custPhone" class="search" placeholder="Teléfono (Ej: 9999-9999)" />
         </div>
 
         <div class="sectionTitle" style="margin-top:14px;">Ubicación</div>
-        <div style="display:grid; gap:10px; margin-top:10px;">
+        <div class="formGrid">
           <select id="depto" class="search"></select>
           <select id="muni" class="search"></select>
         </div>
 
         <div class="sectionTitle" style="margin-top:14px;">Tipo de entrega</div>
-        <div style="display:grid; gap:10px; margin-top:10px;">
+        <div class="formGrid">
           <select id="deliveryType" class="search"></select>
 
-          <div id="boxComa" style="display:none; gap:10px;">
+          <div id="boxComa" class="formGrid" style="display:none;">
             <select id="comaZona" class="search"></select>
             <input id="comaColonia" class="search" placeholder="Colonia / referencia (opcional)" />
           </div>
 
-          <div id="boxPropia" style="display:none; gap:10px;">
+          <div id="boxPropia" class="formGrid" style="display:none;">
             <select id="propiaLugar" class="search"></select>
           </div>
 
-          <div id="boxEmpresa" style="display:none; gap:10px;">
+          <div id="boxEmpresa" class="formGrid" style="display:none;">
             <select id="empresa" class="search"></select>
             <select id="empresaModalidad" class="search"></select>
           </div>
 
-          <div id="boxBus" style="display:none; gap:10px;">
+          <div id="boxBus" class="formGrid" style="display:none;">
             <select id="busLugar" class="search"></select>
           </div>
         </div>
       </div>
 
-      <!-- Paso 3: Pago -->
+      <!-- Paso 3 -->
       <div id="stepPay" style="display:none;">
         <div class="sectionTitle">Método de pago</div>
-        <div style="display:grid; gap:10px; margin-top:10px;">
-          <select id="payMethod" class="search"></select>
 
-          <!-- Efectivo Comayagua -->
+        <div class="payChips" id="payChips"></div>
+
+        <div class="formGrid" style="margin-top:10px;">
+          <select id="payMethod" class="search"></select>
           <input id="cashAmount" class="search" type="number" inputmode="numeric"
                  placeholder="¿Con cuánto pagará? (solo efectivo en Comayagua)"
                  style="display:none;" />
-
           <div class="hint" id="payInfo"></div>
         </div>
 
