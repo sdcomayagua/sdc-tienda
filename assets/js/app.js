@@ -1,9 +1,13 @@
-let DB = { productos: [], categorias: [], subcategorias: [], ajustes: [] };
+// assets/js/app.js
+let DB = { productos: [], categorias: [], ajustes: [], subcategorias: [] };
 let STATE = { categoria: "Todas", subcategoria: "Todas", query: "" };
 
 const $ = (id) => document.getElementById(id);
 function fmtLps(n){ return `Lps. ${Number(n||0).toFixed(0)}`; }
 
+/* =========================
+   TEMA
+========================= */
 function setTheme(next){
   document.body.classList.toggle("light", next === "light");
   localStorage.setItem("sdc_theme", next);
@@ -11,6 +15,9 @@ function setTheme(next){
   if (b) b.textContent = next === "light" ? "🌙" : "☀️";
 }
 
+/* =========================
+   AJUSTES
+========================= */
 function ajustesMap(){
   const map = {};
   (DB.ajustes||[]).forEach(r=>{
@@ -23,6 +30,7 @@ function ajustesMap(){
 
 function applyAjustes(){
   const a = ajustesMap();
+
   if ($("storeName")) $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
   if ($("storeSub")) $("storeSub").textContent = a["subtitulo"] || "Catálogo";
   if ($("logoText")) $("logoText").textContent = a["siglas"] || "SDC";
@@ -38,6 +46,9 @@ function applyAjustes(){
   if ($("year")) $("year").textContent = new Date().getFullYear();
 }
 
+/* =========================
+   NORMALIZAR PRODUCTOS
+========================= */
 function normalizeProduct(p){
   const out = {
     id: String(p.id||"").trim(),
@@ -53,6 +64,7 @@ function normalizeProduct(p){
     video: String(p.video||p.video_url||"").trim(),
   };
 
+  // Si viene "galeria" como texto: "url1, url2..."
   if (p.galeria && !p.galeria_1){
     const parts = String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean);
     for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
@@ -63,7 +75,9 @@ function normalizeProduct(p){
   return out;
 }
 
-/* ===== Skeleton / loading ===== */
+/* =========================
+   LOADING
+========================= */
 let LOADING_TIMER = null;
 
 function showSkeleton(){
@@ -108,7 +122,9 @@ function stopLoadingMessageSwap(){
   LOADING_TIMER = null;
 }
 
-/* ===== Categorías y subcategorías ===== */
+/* =========================
+   CATEGORÍAS
+========================= */
 function getCategorias(){
   let cats = [];
   if (DB.categorias && DB.categorias.length){
@@ -123,7 +139,7 @@ function getCategorias(){
       .sort((a,b)=>a.localeCompare(b));
   }
 
-  // ✅ evita duplicar "Todas"
+  // evita duplicar "Todas"
   return ["Todas", ...cats.filter(c => c && c !== "Todas")];
 }
 
@@ -139,7 +155,7 @@ function renderCategorias(){
 
     b.onclick = ()=>{
       STATE.categoria = c;
-      STATE.subcategoria = "Todas";  // ✅ reset
+      STATE.subcategoria = "Todas";
       renderCategorias();
       renderSubcategorias();
       renderProductos();
@@ -152,12 +168,15 @@ function renderCategorias(){
   });
 }
 
+/* =========================
+   SUBCATEGORÍAS
+========================= */
 function getSubcategoriasDeCategoria(cat){
-  // cat = categoría actual (o Todas)
+  // Si tienes hoja subcategorias (opcional) puedes llenarla luego.
+  // Por ahora: se detecta de productos.
   const set = new Set();
   DB.productos.forEach(p=>{
-    const okCat = (cat==="Todas") ? true : p.categoria===cat;
-    if (!okCat) return;
+    if (cat !== "Todas" && p.categoria !== cat) return;
     if (p.subcategoria && p.subcategoria.trim()) set.add(p.subcategoria.trim());
   });
   return Array.from(set).sort((a,b)=>a.localeCompare(b));
@@ -167,7 +186,7 @@ function renderSubcategorias(){
   const subEl = $("subchips");
   if (!subEl) return;
 
-  // No mostrar subcategorías si estás en "Todas"
+  // si estás en "Todas", no mostrar subcategorías
   if (STATE.categoria === "Todas") {
     subEl.style.display = "none";
     subEl.innerHTML = "";
@@ -212,8 +231,9 @@ function renderSubcategorias(){
   });
 }
 
-
-/* ===== Productos ===== */
+/* =========================
+   PRODUCTOS
+========================= */
 function filteredProductos(){
   const q = STATE.query.trim().toLowerCase();
 
@@ -240,7 +260,6 @@ function productCard(p){
 
   const isOut = Number(p.stock||0) <= 0;
   const isOffer = Number(p.precio_anterior||0) > Number(p.precio||0);
-
   const imgSrc = p.imagen || "assets/img/no-image.png";
 
   card.innerHTML = `
@@ -301,7 +320,9 @@ function renderProductos(){
   list.forEach(p=>grid.appendChild(productCard(p)));
 }
 
-/* ===== UI ===== */
+/* =========================
+   UI EVENTS
+========================= */
 function wireUI(){
   const saved = localStorage.getItem("sdc_theme") || "dark";
   setTheme(saved);
@@ -331,17 +352,19 @@ function wireUI(){
       catch(e){ alert("No se pudo copiar"); }
     };
   }
-
-  // ✅ Tocar título: scroll suave arriba
-  if ($("storeName")){
-    $("storeName").addEventListener("click",(e)=>{
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
 }
 
-/* ===== Init ===== */
+/* ✅ Ir al inicio al tocar el título (funciona siempre) */
+document.addEventListener("click", function(e){
+  const el = e.target.closest("#storeName");
+  if (!el) return;
+  e.preventDefault();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* =========================
+   INIT
+========================= */
 async function init(){
   try{
     wireUI();
@@ -353,28 +376,8 @@ async function init(){
 
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
-    function getSubcategoriasDeCategoria(cat){
-  // 1) si hay tabla subcategorias, usarla
-  if (DB.subcategorias && DB.subcategorias.length){
-    return DB.subcategorias
-      .filter(r => (cat==="Todas" ? true : String(r.categoria||"")===cat))
-      .filter(r => String(r.visible ?? 1)==="1" || r.visible===1)
-      .sort((a,b)=>Number(a.orden||0)-Number(b.orden||0))
-      .map(r=>String(r.subcategoria||"").trim())
-      .filter(Boolean);
-  }
-
-  // 2) si no existe, fallback: detectar desde productos (alfabético)
-  const set = new Set();
-  DB.productos.forEach(p=>{
-    const okCat = (cat==="Todas") ? true : p.categoria===cat;
-    if (!okCat) return;
-    if (p.subcategoria && p.subcategoria.trim()) set.add(p.subcategoria.trim());
-  });
-  return Array.from(set).sort((a,b)=>a.localeCompare(b));
-}
-
     DB.ajustes = data.ajustes || [];
+    DB.subcategorias = data.subcategorias || []; // por si luego lo usas
 
     applyAjustes();
     renderCategorias();
