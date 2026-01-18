@@ -512,3 +512,44 @@ body{
 @media (max-width: 420px){
   .subchips::before{ content:"Sub:"; }
 }
+/* ===== FIX DEFINITIVO título (manda sobre todo) ===== */
+.topbar{ align-items:center !important; }
+
+.brand{ min-width:0 !important; align-items:center !important; }
+.brandText{ min-width:0 !important; }
+
+#storeName{
+  display:block !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width: 520px !important;
+  line-height: 1.1 !important;
+  text-decoration:none !important;
+  color:inherit !important;
+}
+
+/* móvil: texto corto */
+@media (max-width: 720px){
+  #storeName{
+    max-width: 56vw !important;
+    color: transparent !important;
+    position: relative !important;
+    font-size: 16px !important;
+  }
+  #storeName::after{
+    content: "SDComayagua" !important;
+    color: var(--text) !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    white-space:nowrap !important;
+  }
+  #storeSub{ font-size:11px !important; opacity:.9 !important; }
+}
+
+@media (max-width: 420px){
+  #storeName{ max-width: 46vw !important; }
+  .logo{ width:38px !important; height:38px !important; border-radius:12px !important; }
+}
