@@ -1,13 +1,9 @@
-// assets/js/app.js
 let DB = { productos: [], categorias: [], ajustes: [], subcategorias: [] };
 let STATE = { categoria: "Todas", subcategoria: "Todas", query: "" };
 
 const $ = (id) => document.getElementById(id);
 function fmtLps(n){ return `Lps. ${Number(n||0).toFixed(0)}`; }
 
-/* =========================
-   TEMA
-========================= */
 function setTheme(next){
   document.body.classList.toggle("light", next === "light");
   localStorage.setItem("sdc_theme", next);
@@ -15,9 +11,6 @@ function setTheme(next){
   if (b) b.textContent = next === "light" ? "🌙" : "☀️";
 }
 
-/* =========================
-   AJUSTES
-========================= */
 function ajustesMap(){
   const map = {};
   (DB.ajustes||[]).forEach(r=>{
@@ -30,7 +23,6 @@ function ajustesMap(){
 
 function applyAjustes(){
   const a = ajustesMap();
-
   if ($("storeName")) $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
   if ($("storeSub")) $("storeSub").textContent = a["subtitulo"] || "Catálogo";
   if ($("logoText")) $("logoText").textContent = a["siglas"] || "SDC";
@@ -46,9 +38,6 @@ function applyAjustes(){
   if ($("year")) $("year").textContent = new Date().getFullYear();
 }
 
-/* =========================
-   NORMALIZAR PRODUCTOS
-========================= */
 function normalizeProduct(p){
   const out = {
     id: String(p.id||"").trim(),
@@ -64,20 +53,15 @@ function normalizeProduct(p){
     video: String(p.video||p.video_url||"").trim(),
   };
 
-  // Si viene "galeria" como texto: "url1, url2..."
   if (p.galeria && !p.galeria_1){
     const parts = String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean);
     for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
   } else {
     for (let i=1;i<=8;i++) out[`galeria_${i}`] = String(p[`galeria_${i}`]||"").trim();
   }
-
   return out;
 }
 
-/* =========================
-   LOADING
-========================= */
 let LOADING_TIMER = null;
 
 function showSkeleton(){
@@ -122,9 +106,7 @@ function stopLoadingMessageSwap(){
   LOADING_TIMER = null;
 }
 
-/* =========================
-   CATEGORÍAS
-========================= */
+/* Categorías */
 function getCategorias(){
   let cats = [];
   if (DB.categorias && DB.categorias.length){
@@ -138,8 +120,6 @@ function getCategorias(){
       .filter(Boolean)
       .sort((a,b)=>a.localeCompare(b));
   }
-
-  // evita duplicar "Todas"
   return ["Todas", ...cats.filter(c => c && c !== "Todas")];
 }
 
@@ -163,17 +143,12 @@ function renderCategorias(){
       const btn = $("btnShareCategory");
       if (btn) btn.style.display = (c==="Todas") ? "none" : "inline-flex";
     };
-
     chips.appendChild(b);
   });
 }
 
-/* =========================
-   SUBCATEGORÍAS
-========================= */
+/* Subcategorías (detectadas) */
 function getSubcategoriasDeCategoria(cat){
-  // Si tienes hoja subcategorias (opcional) puedes llenarla luego.
-  // Por ahora: se detecta de productos.
   const set = new Set();
   DB.productos.forEach(p=>{
     if (cat !== "Todas" && p.categoria !== cat) return;
@@ -186,7 +161,6 @@ function renderSubcategorias(){
   const subEl = $("subchips");
   if (!subEl) return;
 
-  // si estás en "Todas", no mostrar subcategorías
   if (STATE.categoria === "Todas") {
     subEl.style.display = "none";
     subEl.innerHTML = "";
@@ -206,7 +180,6 @@ function renderSubcategorias(){
   subEl.style.display = "flex";
   subEl.innerHTML = "";
 
-  // Botón "Todas" (subcategorías)
   const all = document.createElement("button");
   all.className = "chip subchip" + (STATE.subcategoria==="Todas" ? " active" : "");
   all.textContent = "Todas";
@@ -217,7 +190,6 @@ function renderSubcategorias(){
   };
   subEl.appendChild(all);
 
-  // Subcategorías reales
   subs.forEach(sc=>{
     const b = document.createElement("button");
     b.className = "chip subchip" + (STATE.subcategoria===sc ? " active" : "");
@@ -231,9 +203,7 @@ function renderSubcategorias(){
   });
 }
 
-/* =========================
-   PRODUCTOS
-========================= */
+/* Productos */
 function filteredProductos(){
   const q = STATE.query.trim().toLowerCase();
 
@@ -262,7 +232,15 @@ function productCard(p){
   const isOffer = Number(p.precio_anterior||0) > Number(p.precio||0);
   const imgSrc = p.imagen || "assets/img/no-image.png";
 
-  card.innerHTML = `
+  if (isOut) card.classList.add("isOut");
+  if (isOffer) {
+    const tag = document.createElement("div");
+    tag.className = "offerTag";
+    tag.textContent = "OFERTA";
+    card.appendChild(tag);
+  }
+
+  card.innerHTML += `
     <img class="cardImg"
          src="${imgSrc}"
          alt=""
@@ -271,7 +249,7 @@ function productCard(p){
       <div class="cardName">${p.nombre || ""}</div>
       <div class="cardDesc">${p.descripcion || p.subcategoria || p.categoria || ""}</div>
       <div class="priceRow">
-        <div class="price">${fmtLps(p.precio||0)}</div>
+        <div class="price ${isOffer ? "offer" : ""}">${fmtLps(p.precio||0)}</div>
         <div class="old">${isOffer ? fmtLps(p.precio_anterior) : ""}</div>
       </div>
       <div class="cardActions">
@@ -299,7 +277,6 @@ function renderProductos(){
   if (!grid) return;
 
   grid.innerHTML = "";
-
   const list = filteredProductos();
 
   if ($("sectionTitle")){
@@ -320,9 +297,7 @@ function renderProductos(){
   list.forEach(p=>grid.appendChild(productCard(p)));
 }
 
-/* =========================
-   UI EVENTS
-========================= */
+/* UI */
 function wireUI(){
   const saved = localStorage.getItem("sdc_theme") || "dark";
   setTheme(saved);
@@ -334,7 +309,6 @@ function wireUI(){
     };
   }
 
-  // Buscar
   if ($("btnSearch") && $("searchInput")){
     $("btnSearch").onclick = ()=>$("searchInput").focus();
     $("searchInput").addEventListener("input",(e)=>{
@@ -343,7 +317,6 @@ function wireUI(){
     });
   }
 
-  // Compartir categoría
   if ($("btnShareCategory")){
     $("btnShareCategory").onclick = async ()=>{
       if (STATE.categoria==="Todas") return;
@@ -354,7 +327,7 @@ function wireUI(){
   }
 }
 
-/* ✅ Ir al inicio al tocar el título (funciona siempre) */
+/* Ir al inicio tocando el título */
 document.addEventListener("click", function(e){
   const el = e.target.closest("#storeName");
   if (!el) return;
@@ -362,9 +335,7 @@ document.addEventListener("click", function(e){
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-/* =========================
-   INIT
-========================= */
+/* Init */
 async function init(){
   try{
     wireUI();
@@ -377,7 +348,6 @@ async function init(){
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
     DB.ajustes = data.ajustes || [];
-    DB.subcategorias = data.subcategorias || []; // por si luego lo usas
 
     applyAjustes();
     renderCategorias();
