@@ -415,3 +415,35 @@ body{
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* ---- Fix Topbar Mobile: evitar título amontonado ---- */
+.brand{
+  min-width: 0;               /* permite recorte */
+}
+
+.brandText{
+  min-width: 0;
+}
+
+.brandName{
+  white-space: nowrap;        /* una sola línea */
+  overflow: hidden;           /* recorta */
+  text-overflow: ellipsis;    /* pone ... */
+  max-width: 42vw;            /* ajusta al móvil */
+}
+
+.brandSub{
+  font-size: 11px;            /* más pequeño */
+  margin-top: 2px;
+  opacity: .9;
+}
+
+/* En pantallas grandes, deja que crezca */
+@media (min-width: 900px){
+  .brandName{ max-width: 520px; }
+}
+
+/* Ajuste extra para móviles muy pequeños */
+@media (max-width: 420px){
+  .brandName{ max-width: 34vw; }
+  .logo{ width:38px; height:38px; border-radius:12px; }
+}
