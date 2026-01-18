@@ -2,22 +2,22 @@
   function getEl(id){ return document.getElementById(id); }
   const fallback = "assets/img/no-image.png";
 
-  function closeModal(){
-    const modal = getEl("prodModal");
+  function closeAllModals(){
+    const prod = getEl("prodModal");
+    const cart = getEl("cartModal");
     const backdrop = getEl("backdrop");
-    if (modal){
-      modal.style.display = "none";
-      modal.setAttribute("aria-hidden","true");
-    }
-    if (backdrop) backdrop.style.display = "none";
+
+    if (prod){ prod.style.display="none"; prod.setAttribute("aria-hidden","true"); }
+    if (cart){ cart.style.display="none"; cart.setAttribute("aria-hidden","true"); }
+    if (backdrop) backdrop.style.display="none";
   }
 
-  function openModal(){
-    const modal = getEl("prodModal");
+  function openModal(modalId){
+    const modal = getEl(modalId);
     const backdrop = getEl("backdrop");
-    if (backdrop) backdrop.style.display = "block";
+    if (backdrop) backdrop.style.display="block";
     if (modal){
-      modal.style.display = "block";
+      modal.style.display="block";
       modal.setAttribute("aria-hidden","false");
     }
   }
@@ -43,6 +43,23 @@
     return "Ver video";
   }
 
+  // listeners globales 1 sola vez
+  document.addEventListener("DOMContentLoaded", () => {
+    const backdrop = getEl("backdrop");
+    if (backdrop) backdrop.addEventListener("click", closeAllModals);
+
+    const closeProd = getEl("btnCloseProd");
+    if (closeProd) closeProd.addEventListener("click", closeAllModals);
+
+    const closeCart = getEl("btnCloseCart");
+    if (closeCart) closeCart.addEventListener("click", closeAllModals);
+
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape") closeAllModals();
+    });
+  });
+
+  // abre producto
   window.openProduct = function(p){
     const modal = getEl("prodModal");
     if (!modal) return;
@@ -130,14 +147,15 @@
       };
     }
 
-    // ✅ Cerrar SIEMPRE
-    const closeBtn = getEl("btnCloseProd");
-    if (closeBtn) closeBtn.onclick = closeModal;
-
-    const backdrop = getEl("backdrop");
-    if (backdrop) backdrop.onclick = closeModal;
-
-    openModal();
+    openModal("prodModal");
   };
+
+  // abrir carrito desde app.js
+  window.openCartModal = function(){
+    openModal("cartModal");
+  };
+
+  // cerrar desde app.js si hace falta
+  window.closeAllModals = closeAllModals;
 
 })();
