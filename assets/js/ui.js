@@ -1,4 +1,4 @@
-// assets/js/ui.js (modal estable + checkoutAdd + toast)
+// assets/js/ui.js (toast + badge pulse + compartir WhatsApp)
 (function(){
   const fallback = "assets/img/no-image.png";
   const getEl = (id)=>document.getElementById(id);
@@ -28,6 +28,15 @@
     window.__toastTimer = setTimeout(()=>{ t.style.opacity = "0"; }, 1200);
   }
 
+  function pulseBadge(){
+    const b = document.getElementById("cartCount");
+    if (!b) return;
+    b.classList.remove("pulse");
+    // reflow para reiniciar animación
+    void b.offsetWidth;
+    b.classList.add("pulse");
+  }
+
   function closeProductModal(){
     const modal = getEl("prodModal");
     const backdrop = getEl("backdrop");
@@ -38,16 +47,6 @@
     const cart = getEl("cartModal");
     const cartOpen = cart && cart.style.display === "block";
     if (backdrop && !cartOpen) backdrop.style.display = "none";
-  }
-
-  function openProductModal(){
-    const modal = getEl("prodModal");
-    const backdrop = getEl("backdrop");
-    if (backdrop) backdrop.style.display = "block";
-    if (modal){
-      modal.style.display = "block";
-      modal.setAttribute("aria-hidden","false");
-    }
   }
 
   function parseGallery(p){
@@ -71,12 +70,28 @@
     return "Ver video";
   }
 
+  function getWhatsAppNumber(){
+    // Usa ajustes si existen (app.js expone ajustesMap)
+    if (typeof window.ajustesMap === "function"){
+      const a = window.ajustesMap();
+      const wa = (a.whatsapp_numero || "50431517755").replace(/\D/g,"");
+      return wa || "50431517755";
+    }
+    return "50431517755";
+  }
+
+  function productShareLink(p){
+    return location.origin + location.pathname + "#p=" + encodeURIComponent(p.id||"");
+  }
+
   document.addEventListener("DOMContentLoaded", ()=>{
     getEl("btnCloseProd")?.addEventListener("click", closeProductModal);
+
     getEl("backdrop")?.addEventListener("click", ()=>{
       const modal = getEl("prodModal");
       if (modal && modal.style.display === "block") closeProductModal();
     });
+
     document.addEventListener("keydown",(e)=>{
       if (e.key === "Escape"){
         const modal = getEl("prodModal");
@@ -99,6 +114,7 @@
     const vids = getEl("modalVideos");
     const addBtn = getEl("modalAdd");
     const shareBtn = getEl("btnShareProduct");
+    const shareWABtn = getEl("btnShareProductWA"); // nuevo botón
 
     if (name) name.textContent = p.nombre || "Producto";
     if (sub) sub.textContent = (p.categoria || "—") + (p.subcategoria ? " · " + p.subcategoria : "");
@@ -157,6 +173,7 @@
       }
     }
 
+    // Agregar al carrito (sin abrir carrito)
     if (addBtn){
       const agotado = Number(p.stock||0) <= 0;
       addBtn.disabled = agotado;
@@ -169,6 +186,7 @@
           if (ok){
             toast("Agregado al carrito ✅");
             window.checkoutRefreshBadge && window.checkoutRefreshBadge();
+            pulseBadge();
           }
         } else {
           toast("Error: checkout no cargó");
@@ -176,14 +194,26 @@
       };
     }
 
+    // Compartir link
     if (shareBtn){
       shareBtn.onclick = async ()=>{
-        const url = location.origin + location.pathname + "#p=" + encodeURIComponent(p.id||"");
+        const url = productShareLink(p);
         try{ await navigator.clipboard.writeText(url); toast("Enlace copiado ✅"); }
         catch{ toast("No se pudo copiar"); }
       };
     }
 
+    // Compartir por WhatsApp
+    if (shareWABtn){
+      shareWABtn.onclick = ()=>{
+        const wa = getWhatsAppNumber();
+        const url = productShareLink(p);
+        const msg = `Hola, me interesa este producto:\n${p.nombre}\n${url}`;
+        window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, "_blank");
+      };
+    }
+
+    // abrir modal
     const backdrop = getEl("backdrop");
     if (backdrop) backdrop.style.display = "block";
     modal.style.display = "block";
