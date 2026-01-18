@@ -1,4 +1,4 @@
-// assets/js/ui.js (modal estable + agregar al carrito con toast, sin alerts)
+// assets/js/ui.js (modal estable + checkoutAdd + toast)
 (function(){
   const fallback = "assets/img/no-image.png";
   const getEl = (id)=>document.getElementById(id);
@@ -35,8 +35,6 @@
       modal.style.display = "none";
       modal.setAttribute("aria-hidden","true");
     }
-
-    // Si el carrito está abierto, no apagues el backdrop
     const cart = getEl("cartModal");
     const cartOpen = cart && cart.style.display === "block";
     if (backdrop && !cartOpen) backdrop.style.display = "none";
@@ -55,18 +53,13 @@
   function parseGallery(p){
     const urls = [];
     if (p.imagen) urls.push(String(p.imagen).trim());
-
-    // galeria_1..8
     for (let i=1;i<=8;i++){
       const g = p[`galeria_${i}`];
       if (g && String(g).trim()) urls.push(String(g).trim());
     }
-
-    // galeria CSV
     if (p.galeria){
       String(p.galeria).split(",").map(x=>x.trim()).filter(Boolean).forEach(u=>urls.push(u));
     }
-
     return Array.from(new Set(urls)).slice(0,8);
   }
 
@@ -78,16 +71,12 @@
     return "Ver video";
   }
 
-  // listeners globales una sola vez
   document.addEventListener("DOMContentLoaded", ()=>{
     getEl("btnCloseProd")?.addEventListener("click", closeProductModal);
-
-    // click fuera (backdrop) cierra solo el modal del producto
     getEl("backdrop")?.addEventListener("click", ()=>{
       const modal = getEl("prodModal");
       if (modal && modal.style.display === "block") closeProductModal();
     });
-
     document.addEventListener("keydown",(e)=>{
       if (e.key === "Escape"){
         const modal = getEl("prodModal");
@@ -96,7 +85,6 @@
     });
   });
 
-  // API: abrir producto desde app.js
   window.openProduct = function(p){
     const modal = getEl("prodModal");
     if (!modal) return;
@@ -112,7 +100,6 @@
     const addBtn = getEl("modalAdd");
     const shareBtn = getEl("btnShareProduct");
 
-    // texto
     if (name) name.textContent = p.nombre || "Producto";
     if (sub) sub.textContent = (p.categoria || "—") + (p.subcategoria ? " · " + p.subcategoria : "");
     if (desc) desc.textContent = p.descripcion || "";
@@ -123,7 +110,6 @@
     const oldOk = Number(p.precio_anterior||0) > Number(p.precio||0);
     if (old) old.textContent = oldOk ? f(p.precio_anterior) : "";
 
-    // galería
     const gallery = parseGallery(p);
 
     if (mainImg){
@@ -154,59 +140,6 @@
       }
     }
 
-    // video
     if (vids){
       vids.innerHTML = "";
-      const url = String(p.video || "").trim();
-      if (!url){
-        vids.style.display = "none";
-      } else {
-        vids.style.display = "flex";
-        const a = document.createElement("a");
-        a.className = "vbtn";
-        a.href = url;
-        a.target = "_blank";
-        a.rel = "noopener";
-        a.textContent = videoLabel(url);
-        vids.appendChild(a);
-      }
-    }
-
-    // Agregar al carrito (Opción A: NO abre el carrito)
-    if (addBtn){
-      const agotado = Number(p.stock||0) <= 0;
-      addBtn.disabled = agotado;
-      addBtn.textContent = agotado ? "Agotado" : "Agregar al carrito";
-
-      addBtn.onclick = ()=>{
-        if (agotado) return;
-
-        // checkout.js debe estar cargado
-        if (typeof window.checkoutAdd === "function"){
-          const ok = window.checkoutAdd(p);
-          if (ok){
-            toast("Agregado al carrito ✅");
-            if (typeof window.checkoutRefreshBadge === "function"){
-              window.checkoutRefreshBadge();
-            }
-          }
-        } else {
-          // sin alert: solo toast
-          toast("Error: checkout no cargó");
-        }
-      };
-    }
-
-    // Compartir producto
-    if (shareBtn){
-      shareBtn.onclick = async ()=>{
-        const url = location.origin + location.pathname + "#p=" + encodeURIComponent(p.id||"");
-        try{ await navigator.clipboard.writeText(url); toast("Enlace copiado ✅"); }
-        catch{ toast("No se pudo copiar"); }
-      };
-    }
-
-    openProductModal();
-  };
-
-})();
+      const url
