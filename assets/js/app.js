@@ -122,8 +122,11 @@ function getCategorias(){
       .filter(Boolean)
       .sort((a,b)=>a.localeCompare(b));
   }
+
+  // ✅ evita que "Todas" se repita
   return ["Todas", ...cats.filter(c => c && c !== "Todas")];
 }
+
 
 function renderCategorias(){
   const chips = $("chips");
@@ -162,6 +165,13 @@ function getSubcategoriasDeCategoria(cat){
 }
 
 function renderSubcategorias(){
+  if (STATE.categoria === "Todas") {
+  sub.style.display = "none";
+  sub.innerHTML = "";
+  STATE.subcategoria = "Todas";
+  return;
+}
+
   const sub = $("subchips");
   if (!sub) return;
 
