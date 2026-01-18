@@ -1,9 +1,5 @@
 /* =========================
-   SDC TIENDA - app.js (tolerante)
-   - Carrito real
-   - Envíos y pagos desde Sheets
-   - Doble toque categoría copia enlace
-   - Compartir subcategoría
+   SDC TIENDA - app.js FULL
 ========================= */
 
 let DB = {
@@ -24,12 +20,8 @@ let STATE = { categoria: "Todas", subcategoria: "Todas", query: "" };
 
 const $ = (id) => document.getElementById(id);
 function fmtLps(n){ return `Lps. ${Number(n||0).toFixed(0)}`; }
-
-/* -------------------------
-   Utilidades tolerantes
--------------------------- */
 function s(v){ return (v===null || v===undefined) ? "" : String(v).trim(); }
-function n(v){ const x = Number(v); return Number.isFinite(x) ? x : 0; }
+function n(v){ const x=Number(v); return Number.isFinite(x)?x:0; }
 function pick(obj, keys, fallback=""){
   for (const k of keys){
     if (obj && obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== "") return obj[k];
@@ -37,41 +29,9 @@ function pick(obj, keys, fallback=""){
   return fallback;
 }
 function eq(a,b){ return s(a).toLowerCase() === s(b).toLowerCase(); }
-
-function normalizeProduct(p){
-  const out = {
-    id: s(pick(p, ["id","ID"])),
-    nombre: s(pick(p, ["nombre","name"])),
-    precio: n(pick(p, ["precio","price"], 0)),
-    precio_anterior: n(pick(p, ["precio_anterior","precioAnterior","old_price"], 0)),
-    stock: n(pick(p, ["stock"], 0)),
-    categoria: s(pick(p, ["categoria"], "General")) || "General",
-    subcategoria: s(pick(p, ["subcategoria"], "")),
-    imagen: s(pick(p, ["imagen"], "")),
-    descripcion: s(pick(p, ["descripcion"], "")),
-    orden: n(pick(p, ["orden"], 0)),
-    video: s(pick(p, ["video","video_url","video_tiktok","video_facebook","video_youtube"], "")),
-  };
-
-  // Galería: soporta galeria CSV o galeria_1..8
-  if (p.galeria && !p.galeria_1){
-    const parts = s(p.galeria).split(",").map(x=>x.trim()).filter(Boolean);
-    for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
-  } else {
-    for (let i=1;i<=8;i++) out[`galeria_${i}`] = s(p[`galeria_${i}`]);
-  }
-
-  return out;
-}
-
-function ajustesMap(){
-  const map = {};
-  (DB.ajustes||[]).forEach(r=>{
-    const k = s(r.clave);
-    const v = s(r.valor);
-    if (k) map[k]=v;
-  });
-  return map;
+async function copyText(txt){
+  try{ await navigator.clipboard.writeText(txt); alert("Enlace copiado"); }
+  catch{ alert("No se pudo copiar"); }
 }
 
 /* -------------------------
@@ -86,10 +46,6 @@ function parseHash(){
   const h = (location.hash||"").replace("#","");
   const p = new URLSearchParams(h);
   return { cat: p.get("cat"), sub: p.get("sub") };
-}
-async function copyText(txt){
-  try{ await navigator.clipboard.writeText(txt); alert("Enlace copiado"); }
-  catch{ alert("No se pudo copiar"); }
 }
 
 /* -------------------------
@@ -145,8 +101,44 @@ function stopLoadingMessageSwap(){
 }
 
 /* -------------------------
-   Ajustes -> UI
+   Normalizar datos
 -------------------------- */
+function normalizeProduct(p){
+  const out = {
+    id: s(pick(p, ["id","ID"])),
+    nombre: s(pick(p, ["nombre","name"])),
+    precio: n(pick(p, ["precio","price"], 0)),
+    precio_anterior: n(pick(p, ["precio_anterior","precioAnterior","old_price"], 0)),
+    stock: n(pick(p, ["stock"], 0)),
+    categoria: s(pick(p, ["categoria"], "General")) || "General",
+    subcategoria: s(pick(p, ["subcategoria"], "")),
+    imagen: s(pick(p, ["imagen"], "")),
+    descripcion: s(pick(p, ["descripcion"], "")),
+    orden: n(pick(p, ["orden"], 0)),
+    video: s(pick(p, ["video","video_url","video_tiktok","video_facebook","video_youtube"], "")),
+  };
+
+  // Galería CSV o galeria_1..8
+  if (p.galeria && !p.galeria_1){
+    const parts = s(p.galeria).split(",").map(x=>x.trim()).filter(Boolean);
+    for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
+  } else {
+    for (let i=1;i<=8;i++) out[`galeria_${i}`] = s(p[`galeria_${i}`]);
+  }
+
+  return out;
+}
+
+function ajustesMap(){
+  const map = {};
+  (DB.ajustes||[]).forEach(r=>{
+    const k = s(r.clave);
+    const v = s(r.valor);
+    if (k) map[k]=v;
+  });
+  return map;
+}
+
 function applyAjustes(){
   const a = ajustesMap();
   if ($("storeName")) $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
@@ -165,7 +157,7 @@ function applyAjustes(){
 }
 
 /* -------------------------
-   Categorías + Subcategorías
+   Categorías (doble toque copia link)
 -------------------------- */
 function getCategorias(){
   let cats = [];
@@ -195,10 +187,10 @@ function renderCategorias(){
 
     b.onclick = async ()=>{
       const now = Date.now();
-      // ✅ doble toque: copiar enlace categoría
+
+      // doble toque copia link categoría
       if (lastTapCat.name===c && (now-lastTapCat.t) < 650){
-        const url = location.origin + location.pathname + `#cat=${encodeURIComponent(c)}`;
-        await copyText(url);
+        await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(c)}`);
         lastTapCat = {name:null,t:0};
         return;
       }
@@ -210,7 +202,6 @@ function renderCategorias(){
       renderSubcategorias();
       renderProductos();
 
-      // botones compartir
       if ($("btnShareCategory")) $("btnShareCategory").style.display = (c==="Todas") ? "none" : "inline-flex";
       if ($("btnShareSubcat")) $("btnShareSubcat").style.display = "none";
 
@@ -222,7 +213,7 @@ function renderCategorias(){
 }
 
 function getSubcategoriasDeCategoria(cat){
-  // Si existe hoja subcategorias, úsala (ordenada)
+  // hoja subcategorias (si existe) => ordenada
   if (DB.subcategorias && DB.subcategorias.length){
     return DB.subcategorias
       .filter(r => (cat==="Todas" ? true : eq(pick(r,["categoria"]), cat)))
@@ -297,7 +288,6 @@ function renderSubcategorias(){
 -------------------------- */
 function filteredProductos(){
   const q = STATE.query.trim().toLowerCase();
-
   return DB.productos
     .filter(p => STATE.categoria==="Todas" ? true : p.categoria===STATE.categoria)
     .filter(p => STATE.subcategoria==="Todas" ? true : p.subcategoria===STATE.subcategoria)
@@ -310,6 +300,7 @@ function filteredProductos(){
       const av = a.stock>0 ? 0 : 1;
       const bv = b.stock>0 ? 0 : 1;
       if (av!==bv) return av-bv;
+      if ((a.orden||0)!==(b.orden||0)) return (a.orden||0)-(b.orden||0);
       return a.nombre.localeCompare(b.nombre);
     });
 }
@@ -383,9 +374,9 @@ function renderProductos(){
 }
 
 /* -------------------------
-   Carrito real
+   Carrito real (stock limitado)
 -------------------------- */
-const CART_KEY="sdc_cart_v2";
+const CART_KEY="sdc_cart_full_v1";
 let CART = [];
 
 function loadCart(){ try{ CART = JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; } }
@@ -393,25 +384,43 @@ function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(CART)); }
 function cartCount(){ return CART.reduce((a,it)=>a+it.qty,0); }
 function updateCartBadge(){ if ($("cartCount")) $("cartCount").textContent = String(cartCount()); }
 
+function getStockById(id){
+  const p = DB.productos.find(x => String(x.id) === String(id));
+  return p ? Number(p.stock||0) : 0;
+}
+
 function addToCart(p){
   const id = String(p.id);
+  const maxStock = Number(p.stock||0);
+
+  if (maxStock <= 0){
+    alert("Este producto está agotado.");
+    return;
+  }
+
   let it = CART.find(x=>String(x.id)===id);
   if (!it){
     it = { id, nombre:p.nombre, precio:p.precio, imagen:p.imagen, qty:0 };
     CART.push(it);
   }
+
+  if (it.qty + 1 > maxStock){
+    alert(`Stock disponible: ${maxStock}.`);
+    return;
+  }
+
   it.qty += 1;
   saveCart();
   updateCartBadge();
   renderCart();
-  updateDeliveryUI();
-  // No abrir carrito automáticamente
-toast("Agregado al carrito ✅");
-
+  updateTotals();
+  if (window.openCartModal) window.openCartModal();
 }
 window.addToCart = addToCart;
 
-function cartSubtotal(){ return CART.reduce((a,it)=>a + (n(it.precio)*n(it.qty)), 0); }
+function cartSubtotal(){
+  return CART.reduce((a,it)=>a + (n(it.precio)*n(it.qty)), 0);
+}
 
 function renderCart(){
   const empty=$("cartEmpty"), list=$("cartList");
@@ -437,9 +446,26 @@ function renderCart(){
         </div>
       </div>
     `;
-    row.querySelector(".dec").onclick=()=>{ it.qty--; if (it.qty<=0) CART.splice(idx,1); saveCart(); updateCartBadge(); renderCart(); updateTotals(); };
-    row.querySelector(".inc").onclick=()=>{ it.qty++; saveCart(); updateCartBadge(); renderCart(); updateTotals(); };
-    row.querySelector(".trash").onclick=()=>{ CART.splice(idx,1); saveCart(); updateCartBadge(); renderCart(); updateTotals(); };
+
+    row.querySelector(".dec").onclick=()=>{
+      it.qty--;
+      if (it.qty<=0) CART.splice(idx,1);
+      saveCart(); updateCartBadge(); renderCart(); updateTotals();
+    };
+
+    row.querySelector(".inc").onclick=()=>{
+      const maxStock = getStockById(it.id);
+      if (maxStock<=0){ alert("Este producto está agotado."); return; }
+      if (it.qty + 1 > maxStock){ alert(`Stock disponible: ${maxStock}.`); return; }
+      it.qty++;
+      saveCart(); updateCartBadge(); renderCart(); updateTotals();
+    };
+
+    row.querySelector(".trash").onclick=()=>{
+      CART.splice(idx,1);
+      saveCart(); updateCartBadge(); renderCart(); updateTotals();
+    };
+
     list.appendChild(row);
   });
 
@@ -447,7 +473,7 @@ function renderCart(){
 }
 
 /* -------------------------
-   Ubicación (depto/muni)
+   Ubicación depto/muni
 -------------------------- */
 function fillSelect(selId, items, placeholder="Selecciona"){
   const sel = $(selId);
@@ -465,7 +491,6 @@ function getDepartamentos(){
   const set = new Set(DB.municipios_hn.map(r=>s(pick(r,["departamento"],""))).filter(Boolean));
   return Array.from(set).sort((a,b)=>a.localeCompare(b));
 }
-
 function getMunicipios(dep){
   return DB.municipios_hn
     .filter(r=>eq(pick(r,["departamento"]), dep))
@@ -473,7 +498,6 @@ function getMunicipios(dep){
     .filter(Boolean)
     .sort((a,b)=>a.localeCompare(b));
 }
-
 function refreshMunicipios(){
   const dep = $("depto")?.value || "";
   const munis = dep ? getMunicipios(dep) : [];
@@ -481,28 +505,23 @@ function refreshMunicipios(){
 }
 
 /* -------------------------
-   Reglas de entrega desde cobertura_entrega
+   Cobertura + entrega
 -------------------------- */
 function findCobertura(dep, muni){
   return DB.cobertura_entrega.find(r =>
     eq(pick(r,["departamento"]), dep) && eq(pick(r,["municipio"]), muni)
   ) || null;
 }
-
 function normalizeBool(v){
   const x = s(v).toLowerCase();
   return x==="1" || x==="true" || x==="si" || x==="sí";
 }
 
-/* -------------------------
-   Entrega + Pago
--------------------------- */
 function buildDeliveryOptions(){
   const dep = $("depto")?.value || "";
   const muni = $("muni")?.value || "";
   const opts = [{value:"", label:"Selecciona tipo de entrega"}];
 
-  // default si no hay nada seleccionado
   if (!dep || !muni) return opts;
 
   // Comayagua ciudad
@@ -511,21 +530,13 @@ function buildDeliveryOptions(){
     return opts;
   }
 
-  // Cobertura personalizada
   const cov = findCobertura(dep, muni);
 
   if (cov){
-    if (normalizeBool(pick(cov,["permite_entrega_propia"]))){
-      opts.push({value:"entrega_propia", label:"Entrega propia (cercanos)"});
-    }
-    if (normalizeBool(pick(cov,["permite_empresa"]))){
-      opts.push({value:"empresa", label:"Empresa de envío"});
-    }
-    if (normalizeBool(pick(cov,["permite_bus"]))){
-      opts.push({value:"bus", label:"Bus local (encomienda)"});
-    }
+    if (normalizeBool(pick(cov,["permite_entrega_propia"],"0"))) opts.push({value:"entrega_propia", label:"Entrega propia (cercanos)"});
+    if (normalizeBool(pick(cov,["permite_empresa"],"1"))) opts.push({value:"empresa", label:"Empresa de envío"});
+    if (normalizeBool(pick(cov,["permite_bus"],"1"))) opts.push({value:"bus", label:"Bus local (encomienda)"});
   } else {
-    // si no está en cobertura_entrega: por defecto empresa + bus
     opts.push({value:"empresa", label:"Empresa de envío"});
     opts.push({value:"bus", label:"Bus local (encomienda)"});
   }
@@ -535,41 +546,26 @@ function buildDeliveryOptions(){
 
 function updateDeliveryUI(){
   const t = $("deliveryType")?.value || "";
-  const boxComa=$("boxComa"), boxPropia=$("boxPropia"), boxEmpresa=$("boxEmpresa"), boxBus=$("boxBus");
-
-  if (boxComa) boxComa.style.display = (t==="comayagua_ciudad") ? "grid" : "none";
-  if (boxPropia) boxPropia.style.display = (t==="entrega_propia") ? "grid" : "none";
-  if (boxEmpresa) boxEmpresa.style.display = (t==="empresa") ? "grid" : "none";
-  if (boxBus) boxBus.style.display = (t==="bus") ? "grid" : "none";
-
-  // efectivo “con cuánto” solo comayagua ciudad
-  const pay = $("payMethod")?.value || "";
-  const info = $("payInfo");
-  if (info){
-    const row = DB.pagos.find(r=>eq(pick(r,["metodo"]), pay));
-    info.textContent = row ? s(pick(row,["detalle"])) : "";
-  }
+  $("boxComa") && ($("boxComa").style.display = (t==="comayagua_ciudad") ? "grid" : "none");
+  $("boxPropia") && ($("boxPropia").style.display = (t==="entrega_propia") ? "grid" : "none");
+  $("boxEmpresa") && ($("boxEmpresa").style.display = (t==="empresa") ? "grid" : "none");
+  $("boxBus") && ($("boxBus").style.display = (t==="bus") ? "grid" : "none");
 
   updatePayOptions();
   updateTotals();
 }
 
 function updatePayOptions(){
-  const dep = $("depto")?.value || "";
-  const muni = $("muni")?.value || "";
   const t = $("deliveryType")?.value || "";
   const empresaModalidad = $("empresaModalidad")?.value || "";
-
   const sel = $("payMethod");
   if (!sel) return;
 
-  let allowed = [];
-
-  // pagos: si tu hoja tiene flags permite_en_...
   const hasFlags = DB.pagos.some(p => p.hasOwnProperty("permite_en_ciudad_comayagua") || p.hasOwnProperty("permite_en_empresa_envio"));
 
+  let allowed = [];
   DB.pagos.forEach(p=>{
-    const metodo = s(pick(p,["metodo"]));
+    const metodo = s(pick(p,["metodo"],""));
     const titulo = s(pick(p,["titulo"], metodo));
     const activo = normalizeBool(pick(p,["activo"],"1"));
     if (!activo) return;
@@ -581,27 +577,21 @@ function updatePayOptions(){
       if (t==="bus" && !normalizeBool(pick(p,["permite_en_bus_local"],"1"))) return;
     }
 
-    // regla extra: si empresa normal, no permitir efectivo (a menos que lo quieras)
-    if (t==="empresa" && empresaModalidad==="normal" && metodo==="efectivo"){
-      // lo bloqueamos en normal
-      return;
-    }
+    // empresa normal: no efectivo
+    if (t==="empresa" && empresaModalidad==="normal" && metodo==="efectivo") return;
 
-    allowed.push({value: metodo, label: titulo});
+    allowed.push({value:metodo,label:titulo});
   });
 
-  // fallback: si por algo no hay pagos, deja transferencia
-  if (!allowed.length) allowed = [{value:"transferencia", label:"Transferencia"}];
+  if (!allowed.length) allowed = [{value:"transferencia",label:"Transferencia"}];
 
   const current = sel.value;
   fillSelect("payMethod", allowed, "Selecciona método de pago");
-  if (allowed.some(x=>x.value===current)) sel.value = current;
+  if (allowed.some(x=>x.value===current)) sel.value=current;
 }
 
 function calcShipping(){
   const t = $("deliveryType")?.value || "";
-  const subtotal = cartSubtotal();
-
   if (!t) return { text:"Por confirmar", min:0, max:0, isRange:false };
 
   if (t==="comayagua_ciudad"){
@@ -609,7 +599,7 @@ function calcShipping(){
     if (!zona) return { text:"Por confirmar", min:0, max:0, isRange:false };
     const row = DB.zonas_comayagua_ciudad.find(r=>eq(pick(r,["zona"]), zona));
     const cost = n(pick(row||{},["costo","precio"],0));
-    return { text: fmtLps(cost), min: cost, max: cost, isRange:false };
+    return { text: fmtLps(cost), min:cost, max:cost, isRange:false };
   }
 
   if (t==="entrega_propia"){
@@ -617,7 +607,7 @@ function calcShipping(){
     if (!lugar) return { text:"Por confirmar", min:0, max:0, isRange:false };
     const row = DB.tarifas_entrega_propia.find(r=>eq(pick(r,["municipio","lugar"]), lugar));
     const cost = n(pick(row||{},["costo","precio"],0));
-    return { text: fmtLps(cost), min: cost, max: cost, isRange:false };
+    return { text: fmtLps(cost), min:cost, max:cost, isRange:false };
   }
 
   if (t==="empresa"){
@@ -626,7 +616,7 @@ function calcShipping(){
     if (!emp || !mod) return { text:"Por confirmar", min:0, max:0, isRange:false };
     const row = DB.empresas_envio.find(r=>eq(pick(r,["empresa"]), emp) && eq(pick(r,["modalidad"]), mod));
     const cost = n(pick(row||{},["precio","costo"],0));
-    return { text: fmtLps(cost), min: cost, max: cost, isRange:false };
+    return { text: fmtLps(cost), min:cost, max:cost, isRange:false };
   }
 
   if (t==="bus"){
@@ -635,7 +625,7 @@ function calcShipping(){
     const row = DB.bus_local_tarifas.find(r=>eq(pick(r,["municipio","lugar"]), lugar));
     const mn = n(pick(row||{},["tarifa_min","min","precio_min"],0));
     const mx = n(pick(row||{},["tarifa_max","max","precio_max"],mn));
-    return { text: `${fmtLps(mn)} – ${fmtLps(mx)}`, min: mn, max: mx, isRange:true };
+    return { text: `${fmtLps(mn)} – ${fmtLps(mx)}`, min:mn, max:mx, isRange:true };
   }
 
   return { text:"Por confirmar", min:0, max:0, isRange:false };
@@ -645,16 +635,14 @@ function updateTotals(){
   const sub = cartSubtotal();
   const ship = calcShipping();
 
-  if ($("subTotal")) $("subTotal").textContent = fmtLps(sub);
-  if ($("shippingCost")) $("shippingCost").textContent = ship.text;
+  $("subTotal") && ($("subTotal").textContent = fmtLps(sub));
+  $("shippingCost") && ($("shippingCost").textContent = ship.text);
 
   const totalMin = sub + ship.min;
   const totalMax = sub + ship.max;
 
   if ($("grandTotal")){
-    $("grandTotal").textContent = ship.isRange
-      ? `${fmtLps(totalMin)} – ${fmtLps(totalMax)}`
-      : fmtLps(totalMin);
+    $("grandTotal").textContent = ship.isRange ? `${fmtLps(totalMin)} – ${fmtLps(totalMax)}` : fmtLps(totalMin);
   }
 
   if ($("shipHint")){
@@ -663,7 +651,6 @@ function updateTotals(){
       : "Tarifas calculadas desde Google Sheets.";
   }
 
-  // info pago
   const pay = $("payMethod")?.value || "";
   const row = DB.pagos.find(r=>eq(pick(r,["metodo"]), pay));
   if ($("payInfo")) $("payInfo").textContent = row ? s(pick(row,["detalle"])) : "";
@@ -675,12 +662,12 @@ function buildWhatsAppLink(){
 
   const name = s($("custName")?.value);
   const phone = s($("custPhone")?.value);
-
   const dep = s($("depto")?.value);
   const muni = s($("muni")?.value);
 
   const delivery = s($("deliveryType")?.value);
   const ship = calcShipping();
+
   const pay = s($("payMethod")?.value);
   const payRow = DB.pagos.find(r=>eq(pick(r,["metodo"]), pay));
   const payTitle = payRow ? s(pick(payRow,["titulo"], pay)) : pay;
@@ -748,13 +735,13 @@ function wireUI(){
 
   // Ir al inicio
   document.addEventListener("click",(e)=>{
-    const el=e.target.closest("#storeName");
+    const el = e.target.closest("#storeName");
     if (!el) return;
     e.preventDefault();
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
-  // Share buttons
+  // Share category / subcat
   $("btnShareCategory")?.addEventListener("click", async ()=>{
     if (STATE.categoria==="Todas") return;
     await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}`);
@@ -765,12 +752,12 @@ function wireUI(){
   });
 
   // Carrito
-$("btnCart")?.addEventListener("click", ()=>{
-  renderCart();
-  updateTotals();
-  if (window.openCartModal) window.openCartModal();
-});
-
+  $("btnCart")?.addEventListener("click", ()=>{
+    renderCart();
+    updateTotals();
+    updateDeliveryUI();
+    if (window.openCartModal) window.openCartModal();
+  });
 
   $("btnCopyCart")?.addEventListener("click", async ()=>{
     const ship = calcShipping();
@@ -791,17 +778,15 @@ $("btnCart")?.addEventListener("click", ()=>{
   // Ubicación
   $("depto")?.addEventListener("change", ()=>{
     refreshMunicipios();
-    const opts = buildDeliveryOptions();
-    fillSelect("deliveryType", opts.map(o=>({value:o.value,label:o.label})), "Tipo de entrega");
+    fillSelect("deliveryType", buildDeliveryOptions().map(o=>({value:o.value,label:o.label})), "Tipo de entrega");
     updateDeliveryUI();
   });
   $("muni")?.addEventListener("change", ()=>{
-    const opts = buildDeliveryOptions();
-    fillSelect("deliveryType", opts.map(o=>({value:o.value,label:o.label})), "Tipo de entrega");
+    fillSelect("deliveryType", buildDeliveryOptions().map(o=>({value:o.value,label:o.label})), "Tipo de entrega");
     updateDeliveryUI();
   });
 
-  // Entrega
+  // Entrega + pago
   $("deliveryType")?.addEventListener("change", updateDeliveryUI);
   $("comaZona")?.addEventListener("change", updateTotals);
   $("propiaLugar")?.addEventListener("change", updateTotals);
@@ -840,19 +825,11 @@ async function init(){
 
     applyAjustes();
 
-    // categorías + productos
-    renderCategorias();
-    renderSubcategorias();
-    renderProductos();
-
-    // aplicar hash compartido
+    // aplicar hash
     const h = parseHash();
-    if (h.cat){
-      STATE.categoria = decodeURIComponent(h.cat);
-    }
-    if (h.sub){
-      STATE.subcategoria = decodeURIComponent(h.sub);
-    }
+    if (h.cat) STATE.categoria = decodeURIComponent(h.cat);
+    if (h.sub) STATE.subcategoria = decodeURIComponent(h.sub);
+
     renderCategorias();
     renderSubcategorias();
     renderProductos();
@@ -861,7 +838,7 @@ async function init(){
     fillSelect("depto", getDepartamentos().map(d=>({value:d,label:d})), "Departamento");
     refreshMunicipios();
 
-    // llenar selects de entrega base (cuando elijan depto/muni)
+    // entregar select (se llena al elegir dep/muni)
     fillSelect("deliveryType", [{value:"",label:"Selecciona tipo de entrega"}], "Tipo de entrega");
 
     // llenar selects de envíos
@@ -870,20 +847,24 @@ async function init(){
         .map(z=>({value:z,label:z})),
       "Zona (Comayagua)"
     );
+
     fillSelect("propiaLugar",
       Array.from(new Set(DB.tarifas_entrega_propia.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
       "Lugar (entrega propia)"
     );
+
     fillSelect("empresa",
       Array.from(new Set(DB.empresas_envio.map(r=>s(pick(r,["empresa"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
       "Empresa de envío"
     );
+
     fillSelect("empresaModalidad",
       [{value:"",label:"Modalidad"},{value:"normal",label:"Normal (anticipado)"},{value:"contra_entrega",label:"Pagar al recibir"}],
       "Modalidad"
     );
+
     fillSelect("busLugar",
       Array.from(new Set(DB.bus_local_tarifas.map(r=>s(pick(r,["municipio","lugar"],""))).filter(Boolean)))
         .map(z=>({value:z,label:z})),
@@ -903,25 +884,3 @@ async function init(){
 }
 
 init();
-function toast(msg){
-  let t = document.getElementById("toast");
-  if (!t){
-    t = document.createElement("div");
-    t.id = "toast";
-    t.style.position = "fixed";
-    t.style.left = "50%";
-    t.style.bottom = "88px";
-    t.style.transform = "translateX(-50%)";
-    t.style.padding = "10px 14px";
-    t.style.borderRadius = "14px";
-    t.style.background = "rgba(0,0,0,.75)";
-    t.style.color = "white";
-    t.style.fontWeight = "800";
-    t.style.zIndex = "9999";
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity = "1";
-  clearTimeout(window.__toastTimer);
-  window.__toastTimer = setTimeout(()=>{ t.style.opacity = "0"; }, 1200);
-}
