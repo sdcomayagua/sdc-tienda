@@ -284,29 +284,11 @@ async function init(){
   try{
     wireUI();
     showSkeleton();
-await new Promise(r => setTimeout(r, 800)); // solo prueba 0.8s
-
-    $("grid").innerHTML = `
-  <div style="text-align:center;padding:30px;color:var(--muted)">
-    <strong style="font-size:18px">Cargando catálogo…</strong><br>
-    <span>Estamos preparando los productos de Soluciones Digitales Comayagua.</span>
-  </div>
-
-  <div class="skelGrid">
-    ${Array.from({ length: 8 }).map(() => `
-      <div class="skelCard">
-        <div class="skelImg"></div>
-        <div class="skelBody">
-          <div class="skelLine lg"></div>
-          <div class="skelLine md"></div>
-          <div class="skelLine sm"></div>
-        </div>
-      </div>
-    `).join("")}
-  </div>
-`;
+    startLoadingMessageSwap();
 
     const data = await apiGetAll(); // JSON directo
+    stopLoadingMessageSwap();
+
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
     DB.ajustes = data.ajustes || [];
@@ -319,10 +301,12 @@ await new Promise(r => setTimeout(r, 800)); // solo prueba 0.8s
     window.addEventListener("hashchange", applyHash);
 
   }catch(err){
+    stopLoadingMessageSwap();
     console.error(err);
     $("sectionTitle").textContent = "Error cargando catálogo. Revisa API/Sheets.";
     $("grid").innerHTML = `<div style="color:var(--muted);padding:10px 2px;">${String(err.message||err)}</div>`;
   }
 }
+
 
 init();
