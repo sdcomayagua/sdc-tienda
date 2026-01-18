@@ -265,6 +265,26 @@ async function init(){
     showSkeleton();
 await new Promise(r => setTimeout(r, 800)); // solo prueba 0.8s
 
+    $("grid").innerHTML = `
+  <div style="text-align:center;padding:30px;color:var(--muted)">
+    <strong style="font-size:18px">Cargando catálogo…</strong><br>
+    <span>Estamos preparando los productos de Soluciones Digitales Comayagua.</span>
+  </div>
+
+  <div class="skelGrid">
+    ${Array.from({ length: 8 }).map(() => `
+      <div class="skelCard">
+        <div class="skelImg"></div>
+        <div class="skelBody">
+          <div class="skelLine lg"></div>
+          <div class="skelLine md"></div>
+          <div class="skelLine sm"></div>
+        </div>
+      </div>
+    `).join("")}
+  </div>
+`;
+
     const data = await apiGetAll(); // JSON directo
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
