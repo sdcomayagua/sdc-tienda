@@ -1,11 +1,10 @@
-// assets/js/app.js
 let DB = { productos: [], categorias: [], ajustes: [] };
 let STATE = { categoria: "Todas", query: "" };
 
 const $ = (id) => document.getElementById(id);
 function fmtLps(n){ return `Lps. ${Number(n||0).toFixed(0)}`; }
 
-// -------------------- Tema --------------------
+// ----- Tema -----
 function setTheme(next){
   document.body.classList.toggle("light", next === "light");
   localStorage.setItem("sdc_theme", next);
@@ -13,7 +12,7 @@ function setTheme(next){
   if (b) b.textContent = next === "light" ? "🌙" : "☀️";
 }
 
-// -------------------- Ajustes --------------------
+// ----- Ajustes -----
 function ajustesMap(){
   const map = {};
   (DB.ajustes||[]).forEach(r=>{
@@ -42,7 +41,7 @@ function applyAjustes(){
   if ($("year")) $("year").textContent = new Date().getFullYear();
 }
 
-// -------------------- Normalizar productos --------------------
+// ----- Normalizar productos -----
 function normalizeProduct(p){
   const out = {
     id: String(p.id||"").trim(),
@@ -58,7 +57,7 @@ function normalizeProduct(p){
     video: String(p.video||p.video_url||"").trim(),
   };
 
-  // soporta "galeria" en un solo campo (csv)
+  // soporta "galeria" (csv)
   if (p.galeria && !p.galeria_1){
     const parts = String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean);
     for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
@@ -69,7 +68,7 @@ function normalizeProduct(p){
   return out;
 }
 
-// -------------------- Loading UI --------------------
+// ----- Loading -----
 let LOADING_TIMER = null;
 
 function showSkeleton(){
@@ -114,7 +113,7 @@ function stopLoadingMessageSwap(){
   LOADING_TIMER = null;
 }
 
-// -------------------- Categorías --------------------
+// ----- Categorías -----
 function getCategorias(){
   let cats = [];
   if (DB.categorias && DB.categorias.length){
@@ -157,7 +156,7 @@ function renderCategorias(){
   });
 }
 
-// -------------------- Productos --------------------
+// ----- Productos -----
 function filteredProductos(){
   const q = STATE.query.trim().toLowerCase();
   return DB.productos
@@ -221,8 +220,7 @@ function renderProductos(){
   const grid = $("grid");
   if (!grid) return;
 
-  // limpia skeleton
-  grid.innerHTML = "";
+  grid.innerHTML = ""; // limpia skeleton
 
   const list = filteredProductos();
 
@@ -244,7 +242,6 @@ function renderProductos(){
   list.forEach(p=>grid.appendChild(productCard(p)));
 }
 
-// -------------------- Hash --------------------
 function applyHash(){
   const h = location.hash || "";
   if (h.startsWith("#cat=")){
@@ -256,7 +253,7 @@ function applyHash(){
   }
 }
 
-// -------------------- UI events --------------------
+// ----- UI -----
 function wireUI(){
   const saved = localStorage.getItem("sdc_theme") || "dark";
   setTheme(saved);
@@ -276,21 +273,6 @@ function wireUI(){
     });
   }
 
-  if ($("btnGoTop")){
-    $("btnGoTop").onclick = ()=>window.scrollTo({top:0, behavior:"smooth"});
-  }
-  if ($("btnGoAll") && $("searchInput")){
-    $("btnGoAll").onclick = ()=>{
-      STATE.categoria="Todas";
-      STATE.query="";
-      $("searchInput").value="";
-      renderCategorias();
-      renderProductos();
-      if ($("btnShareCategory")) $("btnShareCategory").style.display = "none";
-      history.replaceState(null,"",location.pathname+location.search+"#");
-    };
-  }
-
   if ($("btnShareCategory")){
     $("btnShareCategory").onclick = async ()=>{
       if (STATE.categoria==="Todas") return;
@@ -301,14 +283,14 @@ function wireUI(){
   }
 }
 
-// -------------------- Init --------------------
+// ----- Init -----
 async function init(){
   try{
     wireUI();
     showSkeleton();
     startLoadingMessageSwap();
 
-    const data = await apiGetAll(); // <-- si falla o tarda, api.js ya hace timeout
+    const data = await apiGetAll();
     stopLoadingMessageSwap();
 
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
@@ -332,9 +314,7 @@ async function init(){
         <div class="loadingWrap fadeIn" style="text-align:left;">
           <div class="loadingTitle">No se pudo cargar</div>
           <div class="loadingSub">Revisa tu conexión o intenta nuevamente.</div>
-          <div style="margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap;">
-${String(err && (err.stack || err.message) ? (err.stack || err.message) : err)}
-          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap;">${String(err && (err.stack || err.message) ? (err.stack || err.message) : err)}</div>
           <button class="btn btnPrimary" style="margin-top:14px;" onclick="location.reload()">Reintentar</button>
         </div>
       `;
