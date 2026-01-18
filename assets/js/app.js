@@ -241,7 +241,21 @@ async function init(){
     wireUI();
 $("grid").innerHTML = `<div style="color:var(--muted);padding:10px 2px;">Cargando productos…</div>`;
 
-    const data = await apiGetAll(); // JSON directo
+    $("grid").innerHTML = `
+  <div class="skelGrid">
+    ${Array.from({length: 8}).map(()=>`
+      <div class="skelCard">
+        <div class="skelImg"></div>
+        <div class="skelBody">
+          <div class="skelLine lg"></div>
+          <div class="skelLine md"></div>
+          <div class="skelLine sm"></div>
+        </div>
+      </div>
+    `).join("")}
+  </div>
+`;
+const data = await apiGetAll(); // JSON directo
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
     DB.ajustes = data.ajustes || [];
