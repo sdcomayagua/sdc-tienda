@@ -16,7 +16,8 @@
     <div class="brand">
       <div class="logo" id="logoText">SDC</div>
       <div class="brandText">
-      <a class="brandName" id="storeName" href="#" title="Ir al inicio">Soluciones Digitales Comayagua</a>
+        <!-- ✅ al tocar, vuelve al inicio -->
+        <a class="brandName" id="storeName" href="#" title="Ir al inicio">Soluciones Digitales Comayagua</a>
         <div class="brandSub" id="storeSub">Catálogo</div>
       </div>
     </div>
@@ -30,7 +31,11 @@
     </div>
   </header>
 
+  <!-- Categorías -->
   <nav class="chips" id="chips"></nav>
+
+  <!-- Subcategorías (aparece solo si hay) -->
+  <nav class="subchips" id="subchips" style="display:none;"></nav>
 
   <section class="searchWrap">
     <input id="searchInput" class="search" placeholder="Buscar producto, nombre o descripción…" autocomplete="off" />
@@ -57,7 +62,6 @@
 
   <a class="waFloat" id="waFloat" target="_blank" rel="noopener">WhatsApp</a>
 
-  <!-- Backdrop + Modal Producto -->
   <div class="modalBackdrop" id="backdrop"></div>
 
   <div class="modal" id="prodModal" aria-hidden="true">
