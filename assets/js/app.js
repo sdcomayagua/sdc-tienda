@@ -123,10 +123,9 @@ function getCategorias(){
       .sort((a,b)=>a.localeCompare(b));
   }
 
-  // ✅ evita que "Todas" se repita
+  // ✅ evita duplicar "Todas"
   return ["Todas", ...cats.filter(c => c && c !== "Todas")];
 }
-
 
 function renderCategorias(){
   const chips = $("chips");
