@@ -301,12 +301,18 @@ async function init(){
     window.addEventListener("hashchange", applyHash);
 
   }catch(err){
-    stopLoadingMessageSwap();
-    console.error(err);
-    $("sectionTitle").textContent = "Error cargando catálogo. Revisa API/Sheets.";
-    $("grid").innerHTML = `<div style="color:var(--muted);padding:10px 2px;">${String(err.message||err)}</div>`;
-  }
+  console.error(err);
+  $("sectionTitle").textContent = "Error cargando catálogo.";
+  $("grid").innerHTML = `
+    <div class="loadingWrap fadeIn">
+      <div class="loadingTitle">No se pudo cargar</div>
+      <div class="loadingSub">Revisa la conexión o vuelve a intentar.</div>
+      <div style="margin-top:10px; font-size:12px; color:var(--muted); text-align:left; white-space:pre-wrap;">
+${String(err && (err.stack || err.message) ? (err.stack || err.message) : err)}
+      </div>
+      <button class="btn btnPrimary" style="margin-top:14px;" onclick="location.reload()">Reintentar</button>
+    </div>
+  `;
 }
-
 
 init();
