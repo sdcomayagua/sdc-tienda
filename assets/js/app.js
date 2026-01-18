@@ -765,11 +765,12 @@ function wireUI(){
   });
 
   // Carrito
-  $("btnCart")?.addEventListener("click", ()=>{
-    renderCart();
-    updateTotals();
-    if (window.openCartModal) window.openCartModal();
-  });
+$("btnCart")?.addEventListener("click", ()=>{
+  renderCart();
+  updateTotals();
+  if (window.openCartModal) window.openCartModal();
+});
+
 
   $("btnCopyCart")?.addEventListener("click", async ()=>{
     const ship = calcShipping();
