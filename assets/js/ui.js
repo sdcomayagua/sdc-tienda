@@ -1,4 +1,4 @@
-// assets/js/ui.js (modal estable + checkoutAdd)
+// assets/js/ui.js (modal estable + agregar al carrito con toast, sin alerts)
 (function(){
   const fallback = "assets/img/no-image.png";
   const getEl = (id)=>document.getElementById(id);
@@ -14,11 +14,12 @@
       t.style.transform = "translateX(-50%)";
       t.style.padding = "10px 14px";
       t.style.borderRadius = "14px";
-      t.style.background = "rgba(0,0,0,.75)";
+      t.style.background = "rgba(0,0,0,.78)";
       t.style.color = "white";
       t.style.fontWeight = "800";
       t.style.zIndex = "9999";
       t.style.transition = "opacity .2s ease";
+      t.style.opacity = "0";
       document.body.appendChild(t);
     }
     t.textContent = msg;
@@ -34,9 +35,8 @@
       modal.style.display = "none";
       modal.setAttribute("aria-hidden","true");
     }
-    // OJO: si carrito está abierto, no apagues backdrop aquí.
-    // checkout.js controla el backdrop para carrito.
-    // Si no hay carrito abierto, sí lo apagamos.
+
+    // Si el carrito está abierto, no apagues el backdrop
     const cart = getEl("cartModal");
     const cartOpen = cart && cart.style.display === "block";
     if (backdrop && !cartOpen) backdrop.style.display = "none";
@@ -78,11 +78,11 @@
     return "Ver video";
   }
 
-  // listeners globales (una sola vez)
+  // listeners globales una sola vez
   document.addEventListener("DOMContentLoaded", ()=>{
     getEl("btnCloseProd")?.addEventListener("click", closeProductModal);
 
-    // click en backdrop: si producto está abierto, lo cierra; si carrito está abierto lo maneja checkout.js
+    // click fuera (backdrop) cierra solo el modal del producto
     getEl("backdrop")?.addEventListener("click", ()=>{
       const modal = getEl("prodModal");
       if (modal && modal.style.display === "block") closeProductModal();
@@ -96,7 +96,7 @@
     });
   });
 
-  // API para abrir producto desde app.js
+  // API: abrir producto desde app.js
   window.openProduct = function(p){
     const modal = getEl("prodModal");
     if (!modal) return;
@@ -125,6 +125,7 @@
 
     // galería
     const gallery = parseGallery(p);
+
     if (mainImg){
       mainImg.src = gallery[0] || fallback;
       mainImg.onerror = function(){ this.onerror=null; this.src=fallback; };
@@ -171,7 +172,7 @@
       }
     }
 
-    // Agregar al carrito (opción A: NO abre carrito)
+    // Agregar al carrito (Opción A: NO abre el carrito)
     if (addBtn){
       const agotado = Number(p.stock||0) <= 0;
       addBtn.disabled = agotado;
@@ -180,15 +181,18 @@
       addBtn.onclick = ()=>{
         if (agotado) return;
 
+        // checkout.js debe estar cargado
         if (typeof window.checkoutAdd === "function"){
           const ok = window.checkoutAdd(p);
           if (ok){
             toast("Agregado al carrito ✅");
-            // actualizar badge por si acaso
-            if (typeof window.checkoutRefreshBadge === "function") window.checkoutRefreshBadge();
+            if (typeof window.checkoutRefreshBadge === "function"){
+              window.checkoutRefreshBadge();
+            }
           }
         } else {
-          alert("checkout.js no está cargado aún.");
+          // sin alert: solo toast
+          toast("Error: checkout no cargó");
         }
       };
     }
@@ -197,8 +201,8 @@
     if (shareBtn){
       shareBtn.onclick = async ()=>{
         const url = location.origin + location.pathname + "#p=" + encodeURIComponent(p.id||"");
-        try{ await navigator.clipboard.writeText(url); alert("Enlace copiado"); }
-        catch{ alert("No se pudo copiar"); }
+        try{ await navigator.clipboard.writeText(url); toast("Enlace copiado ✅"); }
+        catch{ toast("No se pudo copiar"); }
       };
     }
 
