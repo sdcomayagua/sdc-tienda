@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="./assets/css/styles.css?v=2026" />
   <link rel="preconnect" href="https://script.google.com">
   <link rel="dns-prefetch" href="https://script.google.com">
-
   <meta name="theme-color" content="#0b57ff" />
 </head>
 
@@ -31,10 +30,8 @@
     </div>
   </header>
 
-  <!-- Categorías -->
   <nav class="chips" id="chips"></nav>
 
-  <!-- Buscador + título -->
   <section class="searchWrap">
     <input id="searchInput" class="search" placeholder="Buscar producto, nombre o descripción…" autocomplete="off" />
     <div class="sectionHeader">
@@ -43,12 +40,10 @@
     </div>
   </section>
 
-  <!-- Productos -->
   <main class="container">
     <div class="grid" id="grid"></div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="footerBox">
       <div class="footerTitle">Información</div>
@@ -62,7 +57,37 @@
 
   <a class="waFloat" id="waFloat" target="_blank" rel="noopener">WhatsApp</a>
 
-  <!-- Scripts -->
+  <!-- Backdrop + Modal Producto -->
+  <div class="modalBackdrop" id="backdrop"></div>
+
+  <div class="modal" id="prodModal" aria-hidden="true">
+    <div class="modalHeader">
+      <div>
+        <div class="modalTitle" id="modalName">Producto</div>
+        <div class="modalSub" id="modalSub">—</div>
+      </div>
+      <button class="iconBtn" id="btnCloseProd">✕</button>
+    </div>
+
+    <div class="modalBody">
+      <img id="modalMainImg" class="prodMainImg" alt="" />
+      <div class="thumbs" id="modalThumbs"></div>
+
+      <div class="priceRow" style="margin-top:12px;">
+        <div class="price" id="modalPrice">Lps. 0</div>
+        <div class="old" id="modalOld"></div>
+      </div>
+
+      <div class="prodMeta" id="modalDesc"></div>
+      <div class="videoBtns" id="modalVideos"></div>
+
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button class="btn btnPrimary btnFull" id="modalAdd">Agregar al carrito</button>
+        <button class="btn btnSoft btnFull" id="btnShareProduct">Compartir</button>
+      </div>
+    </div>
+  </div>
+
   <script src="assets/js/api.js"></script>
   <script src="assets/js/cart.js"></script>
   <script src="assets/js/ui.js"></script>
