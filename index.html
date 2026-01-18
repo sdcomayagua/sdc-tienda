@@ -30,14 +30,20 @@
     </div>
   </header>
 
+  <!-- CATEGORÍAS -->
   <nav class="chips" id="chips"></nav>
+
+  <!-- SUBCATEGORÍAS -->
   <nav class="subchips" id="subchips" style="display:none;"></nav>
 
   <section class="searchWrap">
     <input id="searchInput" class="search" placeholder="Buscar producto, nombre o descripción…" autocomplete="off" />
     <div class="sectionHeader">
       <div class="sectionTitle" id="sectionTitle">Productos</div>
-      <button class="btn btnSoft" id="btnShareCategory" style="display:none" type="button">Compartir categoría</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btnSoft" id="btnShareCategory" style="display:none" type="button">Compartir categoría</button>
+        <button class="btn btnSoft" id="btnShareSubcat" style="display:none" type="button">Compartir subcategoría</button>
+      </div>
     </div>
   </section>
 
@@ -105,36 +111,30 @@
       <div class="cartList" id="cartList"></div>
 
       <div class="sectionTitle" style="margin-top:10px;">Datos</div>
-
       <div style="display:grid; gap:10px; margin-top:10px;">
         <input id="custName" class="search" placeholder="Tu nombre" />
         <input id="custPhone" class="search" placeholder="Teléfono (Ej: 9999-9999)" />
       </div>
 
       <div class="sectionTitle" style="margin-top:14px;">Entrega</div>
-
-      <!-- Tipo de entrega -->
       <div style="display:grid; gap:10px; margin-top:10px;">
         <select id="deliveryType" class="search">
           <option value="">Selecciona tipo de entrega</option>
           <option value="comayagua_ciudad">Comayagua (ciudad) - entrega local</option>
           <option value="entrega_propia">Entrega propia (cercanos)</option>
-          <option value="empresa">Empresa de envío (Cargo Expreso / Forza / C807)</option>
+          <option value="empresa">Empresa de envío</option>
           <option value="bus">Bus local (encomienda)</option>
         </select>
 
-        <!-- Comayagua ciudad -->
         <div id="boxComa" style="display:none; gap:10px;">
           <select id="comaZona" class="search"></select>
           <input id="comaColonia" class="search" placeholder="Colonia / referencia (opcional)" />
         </div>
 
-        <!-- Entrega propia -->
         <div id="boxPropia" style="display:none; gap:10px;">
           <select id="propiaLugar" class="search"></select>
         </div>
 
-        <!-- Empresa -->
         <div id="boxEmpresa" style="display:none; gap:10px;">
           <select id="empresa" class="search"></select>
           <select id="empresaModalidad" class="search">
@@ -144,7 +144,6 @@
           </select>
         </div>
 
-        <!-- Bus -->
         <div id="boxBus" style="display:none; gap:10px;">
           <select id="busLugar" class="search"></select>
         </div>
