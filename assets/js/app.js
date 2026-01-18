@@ -165,13 +165,13 @@ function getSubcategoriasDeCategoria(cat){
 }
 
 function renderSubcategorias(){
-  const sub = $("subchips");
-  if (!sub) return;
+  const subEl = $("subchips");
+  if (!subEl) return;
 
-  // ✅ si estás en "Todas", NO mostrar subcategorías
+  // No mostrar subcategorías si estás en "Todas"
   if (STATE.categoria === "Todas") {
-    sub.style.display = "none";
-    sub.innerHTML = "";
+    subEl.style.display = "none";
+    subEl.innerHTML = "";
     STATE.subcategoria = "Todas";
     return;
   }
@@ -179,14 +179,14 @@ function renderSubcategorias(){
   const subs = getSubcategoriasDeCategoria(STATE.categoria);
 
   if (!subs.length){
-    sub.style.display = "none";
-    sub.innerHTML = "";
+    subEl.style.display = "none";
+    subEl.innerHTML = "";
     STATE.subcategoria = "Todas";
     return;
   }
 
-  sub.style.display = "flex";
-  sub.innerHTML = "";
+  subEl.style.display = "flex";
+  subEl.innerHTML = "";
 
   // Botón "Todas" (subcategorías)
   const all = document.createElement("button");
@@ -197,7 +197,7 @@ function renderSubcategorias(){
     renderSubcategorias();
     renderProductos();
   };
-  sub.appendChild(all);
+  subEl.appendChild(all);
 
   // Subcategorías reales
   subs.forEach(sc=>{
@@ -209,7 +209,7 @@ function renderSubcategorias(){
       renderSubcategorias();
       renderProductos();
     };
-    sub.appendChild(b);
+    subEl.appendChild(b);
   });
 }
 
