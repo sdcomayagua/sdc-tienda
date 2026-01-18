@@ -168,7 +168,7 @@ function productCard(p){
 
 function renderProductos(){
   const grid = $("grid");
-  const list = filteredProductos();
+grid.innerHTML = ""; // LIMPIA skeleton antes de pintar
 
   $("sectionTitle").textContent = STATE.categoria==="Todas"
     ? `Productos (${list.length})`
