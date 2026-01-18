@@ -6,7 +6,6 @@
 <title>Soluciones Digitales Comayagua</title>
 
 <style>
-/* ================== VARIABLES ================== */
 :root{
   --bg:#0b0f19;
   --card:#111a2e;
@@ -17,6 +16,7 @@
   --danger:#ff3b3b;
   --border:rgba(255,255,255,.12);
   --radius:18px;
+  --shadow: 0 14px 30px rgba(0,0,0,.45);
 }
 body{
   margin:0;
@@ -25,7 +25,7 @@ body{
   color:var(--text);
 }
 
-/* ================== TOPBAR ================== */
+/* ===== TOPBAR ===== */
 .topbar{
   position:sticky; top:0; z-index:20;
   display:flex; align-items:center; justify-content:space-between;
@@ -33,7 +33,7 @@ body{
   background:rgba(0,0,0,.6);
   backdrop-filter:blur(8px);
 }
-.brand{display:flex; gap:10px; align-items:center; min-width:0;}
+.brand{display:flex; gap:10px; align-items:center; min-width:0; cursor:pointer;}
 .logo{
   width:42px; height:42px; border-radius:14px;
   background:var(--primary);
@@ -43,35 +43,71 @@ body{
 .brandText{min-width:0}
 #storeName{
   font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 #storeSub{font-size:12px; color:var(--muted)}
 @media(max-width:720px){
   #storeName{color:transparent; position:relative}
-  #storeName::after{
-    content:"SDComayagua";
-    color:var(--text);
-    position:absolute; left:0; top:0;
-  }
+  #storeName::after{content:"SDComayagua"; color:var(--text); position:absolute; left:0; top:0}
 }
 
-/* ================== CATEGORÍAS ================== */
+/* ===== ACTIONS ===== */
+.actions{display:flex; gap:10px; align-items:center;}
+.iconBtn{
+  width:42px;height:42px;border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-weight:900;
+}
+.cartBtn{
+  position:relative;
+  height:42px; padding:0 14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-weight:900;
+}
+.badge{
+  display:inline-grid; place-items:center;
+  min-width:22px;height:22px;
+  padding:0 6px;
+  border-radius:999px;
+  background:var(--primary);
+  color:#fff;
+  font-size:12px;
+  margin-left:6px;
+}
+
+/* ===== SEARCH ===== */
+.searchWrap{padding:12px}
+.search{
+  width:100%;
+  padding:14px 14px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  outline:none;
+}
+
+/* ===== CATEGORÍAS ===== */
 .chips{
   display:flex; gap:10px;
-  overflow:auto; padding:10px;
+  overflow:auto; padding:0 12px 12px;
 }
 .chip{
   padding:8px 14px;
   border-radius:999px;
   background:var(--card);
   border:1px solid var(--border);
-  font-weight:700;
+  font-weight:800;
+  white-space:nowrap;
 }
 .chip.active{background:var(--primary)}
 
-/* ================== GRID ================== */
+/* ===== GRID ===== */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -86,16 +122,20 @@ body{
   border-radius:var(--radius);
   overflow:hidden;
   position:relative;
+  box-shadow: var(--shadow);
 }
 .cardImg{
   width:100%; aspect-ratio:1/1;
   object-fit:cover; background:#000;
 }
 .cardBody{padding:10px}
-.cardName{font-weight:800;font-size:13px}
-.price{font-weight:900}
+.cardName{font-weight:900;font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.cardDesc{color:var(--muted); font-size:12px; margin-top:4px; min-height:30px;}
+.priceRow{display:flex; gap:8px; align-items:baseline; margin-top:8px;}
+.price{font-weight:1000}
 .price.offer{color:var(--danger)}
 .old{text-decoration:line-through;color:var(--muted);font-size:12px}
+
 .btn{
   margin-top:8px;
   width:100%;
@@ -111,17 +151,33 @@ body{
 /* AGOTADO */
 .card.agotado{
   filter:grayscale(1);
+  opacity:.9;
 }
 .card.agotado::after{
   content:"AGOTADO";
   position:absolute; inset:0;
   display:grid; place-items:center;
-  font-size:28px; font-weight:900;
-  color:rgba(255,0,0,.5);
-  background:rgba(0,0,0,.25);
+  font-weight:1000;
+  letter-spacing:2px;
+  color:rgba(255,0,0,.45);
+  background:rgba(0,0,0,.20);
+  transform:rotate(-16deg);
+  font-size:clamp(22px,6vw,42px);
 }
 
-/* ================== MODAL ================== */
+/* OFERTA TAG */
+.offerTag{
+  position:absolute; top:10px; left:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:1000;
+  font-size:12px;
+  background:rgba(255,59,48,.18);
+  border:1px solid rgba(255,59,48,.35);
+  color:var(--danger);
+}
+
+/* ===== MODAL BASE ===== */
 .backdrop{
   position:fixed; inset:0;
   background:rgba(0,0,0,.6);
@@ -130,38 +186,93 @@ body{
 .modal{
   position:fixed;
   inset:auto 10px 10px 10px;
-  max-width:600px; margin:auto;
+  max-width:680px; margin:auto;
   background:var(--card);
   border-radius:18px;
   display:none; z-index:60;
+  box-shadow: var(--shadow);
+  overflow:hidden;
 }
 .modalHeader{
-  display:flex; justify-content:space-between;
-  padding:12px;
-  font-weight:900;
-}
-.modalBody{padding:12px}
-.closeBtn{cursor:pointer}
-
-/* ================== CARRITO ================== */
-.cartList{display:flex; flex-direction:column; gap:10px}
-.cartItem{
   display:flex; justify-content:space-between; align-items:center;
+  padding:12px;
+  border-bottom:1px solid var(--border);
 }
-.qty{display:flex; gap:8px; align-items:center}
-.qty button{
-  width:28px;height:28px;
-  border-radius:8px;border:none;
-  font-weight:900;
+.modalTitle{font-weight:1000}
+.closeBtn{
+  width:42px;height:42px;border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--card2);
+  color:var(--text);
+  font-weight:1000;
 }
-.total{margin-top:10px;font-weight:900}
+.modalBody{padding:12px; max-height:70vh; overflow:auto;}
+.modalFooter{
+  padding:12px;
+  border-top:1px solid var(--border);
+  display:flex; gap:10px;
+}
+.modalFooter button{flex:1}
 
-/* ================== WHATSAPP ================== */
+/* ===== PRODUCT MODAL ===== */
+.mImg{width:100%; border-radius:14px; aspect-ratio:1/1; object-fit:cover; background:#000;}
+.mMeta{color:var(--muted); font-size:13px; line-height:1.35; margin-top:10px}
+
+/* ===== CART ===== */
+.cartEmpty{
+  padding:12px;
+  border:1px dashed var(--border);
+  border-radius:14px;
+  color:var(--muted);
+}
+.cartList{display:flex; flex-direction:column; gap:10px; margin-top:12px}
+.cartItem{
+  display:flex; gap:10px; align-items:center;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px;
+  background:var(--card2);
+}
+.cartItem img{
+  width:62px;height:62px;border-radius:14px;
+  object-fit:cover;background:#000; flex:0 0 auto;
+}
+.cartMeta{flex:1; min-width:0}
+.cartMeta .n{font-weight:1000; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.cartMeta .p{color:var(--muted); font-size:12px; margin-top:4px}
+
+.qty{
+  display:flex; align-items:center; gap:8px; margin-top:8px;
+}
+.qty button{
+  width:34px;height:34px;border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-weight:1000;
+}
+.qty .trash{
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+}
+
+.totals{
+  margin-top:12px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px 12px;
+  background:var(--card2);
+}
+.totals .row{display:flex; justify-content:space-between; padding:6px 0; color:var(--muted)}
+.totals .row.total{color:var(--text); font-weight:1000; border-top:1px solid var(--border); margin-top:8px; padding-top:10px}
+
+/* ===== WHATSAPP FLOAT ===== */
 .wa{
   position:fixed; right:16px; bottom:16px;
   background:#25D366;color:#fff;
   padding:14px;border-radius:999px;
   font-weight:900;text-decoration:none;
+  z-index:30;
 }
 </style>
 </head>
@@ -177,6 +288,16 @@ body{
       <div id="storeSub">Catálogo</div>
     </div>
   </div>
+
+  <div class="actions">
+    <button class="iconBtn" onclick="document.getElementById('q').focus()">🔎</button>
+    <button class="cartBtn" onclick="openCart()">🛒 <span class="badge" id="cartCount">0</span></button>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="searchWrap">
+  <input id="q" class="search" placeholder="Buscar producto..." oninput="onSearch(this.value)">
 </div>
 
 <!-- CATEGORÍAS -->
@@ -189,96 +310,255 @@ body{
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="backdrop" id="backdrop" onclick="closeModal()"></div>
-<div class="modal" id="modal">
+<!-- BACKDROP -->
+<div class="backdrop" id="backdrop" onclick="closeAny()"></div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal" id="prodModal">
   <div class="modalHeader">
-    <span id="mName"></span>
-    <span class="closeBtn" onclick="closeModal()">✕</span>
+    <div>
+      <div class="modalTitle" id="mName"></div>
+      <div style="font-size:12px;color:var(--muted)" id="mCat"></div>
+    </div>
+    <button class="closeBtn" onclick="closeProduct()">✕</button>
   </div>
   <div class="modalBody">
-    <img id="mImg" style="width:100%;border-radius:12px">
-    <p id="mDesc"></p>
-    <button class="btn" onclick="addToCart()">Agregar al carrito</button>
+    <img id="mImg" class="mImg" src="">
+    <div class="mMeta" id="mDesc"></div>
+    <div class="priceRow">
+      <div class="price" id="mPrice"></div>
+      <div class="old" id="mOld"></div>
+    </div>
+    <button class="btn" id="btnAdd" onclick="addToCart()">Agregar al carrito</button>
   </div>
 </div>
 
-<!-- WHATSAPP -->
+<!-- CART MODAL -->
+<div class="modal" id="cartModal">
+  <div class="modalHeader">
+    <div class="modalTitle">Carrito</div>
+    <button class="closeBtn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="modalBody">
+    <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
+    <div class="cartList" id="cartList"></div>
+
+    <div class="totals">
+      <div class="row"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
+      <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
+    </div>
+
+    <div style="margin-top:12px;color:var(--muted);font-size:12px">
+      En el siguiente paso agregamos envíos, pagos y cambio estimado.
+    </div>
+  </div>
+  <div class="modalFooter">
+    <button class="btn" style="background:#2d3bff" onclick="sendWA()">Enviar por WhatsApp</button>
+  </div>
+</div>
+
+<!-- WHATSAPP FLOAT -->
 <a class="wa" id="wa" target="_blank">WhatsApp</a>
 
 <script>
-/* ================== CONFIG ================== */
+/* ========= CONFIG ========= */
 const API="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-let DB=[], CART=[], CURRENT=null;
+const WA_NUMBER="50431517755";
+const CART_KEY="sdc_cart_single_v1";
 
-/* ================== LOAD ================== */
+let DB=[], ALL=[], CURRENT=null, FILTER_CAT="Todas", FILTER_Q="";
+let CART=[];
+
+/* ========= INIT ========= */
+loadCart();
+updateBadge();
+wa.href="https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent("Hola, quiero hacer un pedido.");
+
 fetch(API).then(r=>r.json()).then(j=>{
-  DB=j.productos||[];
+  ALL=j.productos||[];
+  DB=ALL;
   renderCats();
   render(DB);
 });
 
-/* ================== RENDER ================== */
+/* ========= SEARCH ========= */
+function onSearch(q){
+  FILTER_Q=(q||"").trim().toLowerCase();
+  applyFilters();
+}
+function applyFilters(){
+  let list=ALL;
+  if (FILTER_CAT!=="Todas") list=list.filter(p=>p.categoria===FILTER_CAT);
+  if (FILTER_Q) list=list.filter(p=>
+    (p.nombre||"").toLowerCase().includes(FILTER_Q) ||
+    (p.descripcion||"").toLowerCase().includes(FILTER_Q)
+  );
+  render(list);
+}
+
+/* ========= CATEGORÍAS ========= */
+function renderCats(){
+  chips.innerHTML="";
+  const cats=["Todas",...new Set(ALL.map(p=>p.categoria).filter(Boolean))];
+  cats.forEach((c,i)=>{
+    const b=document.createElement("button");
+    b.className="chip"+(c===FILTER_CAT?" active":"");
+    b.textContent=c;
+    b.onclick=()=>{
+      FILTER_CAT=c;
+      document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      applyFilters();
+    };
+    chips.appendChild(b);
+  });
+}
+
+/* ========= GRID ========= */
 function render(list){
   grid.innerHTML="";
   list.forEach(p=>{
+    const isOut=(Number(p.stock||0)<=0);
+    const isOffer=(Number(p.precio_anterior||0)>Number(p.precio||0));
     const d=document.createElement("div");
-    d.className="card"+(p.stock<=0?" agotado":"");
+    d.className="card"+(isOut?" agotado":"");
     d.innerHTML=`
+      ${isOffer?`<div class="offerTag">OFERTA</div>`:""}
       <img class="cardImg" src="${p.imagen||""}">
       <div class="cardBody">
-        <div class="cardName">${p.nombre}</div>
-        <div class="price ${p.precio_anterior>p.precio?'offer':''}">
-          L ${p.precio}
+        <div class="cardName">${p.nombre||""}</div>
+        <div class="cardDesc">${p.descripcion||""}</div>
+        <div class="priceRow">
+          <div class="price ${isOffer?'offer':''}">Lps. ${Number(p.precio||0)}</div>
+          ${isOffer?`<div class="old">Lps. ${Number(p.precio_anterior||0)}</div>`:""}
         </div>
-        ${p.precio_anterior>p.precio?`<div class="old">L ${p.precio_anterior}</div>`:""}
-        <button class="btn" ${p.stock<=0?"disabled":""} onclick='openModal(${JSON.stringify(p)})'>
-          ${p.stock<=0?"Agotado":"Ver detalles"}
+        <button class="btn" ${isOut?"disabled":""} onclick='openProduct(${encodeURIComponent(JSON.stringify(p))})'>
+          ${isOut?"Agotado":"Ver detalles"}
         </button>
       </div>`;
     grid.appendChild(d);
   });
 }
 
-/* ================== MODAL ================== */
-function openModal(p){
+/* ========= PRODUCT MODAL ========= */
+function openProduct(encoded){
+  const p=JSON.parse(decodeURIComponent(encoded));
   CURRENT=p;
-  mName.textContent=p.nombre;
+  mName.textContent=p.nombre||"";
+  mCat.textContent=(p.categoria||"")+(p.subcategoria?(" · "+p.subcategoria):"");
   mImg.src=p.imagen||"";
   mDesc.textContent=p.descripcion||"";
+  mPrice.textContent="Lps. "+Number(p.precio||0);
+  const off=Number(p.precio_anterior||0)>Number(p.precio||0);
+  mOld.textContent=off?("Lps. "+Number(p.precio_anterior||0)):"";
+  btnAdd.disabled=(Number(p.stock||0)<=0);
+
   backdrop.style.display="block";
-  modal.style.display="block";
+  prodModal.style.display="block";
 }
-function closeModal(){
-  backdrop.style.display="none";
-  modal.style.display="none";
+function closeProduct(){
+  prodModal.style.display="none";
+  if(cartModal.style.display!=="block") backdrop.style.display="none";
+}
+function closeAny(){
+  closeProduct();
+  closeCart();
 }
 
-/* ================== CART ================== */
+/* ========= CART ========= */
+function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(CART)); }
+function loadCart(){
+  try{ CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; }
+}
+function updateBadge(){
+  cartCount.textContent=String(CART.reduce((a,it)=>a+it.qty,0));
+}
 function addToCart(){
-  CART.push(CURRENT);
-  alert("Agregado al carrito");
-  closeModal();
+  if(!CURRENT) return;
+  const id=String(CURRENT.id);
+  const stock=Number(CURRENT.stock||0);
+  if(stock<=0) return;
+
+  let it=CART.find(x=>String(x.id)===id);
+  if(!it){
+    it={id, nombre:CURRENT.nombre, precio:Number(CURRENT.precio||0), imagen:CURRENT.imagen||"", qty:0};
+    CART.push(it);
+  }
+  if(it.qty+1>stock){ alert("Stock disponible: "+stock); return; }
+  it.qty++;
+  saveCart();
+  updateBadge();
+  closeProduct();
 }
 
-/* ================== CATEGORÍAS ================== */
-function renderCats(){
-  const cats=["Todas",...new Set(DB.map(p=>p.categoria))];
-  cats.forEach(c=>{
-    const b=document.createElement("button");
-    b.className="chip";
-    b.textContent=c;
-    b.onclick=()=>{
-      document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
-      b.classList.add("active");
-      render(c==="Todas"?DB:DB.filter(p=>p.categoria===c));
-    };
-    chips.appendChild(b);
+function renderCart(){
+  cartList.innerHTML="";
+  cartEmpty.style.display=CART.length?"none":"block";
+
+  CART.forEach((it,idx)=>{
+    const row=document.createElement("div");
+    row.className="cartItem";
+    row.innerHTML=`
+      <img src="${it.imagen||""}">
+      <div class="cartMeta">
+        <div class="n">${it.nombre}</div>
+        <div class="p">Lps. ${it.precio} · Cant: ${it.qty}</div>
+        <div class="qty">
+          <button onclick="decItem(${idx})">-</button>
+          <div>${it.qty}</div>
+          <button onclick="incItem(${idx})">+</button>
+          <button class="trash" onclick="delItem(${idx})">🗑️</button>
+        </div>
+      </div>
+    `;
+    cartList.appendChild(row);
   });
+
+  const sub=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
+  subTotal.textContent="Lps. "+sub;
+  grandTotal.textContent="Lps. "+sub;
 }
 
-/* ================== WHATSAPP ================== */
-wa.href="https://wa.me/50431517755?text="+encodeURIComponent("Hola, quiero hacer un pedido.");
+function incItem(i){
+  const it=CART[i];
+  const prod=ALL.find(p=>String(p.id)===String(it.id));
+  const stock=prod?Number(prod.stock||0):9999;
+  if(it.qty+1>stock){ alert("Stock disponible: "+stock); return; }
+  it.qty++;
+  saveCart(); updateBadge(); renderCart();
+}
+function decItem(i){
+  const it=CART[i];
+  it.qty--;
+  if(it.qty<=0) CART.splice(i,1);
+  saveCart(); updateBadge(); renderCart();
+}
+function delItem(i){
+  CART.splice(i,1);
+  saveCart(); updateBadge(); renderCart();
+}
+
+function openCart(){
+  renderCart();
+  backdrop.style.display="block";
+  cartModal.style.display="block";
+}
+function closeCart(){
+  cartModal.style.display="none";
+  if(prodModal.style.display!=="block") backdrop.style.display="none";
+}
+
+/* ========= WhatsApp ========= */
+function sendWA(){
+  if(!CART.length){ alert("Carrito vacío"); return; }
+  let msg="🛒 PEDIDO SDC%0A%0A";
+  CART.forEach(it=>{
+    msg+=`- ${it.qty} x ${it.nombre} (Lps. ${it.precio})%0A`;
+  });
+  const total=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
+  msg+=`%0ATotal: Lps. ${total}`;
+  window.open("https://wa.me/"+WA_NUMBER+"?text="+msg,"_blank");
+}
 </script>
 
 </body>
