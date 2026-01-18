@@ -1,10 +1,9 @@
 let DB = { productos: [], categorias: [], ajustes: [] };
-let STATE = { categoria: "Todas", query: "" };
+let STATE = { categoria: "Todas", subcategoria: "Todas", query: "" };
 
 const $ = (id) => document.getElementById(id);
 function fmtLps(n){ return `Lps. ${Number(n||0).toFixed(0)}`; }
 
-// ----- Tema -----
 function setTheme(next){
   document.body.classList.toggle("light", next === "light");
   localStorage.setItem("sdc_theme", next);
@@ -12,7 +11,6 @@ function setTheme(next){
   if (b) b.textContent = next === "light" ? "🌙" : "☀️";
 }
 
-// ----- Ajustes -----
 function ajustesMap(){
   const map = {};
   (DB.ajustes||[]).forEach(r=>{
@@ -25,7 +23,6 @@ function ajustesMap(){
 
 function applyAjustes(){
   const a = ajustesMap();
-
   if ($("storeName")) $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
   if ($("storeSub")) $("storeSub").textContent = a["subtitulo"] || "Catálogo";
   if ($("logoText")) $("logoText").textContent = a["siglas"] || "SDC";
@@ -41,7 +38,6 @@ function applyAjustes(){
   if ($("year")) $("year").textContent = new Date().getFullYear();
 }
 
-// ----- Normalizar productos -----
 function normalizeProduct(p){
   const out = {
     id: String(p.id||"").trim(),
@@ -57,7 +53,6 @@ function normalizeProduct(p){
     video: String(p.video||p.video_url||"").trim(),
   };
 
-  // soporta "galeria" (csv)
   if (p.galeria && !p.galeria_1){
     const parts = String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean);
     for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
@@ -68,7 +63,7 @@ function normalizeProduct(p){
   return out;
 }
 
-// ----- Loading -----
+/* ===== Skeleton / loading ===== */
 let LOADING_TIMER = null;
 
 function showSkeleton(){
@@ -113,7 +108,7 @@ function stopLoadingMessageSwap(){
   LOADING_TIMER = null;
 }
 
-// ----- Categorías -----
+/* ===== Categorías y subcategorías ===== */
 function getCategorias(){
   let cats = [];
   if (DB.categorias && DB.categorias.length){
@@ -142,25 +137,78 @@ function renderCategorias(){
 
     b.onclick = ()=>{
       STATE.categoria = c;
+      STATE.subcategoria = "Todas";  // ✅ reset
       renderCategorias();
+      renderSubcategorias();
       renderProductos();
 
       const btn = $("btnShareCategory");
       if (btn) btn.style.display = (c==="Todas") ? "none" : "inline-flex";
-
-      if (c==="Todas") history.replaceState(null,"",location.pathname+location.search+"#");
-      else location.hash = `#cat=${encodeURIComponent(c)}`;
     };
 
     chips.appendChild(b);
   });
 }
 
-// ----- Productos -----
+function getSubcategoriasDeCategoria(cat){
+  // cat = categoría actual (o Todas)
+  const set = new Set();
+  DB.productos.forEach(p=>{
+    const okCat = (cat==="Todas") ? true : p.categoria===cat;
+    if (!okCat) return;
+    if (p.subcategoria && p.subcategoria.trim()) set.add(p.subcategoria.trim());
+  });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b));
+}
+
+function renderSubcategorias(){
+  const sub = $("subchips");
+  if (!sub) return;
+
+  const subs = getSubcategoriasDeCategoria(STATE.categoria);
+
+  if (!subs.length){
+    sub.style.display = "none";
+    sub.innerHTML = "";
+    STATE.subcategoria = "Todas";
+    return;
+  }
+
+  sub.style.display = "flex";
+  sub.innerHTML = "";
+
+  // Botón "Todas" (subcategorías)
+  const all = document.createElement("button");
+  all.className = "chip subchip" + (STATE.subcategoria==="Todas" ? " active" : "");
+  all.textContent = "Todas";
+  all.onclick = ()=>{
+    STATE.subcategoria = "Todas";
+    renderSubcategorias();
+    renderProductos();
+  };
+  sub.appendChild(all);
+
+  // Subcategorías reales
+  subs.forEach(sc=>{
+    const b = document.createElement("button");
+    b.className = "chip subchip" + (STATE.subcategoria===sc ? " active" : "");
+    b.textContent = sc;
+    b.onclick = ()=>{
+      STATE.subcategoria = sc;
+      renderSubcategorias();
+      renderProductos();
+    };
+    sub.appendChild(b);
+  });
+}
+
+/* ===== Productos ===== */
 function filteredProductos(){
   const q = STATE.query.trim().toLowerCase();
+
   return DB.productos
     .filter(p => STATE.categoria==="Todas" ? true : p.categoria===STATE.categoria)
+    .filter(p => STATE.subcategoria==="Todas" ? true : (p.subcategoria||"")===STATE.subcategoria)
     .filter(p => !q ? true : (
       (p.nombre||"").toLowerCase().includes(q) ||
       (p.descripcion||"").toLowerCase().includes(q) ||
@@ -220,21 +268,21 @@ function renderProductos(){
   const grid = $("grid");
   if (!grid) return;
 
-  grid.innerHTML = ""; // limpia skeleton
+  grid.innerHTML = "";
 
   const list = filteredProductos();
 
   if ($("sectionTitle")){
-    $("sectionTitle").textContent = STATE.categoria==="Todas"
-      ? `Productos (${list.length})`
-      : `${STATE.categoria} (${list.length})`;
+    const labelCat = (STATE.categoria==="Todas") ? "Productos" : STATE.categoria;
+    const labelSub = (STATE.subcategoria!=="Todas") ? ` · ${STATE.subcategoria}` : "";
+    $("sectionTitle").textContent = `${labelCat}${labelSub} (${list.length})`;
   }
 
   if (!list.length){
     const empty = document.createElement("div");
     empty.style.color = "var(--muted)";
     empty.style.padding = "10px 2px";
-    empty.textContent = "No hay productos cargados en Google Sheets todavía.";
+    empty.textContent = "No hay productos en esta sección.";
     grid.appendChild(empty);
     return;
   }
@@ -242,18 +290,7 @@ function renderProductos(){
   list.forEach(p=>grid.appendChild(productCard(p)));
 }
 
-function applyHash(){
-  const h = location.hash || "";
-  if (h.startsWith("#cat=")){
-    const cat = decodeURIComponent(h.slice(5));
-    STATE.categoria = cat || "Todas";
-    renderCategorias();
-    renderProductos();
-    if ($("btnShareCategory")) $("btnShareCategory").style.display = (STATE.categoria==="Todas") ? "none" : "inline-flex";
-  }
-}
-
-// ----- UI -----
+/* ===== UI ===== */
 function wireUI(){
   const saved = localStorage.getItem("sdc_theme") || "dark";
   setTheme(saved);
@@ -265,6 +302,7 @@ function wireUI(){
     };
   }
 
+  // Buscar
   if ($("btnSearch") && $("searchInput")){
     $("btnSearch").onclick = ()=>$("searchInput").focus();
     $("searchInput").addEventListener("input",(e)=>{
@@ -273,6 +311,7 @@ function wireUI(){
     });
   }
 
+  // Compartir categoría
   if ($("btnShareCategory")){
     $("btnShareCategory").onclick = async ()=>{
       if (STATE.categoria==="Todas") return;
@@ -281,9 +320,17 @@ function wireUI(){
       catch(e){ alert("No se pudo copiar"); }
     };
   }
+
+  // ✅ Tocar título: scroll suave arriba
+  if ($("storeName")){
+    $("storeName").addEventListener("click",(e)=>{
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
 }
 
-// ----- Init -----
+/* ===== Init ===== */
 async function init(){
   try{
     wireUI();
@@ -299,26 +346,14 @@ async function init(){
 
     applyAjustes();
     renderCategorias();
+    renderSubcategorias();
     renderProductos();
-
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
 
   }catch(err){
     stopLoadingMessageSwap();
     console.error(err);
-
     if ($("sectionTitle")) $("sectionTitle").textContent = "No se pudo cargar el catálogo.";
-    if ($("grid")) {
-      $("grid").innerHTML = `
-        <div class="loadingWrap fadeIn" style="text-align:left;">
-          <div class="loadingTitle">No se pudo cargar</div>
-          <div class="loadingSub">Revisa tu conexión o intenta nuevamente.</div>
-          <div style="margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap;">${String(err && (err.stack || err.message) ? (err.stack || err.message) : err)}</div>
-          <button class="btn btnPrimary" style="margin-top:14px;" onclick="location.reload()">Reintentar</button>
-        </div>
-      `;
-    }
+    if ($("grid")) $("grid").innerHTML = `<div style="color:var(--muted);padding:10px 2px;">${String(err.message||err)}</div>`;
   }
 }
 
