@@ -38,8 +38,15 @@
     }
     const gallery = Array.from(new Set(urls)).slice(0, 8);
 
-    mainImg.src = gallery[0] || "";
-    mainImg.alt = p.nombre || "";
+   mainImg.src = gallery[0] || "assets/img/no-image.png";
+mainImg.alt = p.nombre || "";
+
+// ✅ fallback si la imagen falla
+mainImg.onerror = function () {
+  this.onerror = null;
+  this.src = "assets/img/no-image.png";
+};
+
 
     if (thumbs) {
       thumbs.innerHTML = "";
