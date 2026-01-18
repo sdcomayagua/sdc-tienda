@@ -241,9 +241,9 @@ async function init(){
     wireUI();
 $("grid").innerHTML = `<div style="color:var(--muted);padding:10px 2px;">Cargando productos…</div>`;
 
-    $("grid").innerHTML = `
+$("grid").innerHTML = `
   <div class="skelGrid">
-    ${Array.from({length: 8}).map(()=>`
+    ${Array.from({ length: 8 }, () => `
       <div class="skelCard">
         <div class="skelImg"></div>
         <div class="skelBody">
