@@ -37,10 +37,7 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   font-weight:900;
 }
 .brandText{min-width:0}
-#storeName{
-  font-weight:900;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
+#storeName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #storeSub{font-size:12px;color:var(--muted)}
 @media(max-width:720px){
   #storeName{color:transparent; position:relative}
@@ -87,7 +84,7 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 }
 
 /* CATS */
-.chips{display:flex; gap:10px; overflow:auto; padding:0 12px 12px; scrollbar-width:none;}
+.chips{display:flex; gap:10px; overflow:auto; padding:0 12px 10px; scrollbar-width:none;}
 .chips::-webkit-scrollbar{display:none}
 .chip{
   padding:8px 14px;
@@ -98,6 +95,27 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   white-space:nowrap;
 }
 .chip.active{background:var(--primary)}
+
+/* SUBCATS */
+.subchips{
+  display:flex; gap:8px; overflow:auto;
+  padding:0 12px 12px;
+  scrollbar-width:none;
+}
+.subchips::-webkit-scrollbar{display:none}
+.subchips .chip{
+  padding:7px 12px;
+  font-size:12px;
+  opacity:.95;
+  background:rgba(255,255,255,.04);
+  box-shadow:none;
+}
+.subLabel{
+  color:var(--muted);
+  font-weight:900;
+  font-size:12px;
+  padding:0 12px 6px;
+}
 
 /* GRID */
 .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:12px;}
@@ -249,6 +267,9 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 
 <div class="chips" id="chips"></div>
 
+<div class="subLabel" id="subLabel" style="display:none;">Subcategorías</div>
+<div class="subchips" id="subchips" style="display:none;"></div>
+
 <div class="grid" id="grid">
   <div style="grid-column:1/-1;text-align:center"><b>CARGANDO…</b></div>
 </div>
@@ -289,7 +310,6 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
       <button class="tab" id="tPay" onclick="showStep('pay')">Pago</button>
     </div>
 
-    <!-- STEP CART -->
     <div id="stepCart">
       <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
       <div class="cartList" id="cartList"></div>
@@ -302,7 +322,6 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
       <div class="hint" id="shipHint">Selecciona entrega para calcular el envío.</div>
     </div>
 
-    <!-- STEP SHIP -->
     <div id="stepShip" style="display:none;">
       <div class="formGrid">
         <input id="custName" class="search" placeholder="Tu nombre">
@@ -339,7 +358,6 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
       </div>
     </div>
 
-    <!-- STEP PAY -->
     <div id="stepPay" style="display:none;">
       <div style="font-weight:900">Método de pago</div>
       <div class="formGrid" style="margin-top:8px">
@@ -367,16 +385,18 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 <a class="wa" id="wa" target="_blank">WhatsApp</a>
 
 <script>
-/* ========= CONFIG ========= */
 const API="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-const CART_KEY="sdc_cart_single_v3";
+const CART_KEY="sdc_cart_single_v4";
 
 let DATA=null;
 let ALL=[], BY_ID={}, CURRENT=null;
-let FILTER_CAT="Todas", FILTER_Q="";
+let FILTER_CAT="Todas", FILTER_SUB="Todas", FILTER_Q="";
 let CART=[];
 
-/* ========= INIT ========= */
+// doble toque
+let lastCatTap={v:null,t:0};
+let lastSubTap={v:null,t:0};
+
 loadCart();
 updateBadge();
 wa.href="https://wa.me/50431517755?text="+encodeURIComponent("Hola, quiero hacer un pedido.");
@@ -399,7 +419,11 @@ fetch(API).then(r=>r.json()).then(j=>{
 
   BY_ID={}; ALL.forEach(p=>BY_ID[p.id]=p);
 
+  // leer hash si viene compartido
+  applyHash();
+
   renderCats();
+  renderSubcats();
   applyFilters();
 
   fillDeptos();
@@ -409,29 +433,55 @@ fetch(API).then(r=>r.json()).then(j=>{
   fillBus();
   fillEmpresaModalidad();
   fillPagos();
+}).catch(e=>{
+  grid.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">Error cargando API: ${e}</div>`;
 });
 
-/* ========= SEARCH ========= */
+/* ===== Hash ===== */
+function applyHash(){
+  const h=(location.hash||"").replace("#","");
+  if(!h) return;
+  const p=new URLSearchParams(h);
+  const cat=p.get("cat");
+  const sub=p.get("sub");
+  if(cat) FILTER_CAT=decodeURIComponent(cat);
+  if(sub) FILTER_SUB=decodeURIComponent(sub);
+}
+function copyLinkCat(cat){
+  const url=location.origin+location.pathname+`#cat=${encodeURIComponent(cat)}`;
+  navigator.clipboard.writeText(url);
+  alert("Enlace copiado");
+}
+function copyLinkSub(cat,sub){
+  const url=location.origin+location.pathname+`#cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(sub)}`;
+  navigator.clipboard.writeText(url);
+  alert("Enlace copiado");
+}
+
+/* ===== Search ===== */
 function onSearch(q){
   FILTER_Q=(q||"").trim().toLowerCase();
   applyFilters();
 }
+
+/* ===== Filters ===== */
 function applyFilters(){
   let list=ALL;
-  if (FILTER_CAT!=="Todas") list=list.filter(p=>p.categoria===FILTER_CAT);
-  if (FILTER_Q) list=list.filter(p=>
+  if(FILTER_CAT!=="Todas") list=list.filter(p=>p.categoria===FILTER_CAT);
+  if(FILTER_SUB!=="Todas") list=list.filter(p=>p.subcategoria===FILTER_SUB);
+  if(FILTER_Q) list=list.filter(p=>
     (p.nombre||"").toLowerCase().includes(FILTER_Q) ||
     (p.descripcion||"").toLowerCase().includes(FILTER_Q)
   );
   render(list);
 }
 
-/* ========= CATEGORÍAS (desde Sheets) ========= */
+/* ===== Categorías ===== */
 function renderCats(){
   chips.innerHTML="";
 
   let cats=[];
-  if (DATA && Array.isArray(DATA.categorias) && DATA.categorias.length){
+  if(DATA && Array.isArray(DATA.categorias) && DATA.categorias.length){
     cats = DATA.categorias
       .filter(c => String(c.visible ?? 1) === "1" || c.visible === 1)
       .sort((a,b)=>Number(a.orden||0)-Number(b.orden||0))
@@ -440,24 +490,99 @@ function renderCats(){
   } else {
     cats = [...new Set(ALL.map(p=>p.categoria).filter(Boolean))].sort();
   }
-
-  cats = ["Todas", ...cats.filter(c=>c!=="Todas")];
+  cats=["Todas", ...cats.filter(c=>c!=="Todas")];
 
   cats.forEach(c=>{
     const b=document.createElement("button");
     b.className="chip"+(c===FILTER_CAT?" active":"");
     b.textContent=c;
+
     b.onclick=()=>{
+      // doble toque copiar
+      const now=Date.now();
+      if(lastCatTap.v===c && (now-lastCatTap.t)<650){
+        copyLinkCat(c);
+        lastCatTap={v:null,t:0};
+        return;
+      }
+      lastCatTap={v:c,t:now};
+
       FILTER_CAT=c;
+      FILTER_SUB="Todas";
       document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
       b.classList.add("active");
+      renderSubcats();
       applyFilters();
     };
     chips.appendChild(b);
   });
 }
 
-/* ========= GRID ========= */
+/* ===== Subcategorías ===== */
+function getSubcatsForCat(cat){
+  if(cat==="Todas") return [];
+  // si existe hoja subcategorias
+  if(DATA && Array.isArray(DATA.subcategorias) && DATA.subcategorias.length){
+    return DATA.subcategorias
+      .filter(r => String(r.categoria||"").trim()===cat)
+      .filter(r => String(r.visible ?? 1)==="1" || r.visible===1)
+      .sort((a,b)=>Number(a.orden||0)-Number(b.orden||0))
+      .map(r=>String(r.subcategoria||"").trim())
+      .filter(Boolean);
+  }
+  // fallback: desde productos
+  return [...new Set(ALL.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))].sort();
+}
+
+function renderSubcats(){
+  const subs=getSubcatsForCat(FILTER_CAT);
+
+  if(!subs.length){
+    subLabel.style.display="none";
+    subchips.style.display="none";
+    subchips.innerHTML="";
+    FILTER_SUB="Todas";
+    return;
+  }
+
+  subLabel.style.display="block";
+  subchips.style.display="flex";
+  subchips.innerHTML="";
+
+  const allBtn=document.createElement("button");
+  allBtn.className="chip"+(FILTER_SUB==="Todas"?" active":"");
+  allBtn.textContent="Todas";
+  allBtn.onclick=()=>{
+    FILTER_SUB="Todas";
+    Array.from(subchips.children).forEach(x=>x.classList.remove("active"));
+    allBtn.classList.add("active");
+    applyFilters();
+  };
+  subchips.appendChild(allBtn);
+
+  subs.forEach(sc=>{
+    const b=document.createElement("button");
+    b.className="chip"+(sc===FILTER_SUB?" active":"");
+    b.textContent=sc;
+    b.onclick=()=>{
+      const now=Date.now();
+      if(lastSubTap.v===sc && (now-lastSubTap.t)<650){
+        copyLinkSub(FILTER_CAT, sc);
+        lastSubTap={v:null,t:0};
+        return;
+      }
+      lastSubTap={v:sc,t:now};
+
+      FILTER_SUB=sc;
+      Array.from(subchips.children).forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      applyFilters();
+    };
+    subchips.appendChild(b);
+  });
+}
+
+/* ===== Grid render ===== */
 function render(list){
   grid.innerHTML="";
   list.forEach(p=>{
@@ -482,9 +607,13 @@ function render(list){
       </div>`;
     grid.appendChild(d);
   });
+
+  if(!list.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">No hay productos en esta sección.</div>`;
+  }
 }
 
-/* ========= PRODUCT MODAL (por ID seguro) ========= */
+/* ===== Product modal ===== */
 function openProductById(id){
   const p = BY_ID[id];
   if (!p) return;
@@ -512,16 +641,12 @@ function closeAny(){
   closeCart();
 }
 
-/* ========= CART STORAGE ========= */
+/* ===== Cart storage ===== */
 function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(CART)); }
-function loadCart(){
-  try{ CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; }
-}
-function updateBadge(){
-  cartCount.textContent=String(CART.reduce((a,it)=>a+it.qty,0));
-}
+function loadCart(){ try{ CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; } }
+function updateBadge(){ cartCount.textContent=String(CART.reduce((a,it)=>a+it.qty,0)); }
 
-/* ========= CART OPS ========= */
+/* ===== Cart operations ===== */
 function addToCart(){
   if(!CURRENT) return;
   const id=String(CURRENT.id);
@@ -539,19 +664,16 @@ function addToCart(){
   updateBadge();
   closeProduct();
 }
-
 function incItem(i){
   const it=CART[i];
   const prod=BY_ID[String(it.id)];
   const stock=prod?Number(prod.stock||0):9999;
   if(it.qty+1>stock){ alert("Stock disponible: "+stock); return; }
-  it.qty++;
-  saveCart(); updateBadge(); renderCart(); syncTotals();
+  it.qty++; saveCart(); updateBadge(); renderCart(); syncTotals();
 }
 function decItem(i){
   const it=CART[i];
-  it.qty--;
-  if(it.qty<=0) CART.splice(i,1);
+  it.qty--; if(it.qty<=0) CART.splice(i,1);
   saveCart(); updateBadge(); renderCart(); syncTotals();
 }
 function delItem(i){
@@ -559,7 +681,7 @@ function delItem(i){
   saveCart(); updateBadge(); renderCart(); syncTotals();
 }
 
-/* ========= CART UI ========= */
+/* ===== Cart UI ===== */
 function openCart(){
   renderCart();
   syncTotals();
@@ -571,19 +693,15 @@ function closeCart(){
   cartModal.style.display="none";
   if(prodModal.style.display!=="block") backdrop.style.display="none";
 }
-
 function showStep(which){
   stepCart.style.display=(which==='cart')?'block':'none';
   stepShip.style.display=(which==='ship')?'block':'none';
   stepPay.style.display=(which==='pay')?'block':'none';
-
   tCart.classList.toggle('active', which==='cart');
   tShip.classList.toggle('active', which==='ship');
   tPay.classList.toggle('active', which==='pay');
-
   syncTotals();
 }
-
 function renderCart(){
   cartList.innerHTML="";
   cartEmpty.style.display=CART.length?"none":"block";
@@ -601,13 +719,12 @@ function renderCart(){
           <button onclick="incItem(${idx})">+</button>
           <button class="trash" onclick="delItem(${idx})">🗑️</button>
         </div>
-      </div>
-    `;
+      </div>`;
     cartList.appendChild(row);
   });
 }
 
-/* ========= LOCATION / DELIVERY / PAY ========= */
+/* ===== Delivery / Pay / Totals / WA (igual que antes) ===== */
 function fillSelect(sel, items, placeholder){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
   items.forEach(v=>{
@@ -616,7 +733,6 @@ function fillSelect(sel, items, placeholder){
     sel.appendChild(o);
   });
 }
-
 function fillDeptos(){
   const deps=[...new Set((DATA.municipios_hn||[]).map(x=>x.departamento).filter(Boolean))].sort();
   fillSelect(depto, deps, "Departamento");
@@ -628,7 +744,6 @@ function fillMunis(){
   const munis=(DATA.municipios_hn||[]).filter(x=>x.departamento===dep).map(x=>x.municipio).filter(Boolean).sort();
   fillSelect(muni, munis, "Municipio");
 }
-
 function findCobertura(dep, mun){
   return (DATA.cobertura_entrega||[]).find(x=>x.departamento===dep && x.municipio===mun) || null;
 }
@@ -636,7 +751,6 @@ function isTrue(v){
   const x=String(v||"").toLowerCase();
   return x==="1" || x==="true" || x==="si" || x==="sí";
 }
-
 function updateDeliveryTypeOptions(){
   const dep=depto.value, mun=muni.value;
   const opts=[];
@@ -659,7 +773,6 @@ function updateDeliveryTypeOptions(){
   deliveryType.innerHTML=`<option value="">Tipo de entrega</option>`+opts.map(o=>`<option value="${o.v}">${o.t}</option>`).join("");
   deliveryType.onchange=()=>{ updateBoxes(); fillPagos(); syncTotals(); };
 }
-
 function updateBoxes(){
   const t=deliveryType.value;
   boxComa.style.display = (t==="comayagua_ciudad")?"grid":"none";
@@ -667,38 +780,32 @@ function updateBoxes(){
   boxEmpresa.style.display = (t==="empresa")?"grid":"none";
   boxBus.style.display = (t==="bus")?"grid":"none";
 }
-
 function fillZonaComayagua(){
   const zonas=[...new Set((DATA.zonas_comayagua_ciudad||[]).map(x=>x.zona).filter(Boolean))].sort();
   fillSelect(comaZona, zonas, "Zona (Comayagua)");
   comaZona.onchange=()=>syncTotals();
 }
-
 function fillPropia(){
   const lugares=[...new Set((DATA.tarifas_entrega_propia||[]).map(x=>x.municipio||x.lugar).filter(Boolean))].sort();
   fillSelect(propiaLugar, lugares, "Lugar (entrega propia)");
   propiaLugar.onchange=()=>syncTotals();
 }
-
 function fillEmpresa(){
   const emps=[...new Set((DATA.empresas_envio||[]).map(x=>x.empresa).filter(Boolean))].sort();
   fillSelect(empresa, emps, "Empresa de envío");
   empresa.onchange=()=>syncTotals();
 }
-
 function fillEmpresaModalidad(){
   empresaModalidad.innerHTML=`<option value="">Modalidad</option>
   <option value="normal">Normal (anticipado)</option>
   <option value="contra_entrega">Contra entrega</option>`;
   empresaModalidad.onchange=()=>{ fillPagos(); syncTotals(); };
 }
-
 function fillBus(){
   const lugares=[...new Set((DATA.bus_local_tarifas||[]).map(x=>x.municipio||x.lugar).filter(Boolean))].sort();
   fillSelect(busLugar, lugares, "Lugar (bus local)");
   busLugar.onchange=()=>syncTotals();
 }
-
 function calcShipping(){
   const t=deliveryType.value;
   if(!t) return {text:"Por confirmar",min:0,max:0,range:false};
@@ -730,7 +837,6 @@ function calcShipping(){
   }
   return {text:"Por confirmar",min:0,max:0,range:false};
 }
-
 function fillPagos(){
   const t=deliveryType.value;
   const modalidad=empresaModalidad.value;
@@ -743,14 +849,11 @@ function fillPagos(){
   payMethod.onchange=()=>{ updateCashBox(); syncTotals(); };
   cashAmount.oninput=()=>syncTotals();
 }
-
 function updateCashBox(){
   const show = (deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo");
   cashAmount.style.display = show ? "block" : "none";
   if(!show) cashAmount.value="";
 }
-
-/* ========= TOTALS + CAMBIO ========= */
 function syncTotals(){
   const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
   const ship=calcShipping();
@@ -784,19 +887,15 @@ function syncTotals(){
 
   shipHint.textContent = ship.range ? "Bus local: envío estimado (rango), se confirma antes de enviar." : "Tarifa calculada desde Sheets.";
 }
-
-/* ========= WhatsApp ========= */
 function validate(){
   if(!CART.length){ alert("Carrito vacío"); showStep('cart'); return false; }
   if(!custName.value.trim() || !custPhone.value.trim()){ alert("Completa tu nombre y teléfono."); showStep('ship'); return false; }
   if(!depto.value || !muni.value){ alert("Selecciona departamento y municipio."); showStep('ship'); return false; }
   if(!deliveryType.value){ alert("Selecciona tipo de entrega."); showStep('ship'); return false; }
-
   if(deliveryType.value==="comayagua_ciudad" && !comaZona.value){ alert("Selecciona tu zona en Comayagua."); showStep('ship'); return false; }
   if(deliveryType.value==="entrega_propia" && !propiaLugar.value){ alert("Selecciona el lugar de entrega propia."); showStep('ship'); return false; }
   if(deliveryType.value==="empresa" && (!empresa.value || !empresaModalidad.value)){ alert("Selecciona empresa y modalidad."); showStep('ship'); return false; }
   if(deliveryType.value==="bus" && !busLugar.value){ alert("Selecciona lugar de bus."); showStep('ship'); return false; }
-
   if(!payMethod.value){ alert("Selecciona método de pago."); showStep('pay'); return false; }
 
   if(deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo"){
@@ -809,7 +908,6 @@ function validate(){
   }
   return true;
 }
-
 function sendWA(){
   if(!validate()) return;
 
@@ -826,9 +924,7 @@ function sendWA(){
   msg.push("");
 
   msg.push("Productos:");
-  CART.forEach(it=>{
-    msg.push(`- ${it.qty} x ${it.nombre} (Lps. ${it.precio})`);
-  });
+  CART.forEach(it=> msg.push(`- ${it.qty} x ${it.nombre} (Lps. ${it.precio})`) );
 
   msg.push("");
   msg.push("Subtotal: Lps. "+subtotal);
@@ -842,15 +938,11 @@ function sendWA(){
     if(comaColonia.value.trim()) msg.push("Ref: "+comaColonia.value.trim());
   }
   if(deliveryType.value==="entrega_propia") msg.push("Lugar: "+propiaLugar.value);
-  if(deliveryType.value==="empresa"){
-    msg.push("Empresa: "+empresa.value);
-    msg.push("Modalidad: "+empresaModalidad.value);
-  }
+  if(deliveryType.value==="empresa"){ msg.push("Empresa: "+empresa.value); msg.push("Modalidad: "+empresaModalidad.value); }
   if(deliveryType.value==="bus") msg.push("Bus: "+busLugar.value);
 
   msg.push("");
   msg.push("Pago: "+payMethod.options[payMethod.selectedIndex].text);
-
   const p=(DATA.pagos||[]).find(x=>x.metodo===payMethod.value);
   if(p && p.detalle) msg.push("Info: "+p.detalle);
 
@@ -861,17 +953,13 @@ function sendWA(){
     msg.push(diff<0 ? ("Faltan Lps. "+Math.abs(diff)) : ("Cambio estimado: Lps. "+diff));
   }
 
-  const link="https://wa.me/50431517755?text="+encodeURIComponent(msg.join("\n"));
-  window.open(link,"_blank");
+  window.open("https://wa.me/50431517755?text="+encodeURIComponent(msg.join("\n")),"_blank");
 }
-
-/* ========= Copy summary ========= */
 function copySummary(){
   const ship=calcShipping();
   const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
   const total=subtotal+ship.min;
-  const text=`Pedido SDC\nSubtotal: Lps. ${subtotal}\nEnvío: ${ship.text}\nTotal: Lps. ${total}`;
-  navigator.clipboard.writeText(text);
+  navigator.clipboard.writeText(`Pedido SDC\nSubtotal: Lps. ${subtotal}\nEnvío: ${ship.text}\nTotal: Lps. ${total}`);
   alert("Resumen copiado");
 }
 </script>
