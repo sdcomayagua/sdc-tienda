@@ -24,18 +24,19 @@
     <div class="topActions">
       <button class="iconBtn" id="btnSearch" title="Buscar" type="button">🔎</button>
       <button class="iconBtn" id="btnTheme" title="Día / Noche" type="button">🌙</button>
-      <button class="cartBtn" id="btnCart" title="Carrito (próximo paso)" type="button">
+      <button class="cartBtn" id="btnCart" title="Carrito" type="button">
         🛒 <span class="badge" id="cartCount">0</span>
       </button>
     </div>
   </header>
 
-  <!-- Categorías -->
+  <!-- CATEGORÍAS -->
   <nav class="chips" id="chips"></nav>
 
-  <!-- Subcategorías -->
+  <!-- SUBCATEGORÍAS -->
   <nav class="subchips" id="subchips" style="display:none;"></nav>
 
+  <!-- BUSCADOR -->
   <section class="searchWrap">
     <input id="searchInput" class="search" placeholder="Buscar producto, nombre o descripción…" autocomplete="off" />
     <div class="sectionHeader">
@@ -47,10 +48,12 @@
     </div>
   </section>
 
+  <!-- PRODUCTOS -->
   <main class="container">
     <div class="grid" id="grid"></div>
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footerBox">
       <div class="footerTitle">Información</div>
@@ -62,11 +65,13 @@
     <div class="footerSmall">© <span id="year"></span> <span id="footerBrand">SDC</span></div>
   </footer>
 
+  <!-- WhatsApp flotante -->
   <a class="waFloat" id="waFloat" target="_blank" rel="noopener">WhatsApp</a>
 
-  <!-- Backdrop + Modal Producto -->
+  <!-- BACKDROP -->
   <div class="modalBackdrop" id="backdrop"></div>
 
+  <!-- MODAL PRODUCTO -->
   <div class="modal" id="prodModal" aria-hidden="true">
     <div class="modalHeader">
       <div>
@@ -89,14 +94,115 @@
       <div class="videoBtns" id="modalVideos"></div>
 
       <div style="display:flex; gap:10px; margin-top:12px;">
+        <!-- ✅ Agregar NO abre carrito (opción A). checkout.js solo suma -->
         <button class="btn btnPrimary btnFull" id="modalAdd" type="button">Agregar al carrito</button>
         <button class="btn btnSoft btnFull" id="btnShareProduct" type="button">Compartir</button>
       </div>
     </div>
   </div>
 
+  <!-- MODAL CARRITO (por pasos) -->
+  <div class="modal" id="cartModal" aria-hidden="true">
+    <div class="modalHeader">
+      <div>
+        <div class="modalTitle">Carrito y pedido</div>
+        <div class="modalSub">Revisa, elige entrega y envía por WhatsApp.</div>
+      </div>
+      <button class="iconBtn" id="btnCloseCart" type="button">✕</button>
+    </div>
+
+    <div class="modalBody">
+      <!-- Tabs -->
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <button class="btn btnSoft" id="tabCart" type="button">Carrito</button>
+        <button class="btn btnSoft" id="tabShip" type="button">Entrega</button>
+        <button class="btn btnSoft" id="tabPay" type="button">Pago</button>
+      </div>
+
+      <!-- Paso 1: Carrito -->
+      <div id="stepCart">
+        <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
+        <div class="cartList" id="cartList"></div>
+
+        <div class="totals">
+          <div class="row"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
+          <div class="row"><span>Envío</span><span id="shippingCost">Por confirmar</span></div>
+          <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
+        </div>
+
+        <div class="hint" id="shipHint">Selecciona entrega para calcular el envío.</div>
+      </div>
+
+      <!-- Paso 2: Entrega -->
+      <div id="stepShip" style="display:none;">
+        <div class="sectionTitle">Datos</div>
+        <div style="display:grid; gap:10px; margin-top:10px;">
+          <input id="custName" class="search" placeholder="Tu nombre" />
+          <input id="custPhone" class="search" placeholder="Teléfono (Ej: 9999-9999)" />
+        </div>
+
+        <div class="sectionTitle" style="margin-top:14px;">Ubicación</div>
+        <div style="display:grid; gap:10px; margin-top:10px;">
+          <select id="depto" class="search"></select>
+          <select id="muni" class="search"></select>
+        </div>
+
+        <div class="sectionTitle" style="margin-top:14px;">Tipo de entrega</div>
+        <div style="display:grid; gap:10px; margin-top:10px;">
+          <select id="deliveryType" class="search"></select>
+
+          <div id="boxComa" style="display:none; gap:10px;">
+            <select id="comaZona" class="search"></select>
+            <input id="comaColonia" class="search" placeholder="Colonia / referencia (opcional)" />
+          </div>
+
+          <div id="boxPropia" style="display:none; gap:10px;">
+            <select id="propiaLugar" class="search"></select>
+          </div>
+
+          <div id="boxEmpresa" style="display:none; gap:10px;">
+            <select id="empresa" class="search"></select>
+            <select id="empresaModalidad" class="search"></select>
+          </div>
+
+          <div id="boxBus" style="display:none; gap:10px;">
+            <select id="busLugar" class="search"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Pago -->
+      <div id="stepPay" style="display:none;">
+        <div class="sectionTitle">Método de pago</div>
+        <div style="display:grid; gap:10px; margin-top:10px;">
+          <select id="payMethod" class="search"></select>
+
+          <!-- Efectivo Comayagua -->
+          <input id="cashAmount" class="search" type="number" inputmode="numeric"
+                 placeholder="¿Con cuánto pagará? (solo efectivo en Comayagua)"
+                 style="display:none;" />
+
+          <div class="hint" id="payInfo"></div>
+        </div>
+
+        <div class="totals" style="margin-top:12px;">
+          <div class="row"><span>Subtotal</span><span id="subTotal2">Lps. 0</span></div>
+          <div class="row"><span>Envío</span><span id="shippingCost2">Por confirmar</span></div>
+          <div class="row total"><span>Total</span><span id="grandTotal2">Lps. 0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modalFooter">
+      <button class="btn btnSoft" id="btnCopyCart" type="button">Copiar resumen</button>
+      <button class="btn btnPrimary" id="btnSendWA" type="button">Enviar por WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script src="assets/js/api.js"></script>
   <script src="assets/js/ui.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/checkout.js"></script>
 </body>
 </html>
