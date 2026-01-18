@@ -134,11 +134,18 @@
         </div>
       </div>
 
-      <div class="sectionTitle" style="margin-top:14px;">Pago</div>
-      <div style="display:grid; gap:10px; margin-top:10px;">
-        <select id="payMethod" class="search"></select>
-        <div class="hint" id="payInfo"></div>
-      </div>
+<div class="sectionTitle" style="margin-top:14px;">Pago</div>
+<div style="display:grid; gap:10px; margin-top:10px;">
+  <select id="payMethod" class="search"></select>
+
+  <!-- SOLO Comayagua ciudad + efectivo -->
+  <input id="cashAmount" class="search" type="number" inputmode="numeric"
+         placeholder="¿Con cuánto pagará? (solo efectivo en Comayagua)"
+         style="display:none;" />
+
+  <div class="hint" id="payInfo"></div>
+</div>
+
 
       <div class="totals">
         <div class="row"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
