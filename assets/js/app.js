@@ -1,3 +1,5 @@
+// assets/js/app.js (BASE ESTABLE - sin carrito por ahora)
+
 let DB = { productos: [], categorias: [], subcategorias: [], ajustes: [] };
 let STATE = { categoria:"Todas", subcategoria:"Todas", query:"" };
 
@@ -8,33 +10,90 @@ window.fmtLps = fmtLps;
 function s(v){ return (v==null) ? "" : String(v).trim(); }
 function n(v){ const x=Number(v); return Number.isFinite(x)?x:0; }
 function eq(a,b){ return s(a).toLowerCase() === s(b).toLowerCase(); }
+
 async function copyText(txt){
   try{ await navigator.clipboard.writeText(txt); alert("Enlace copiado"); }
   catch{ alert("No se pudo copiar"); }
 }
 
+/* -------------------------
+   Loading UI (skeleton)
+-------------------------- */
+let LOADING_TIMER = null;
+
+function showSkeleton(){
+  const grid = $("grid");
+  if (!grid) return;
+
+  grid.innerHTML = `
+    <div class="loadingWrap fadeIn">
+      <div class="loadingTitle" id="loadingTitle">Cargando catálogo…</div>
+      <div class="loadingSub" id="loadingSub">Estamos preparando los productos de Soluciones Digitales Comayagua.</div>
+      <div class="spinner"></div>
+    </div>
+    <div class="skelGrid fadeIn">
+      ${Array.from({ length: 8 }, () => `
+        <div class="skelCard">
+          <div class="skelImg"></div>
+          <div class="skelBody">
+            <div class="skelLine lg"></div>
+            <div class="skelLine md"></div>
+            <div class="skelLine sm"></div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function startLoadingMessageSwap(){
+  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
+  LOADING_TIMER = setTimeout(()=>{
+    const t = $("loadingTitle");
+    const s2 = $("loadingSub");
+    if (t) t.textContent = "Sigue cargando…";
+    if (s2) s2.textContent = "Si no aparece en unos segundos, recarga la página o escríbenos por WhatsApp.";
+  }, 4000);
+}
+
+function stopLoadingMessageSwap(){
+  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
+  LOADING_TIMER = null;
+}
+
+/* -------------------------
+   Ajustes
+-------------------------- */
 function ajustesMap(){
-  const map={};
+  const map = {};
   (DB.ajustes||[]).forEach(r=>{
-    const k=s(r.clave), v=s(r.valor);
+    const k = s(r.clave);
+    const v = s(r.valor);
     if (k) map[k]=v;
   });
   return map;
 }
+
 function applyAjustes(){
-  const a=ajustesMap();
+  const a = ajustesMap();
   $("storeName") && ($("storeName").textContent = a.nombre_tienda || "Soluciones Digitales Comayagua");
   $("storeSub") && ($("storeSub").textContent = a.subtitulo || "Catálogo");
   $("logoText") && ($("logoText").textContent = a.siglas || "SDC");
   $("footerBrand") && ($("footerBrand").textContent = a.siglas || "SDC");
-  $("footerInfo") && ( $("footerInfo").textContent = [a.aviso_precios,a.aviso_stock,a.aviso_envio].filter(Boolean).join(" ") || $("footerInfo").textContent );
-  $("year") && ($("year").textContent = new Date().getFullYear());
+
+  const aviso = [a.aviso_precios, a.aviso_stock, a.aviso_envio].filter(Boolean).join(" ");
+  $("footerInfo") && ($("footerInfo").textContent = aviso || $("footerInfo").textContent);
 
   const wa = (a.whatsapp_numero || "50431517755").replace(/\D/g,"");
   const msg = a.mensaje_whatsapp || "Hola, quiero consultar el catálogo.";
   $("waFloat") && ($("waFloat").href = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`);
+
+  $("year") && ($("year").textContent = new Date().getFullYear());
 }
 
+/* -------------------------
+   Normalizar producto
+-------------------------- */
 function normalizeProduct(p){
   return {
     id: s(p.id),
@@ -42,18 +101,21 @@ function normalizeProduct(p){
     precio: n(p.precio),
     precio_anterior: n(p.precio_anterior),
     stock: n(p.stock),
-    categoria: s(p.categoria||"General") || "General",
-    subcategoria: s(p.subcategoria||""),
-    imagen: s(p.imagen||""),
-    descripcion: s(p.descripcion||""),
+    categoria: s(p.categoria || "General") || "General",
+    subcategoria: s(p.subcategoria || ""),
+    imagen: s(p.imagen || ""),
+    descripcion: s(p.descripcion || ""),
     orden: n(p.orden),
-    video: s(p.video||p.video_url||""),
-    galeria: s(p.galeria||""),
+    video: s(p.video || p.video_url || ""),
+    galeria: s(p.galeria || ""),
     galeria_1:s(p.galeria_1||""),galeria_2:s(p.galeria_2||""),galeria_3:s(p.galeria_3||""),galeria_4:s(p.galeria_4||""),
     galeria_5:s(p.galeria_5||""),galeria_6:s(p.galeria_6||""),galeria_7:s(p.galeria_7||""),galeria_8:s(p.galeria_8||""),
   };
 }
 
+/* -------------------------
+   Categorías / Subcategorías
+-------------------------- */
 function getCategorias(){
   let cats = [];
   if (DB.categorias && DB.categorias.length){
@@ -63,7 +125,9 @@ function getCategorias(){
       .map(c=>s(c.categoria))
       .filter(Boolean);
   } else {
-    cats = Array.from(new Set(DB.productos.map(p=>p.categoria))).filter(Boolean).sort((a,b)=>a.localeCompare(b));
+    cats = Array.from(new Set(DB.productos.map(p=>p.categoria)))
+      .filter(Boolean)
+      .sort((a,b)=>a.localeCompare(b));
   }
   return ["Todas", ...cats.filter(c=>c && c!=="Todas")];
 }
@@ -71,17 +135,18 @@ function getCategorias(){
 let lastTapCat = {name:null,t:0};
 
 function renderCategorias(){
-  const chips=$("chips");
+  const chips = $("chips");
   if (!chips) return;
-  chips.innerHTML="";
+  chips.innerHTML = "";
 
   getCategorias().forEach(c=>{
-    const b=document.createElement("button");
-    b.className="chip"+(STATE.categoria===c?" active":"");
-    b.textContent=c;
+    const b = document.createElement("button");
+    b.className = "chip" + (STATE.categoria===c ? " active" : "");
+    b.textContent = c;
 
     b.onclick = async ()=>{
-      const now=Date.now();
+      const now = Date.now();
+      // doble toque -> copiar enlace categoría
       if (lastTapCat.name===c && (now-lastTapCat.t)<650){
         await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(c)}`);
         lastTapCat={name:null,t:0};
@@ -97,6 +162,7 @@ function renderCategorias(){
 
       $("btnShareCategory") && ($("btnShareCategory").style.display = (c==="Todas") ? "none" : "inline-flex");
       $("btnShareSubcat") && ($("btnShareSubcat").style.display = "none");
+      history.replaceState(null,"",location.pathname+location.search+`#cat=${encodeURIComponent(c)}`);
     };
 
     chips.appendChild(b);
@@ -105,7 +171,7 @@ function renderCategorias(){
 
 function getSubcategoriasDeCategoria(cat){
   if (cat==="Todas") return [];
-  // si hay hoja subcategorias, úsala
+
   if (DB.subcategorias && DB.subcategorias.length){
     return DB.subcategorias
       .filter(r=>eq(r.categoria,cat))
@@ -114,14 +180,14 @@ function getSubcategoriasDeCategoria(cat){
       .map(r=>s(r.subcategoria))
       .filter(Boolean);
   }
-  // fallback: detectar desde productos
-  const set=new Set();
+
+  const set = new Set();
   DB.productos.forEach(p=>{ if (p.categoria===cat && p.subcategoria) set.add(p.subcategoria); });
   return Array.from(set).sort((a,b)=>a.localeCompare(b));
 }
 
 function renderSubcategorias(){
-  const sub=$("subchips");
+  const sub = $("subchips");
   if (!sub) return;
 
   if (STATE.categoria==="Todas"){
@@ -132,7 +198,7 @@ function renderSubcategorias(){
     return;
   }
 
-  const subs=getSubcategoriasDeCategoria(STATE.categoria);
+  const subs = getSubcategoriasDeCategoria(STATE.categoria);
   if (!subs.length){
     sub.style.display="none";
     sub.innerHTML="";
@@ -169,8 +235,11 @@ function renderSubcategorias(){
   });
 }
 
+/* -------------------------
+   Productos
+-------------------------- */
 function filteredProductos(){
-  const q=STATE.query.trim().toLowerCase();
+  const q = STATE.query.trim().toLowerCase();
   return DB.productos
     .filter(p=>STATE.categoria==="Todas" ? true : p.categoria===STATE.categoria)
     .filter(p=>STATE.subcategoria==="Todas" ? true : p.subcategoria===STATE.subcategoria)
@@ -189,6 +258,7 @@ function productCard(p){
   const isOut = p.stock<=0;
   const isOffer = p.precio_anterior>p.precio;
   if (isOut) card.classList.add("isOut");
+
   if (isOffer){
     const tag=document.createElement("div");
     tag.className="offerTag";
@@ -247,22 +317,18 @@ function renderProductos(){
   list.forEach(p=>grid.appendChild(productCard(p)));
 }
 
+/* -------------------------
+   Eventos UI
+-------------------------- */
 function wireUI(){
-  // theme
-  const saved = localStorage.getItem("sdc_theme") || "dark";
-  setTheme(saved);
-  $("btnTheme")?.addEventListener("click", ()=>{
-    const now=document.body.classList.contains("light")?"light":"dark";
-    setTheme(now==="light"?"dark":"light");
-  });
-
+  // buscar
   $("btnSearch")?.addEventListener("click", ()=> $("searchInput")?.focus());
   $("searchInput")?.addEventListener("input",(e)=>{
     STATE.query=e.target.value||"";
     renderProductos();
   });
 
-  // compartir botones
+  // compartir
   $("btnShareCategory")?.addEventListener("click", async ()=>{
     if (STATE.categoria==="Todas") return;
     await copyText(location.origin + location.pathname + `#cat=${encodeURIComponent(STATE.categoria)}`);
@@ -280,12 +346,13 @@ function wireUI(){
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
-  // carrito aún no (próximo paso)
-  $("btnCart")?.addEventListener("click", ()=>{
-    alert("Carrito: lo activamos en el siguiente paso ✅");
-  });
+  // carrito desactivado en esta base
+  $("btnCart")?.addEventListener("click", ()=> alert("Carrito: lo activamos en el siguiente paso ✅"));
 }
 
+/* -------------------------
+   Init
+-------------------------- */
 async function init(){
   try{
     wireUI();
@@ -302,9 +369,13 @@ async function init(){
 
     applyAjustes();
 
-    const h = parseHash();
-    if (h.cat) STATE.categoria = decodeURIComponent(h.cat);
-    if (h.sub) STATE.subcategoria = decodeURIComponent(h.sub);
+    // hash initial
+    const h = (location.hash||"").replace("#","");
+    const params = new URLSearchParams(h);
+    const cat = params.get("cat");
+    const sub = params.get("sub");
+    if (cat) STATE.categoria = decodeURIComponent(cat);
+    if (sub) STATE.subcategoria = decodeURIComponent(sub);
 
     renderCategorias();
     renderSubcategorias();
