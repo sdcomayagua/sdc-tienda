@@ -40,9 +40,6 @@ function applyAjustes(){
 }
 
 function normalizeProduct(p){
-  // Soporta dos formatos:
-  // 1) galeria_1..galeria_8
-  // 2) galeria (string con links separados por coma)
   const out = {
     id: String(p.id||"").trim(),
     nombre: String(p.nombre||"").trim(),
@@ -168,13 +165,13 @@ function productCard(p){
 
 function renderProductos(){
   const grid = $("grid");
-grid.innerHTML = ""; // LIMPIA skeleton antes de pintar
+  grid.innerHTML = ""; // LIMPIA skeleton antes de pintar
+
+  const list = filteredProductos();
 
   $("sectionTitle").textContent = STATE.categoria==="Todas"
     ? `Productos (${list.length})`
     : `${STATE.categoria} (${list.length})`;
-
-  grid.innerHTML = "";
 
   if (!list.length){
     const empty = document.createElement("div");
@@ -236,26 +233,29 @@ function wireUI(){
   };
 }
 
+function showSkeleton(){
+  $("grid").innerHTML = `
+    <div class="skelGrid">
+      ${Array.from({ length: 8 }, () => `
+        <div class="skelCard">
+          <div class="skelImg"></div>
+          <div class="skelBody">
+            <div class="skelLine lg"></div>
+            <div class="skelLine md"></div>
+            <div class="skelLine sm"></div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 async function init(){
   try{
     wireUI();
-$("grid").innerHTML = `<div style="color:var(--muted);padding:10px 2px;">Cargando productos…</div>`;
+    showSkeleton();
 
-$("grid").innerHTML = `
-  <div class="skelGrid">
-    ${Array.from({ length: 8 }, () => `
-      <div class="skelCard">
-        <div class="skelImg"></div>
-        <div class="skelBody">
-          <div class="skelLine lg"></div>
-          <div class="skelLine md"></div>
-          <div class="skelLine sm"></div>
-        </div>
-      </div>
-    `).join("")}
-  </div>
-`;
-const data = await apiGetAll(); // JSON directo
+    const data = await apiGetAll(); // JSON directo
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
     DB.ajustes = data.ajustes || [];
