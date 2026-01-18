@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Soluciones Digitales Comayagua | Catálogo</title>
-<link rel="stylesheet" href="./assets/css/styles.css?v=2026" />
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2026" />
   <meta name="theme-color" content="#0b57ff" />
 </head>
 
@@ -27,6 +27,7 @@
     </div>
   </header>
 
+  <!-- ✅ IMPORTANTE: Contenedor de categorías -->
   <nav class="chips" id="chips"></nav>
 
   <section class="hero">
@@ -49,6 +50,7 @@
   </section>
 
   <main class="container">
+    <!-- ✅ IMPORTANTE: Grid de productos -->
     <div class="grid" id="grid"></div>
   </main>
 
@@ -65,60 +67,7 @@
 
   <a class="waFloat" id="waFloat" target="_blank" rel="noopener">WhatsApp</a>
 
-  <div class="modalBackdrop" id="backdrop"></div>
-
-  <!-- Carrito -->
-  <div class="modal" id="cartModal" aria-hidden="true">
-    <div class="modalHeader">
-      <div>
-        <div class="modalTitle">Carrito</div>
-        <div class="modalSub">Agrega productos y envía el pedido por WhatsApp.</div>
-      </div>
-      <button class="iconBtn" id="btnCloseCart">✕</button>
-    </div>
-    <div class="modalBody">
-      <div class="cartEmpty" id="cartEmpty">Tu carrito está vacío.</div>
-      <div class="cartList" id="cartList"></div>
-      <div class="totals">
-        <div class="row"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
-        <div class="row"><span>Envío</span><span id="shippingCost">Por confirmar</span></div>
-        <div class="row total"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
-      </div>
-      <div class="hint">Envíos y pagos se configuran desde Google Sheets.</div>
-    </div>
-    <div class="modalFooter">
-      <button class="btn btnSoft" id="btnCopyCart">Copiar enlace</button>
-      <button class="btn btnPrimary" id="btnSendWA">Enviar por WhatsApp</button>
-    </div>
-  </div>
-
-  <!-- Producto -->
-  <div class="modal" id="prodModal" aria-hidden="true">
-    <div class="modalHeader">
-      <div>
-        <div class="modalTitle" id="modalName">Producto</div>
-        <div class="modalSub" id="modalSub">—</div>
-      </div>
-      <button class="iconBtn" id="btnCloseProd">✕</button>
-    </div>
-
-    <div class="modalBody">
-      <img id="modalMainImg" class="prodMainImg" alt="" />
-      <div class="thumbs" id="modalThumbs"></div>
-
-      <div class="priceRow" style="margin-top:12px;">
-        <div class="price" id="modalPrice">Lps. 0</div>
-        <div class="old" id="modalOld"></div>
-      </div>
-
-      <div class="prodMeta" id="modalDesc"></div>
-      <div class="videoBtns" id="modalVideos"></div>
-
-      <button class="btn btnPrimary btnFull" id="modalAdd">Agregar al carrito</button>
-      <button class="btn btnSoft btnFull" id="btnShareProduct">Compartir producto</button>
-    </div>
-  </div>
-
+  <!-- Scripts en orden -->
   <script src="assets/js/api.js"></script>
   <script src="assets/js/cart.js"></script>
   <script src="assets/js/ui.js"></script>
