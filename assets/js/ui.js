@@ -1,23 +1,24 @@
-(function () {
-  function getEl(id){ return document.getElementById(id); }
+// assets/js/ui.js (modal estable, sin conflictos)
+(function(){
   const fallback = "assets/img/no-image.png";
+  const getEl = (id)=>document.getElementById(id);
 
-  function closeAllModals(){
-    const prod = getEl("prodModal");
-    const cart = getEl("cartModal");
+  function closeModal(){
+    const modal = getEl("prodModal");
     const backdrop = getEl("backdrop");
-
-    if (prod){ prod.style.display="none"; prod.setAttribute("aria-hidden","true"); }
-    if (cart){ cart.style.display="none"; cart.setAttribute("aria-hidden","true"); }
-    if (backdrop) backdrop.style.display="none";
+    if (modal){
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden","true");
+    }
+    if (backdrop) backdrop.style.display = "none";
   }
 
-  function openModal(modalId){
-    const modal = getEl(modalId);
+  function openModal(){
+    const modal = getEl("prodModal");
     const backdrop = getEl("backdrop");
-    if (backdrop) backdrop.style.display="block";
+    if (backdrop) backdrop.style.display = "block";
     if (modal){
-      modal.style.display="block";
+      modal.style.display = "block";
       modal.setAttribute("aria-hidden","false");
     }
   }
@@ -30,7 +31,7 @@
       if (g && String(g).trim()) urls.push(String(g).trim());
     }
     if (p.galeria){
-      String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean).forEach(u=>urls.push(u));
+      String(p.galeria).split(",").map(x=>x.trim()).filter(Boolean).forEach(u=>urls.push(u));
     }
     return Array.from(new Set(urls)).slice(0,8);
   }
@@ -43,23 +44,13 @@
     return "Ver video";
   }
 
-  // listeners globales 1 sola vez
-  document.addEventListener("DOMContentLoaded", () => {
-    const backdrop = getEl("backdrop");
-    if (backdrop) backdrop.addEventListener("click", closeAllModals);
-
-    const closeProd = getEl("btnCloseProd");
-    if (closeProd) closeProd.addEventListener("click", closeAllModals);
-
-    const closeCart = getEl("btnCloseCart");
-    if (closeCart) closeCart.addEventListener("click", closeAllModals);
-
-    document.addEventListener("keydown", (e)=>{
-      if (e.key === "Escape") closeAllModals();
-    });
+  // listeners globales una sola vez
+  document.addEventListener("DOMContentLoaded", ()=>{
+    getEl("btnCloseProd")?.addEventListener("click", closeModal);
+    getEl("backdrop")?.addEventListener("click", closeModal);
+    document.addEventListener("keydown",(e)=>{ if (e.key==="Escape") closeModal(); });
   });
 
-  // abre producto
   window.openProduct = function(p){
     const modal = getEl("prodModal");
     if (!modal) return;
@@ -75,22 +66,21 @@
     const addBtn = getEl("modalAdd");
     const shareBtn = getEl("btnShareProduct");
 
-    if (name) name.textContent = p.nombre || "Producto";
-    if (sub) sub.textContent = (p.categoria || "—") + (p.subcategoria ? " · " + p.subcategoria : "");
-    if (desc) desc.textContent = p.descripcion || "";
+    name && (name.textContent = p.nombre || "Producto");
+    sub && (sub.textContent = (p.categoria||"—") + (p.subcategoria ? " · "+p.subcategoria : ""));
+    desc && (desc.textContent = p.descripcion || "");
 
     const f = window.fmtLps ? window.fmtLps : (x)=>`Lps. ${Number(x||0).toFixed(0)}`;
-    if (price) price.textContent = f(p.precio||0);
+    price && (price.textContent = f(p.precio||0));
 
     const oldOk = Number(p.precio_anterior||0) > Number(p.precio||0);
-    if (old) old.textContent = oldOk ? f(p.precio_anterior) : "";
+    old && (old.textContent = oldOk ? f(p.precio_anterior) : "");
 
+    // galería
     const gallery = parseGallery(p);
-
     if (mainImg){
       mainImg.src = gallery[0] || fallback;
       mainImg.onerror = function(){ this.onerror=null; this.src=fallback; };
-      mainImg.alt = p.nombre || "";
     }
 
     if (thumbs){
@@ -115,13 +105,14 @@
       }
     }
 
+    // video
     if (vids){
       vids.innerHTML = "";
-      const url = (p.video || p.video_url || p.video_tiktok || p.video_facebook || p.video_youtube || "").toString().trim();
+      const url = String(p.video||"").trim();
       if (!url){
-        vids.style.display = "none";
+        vids.style.display="none";
       } else {
-        vids.style.display = "flex";
+        vids.style.display="flex";
         const a = document.createElement("a");
         a.className = "vbtn";
         a.href = url;
@@ -132,30 +123,23 @@
       }
     }
 
+    // carrito aún no (próximo paso). Por ahora alerta.
     if (addBtn){
       const agotado = Number(p.stock||0) <= 0;
       addBtn.disabled = agotado;
       addBtn.textContent = agotado ? "Agotado" : "Agregar al carrito";
-      addBtn.onclick = ()=>{ if (!agotado && window.addToCart) window.addToCart(p); };
+      addBtn.onclick = ()=>{ alert("Carrito: lo activamos en el siguiente paso ✅"); };
     }
 
+    // compartir producto
     if (shareBtn){
       shareBtn.onclick = async ()=>{
         const url = location.origin + location.pathname + "#p=" + encodeURIComponent(p.id||"");
         try{ await navigator.clipboard.writeText(url); alert("Enlace copiado"); }
-        catch(e){ alert("No se pudo copiar"); }
+        catch{ alert("No se pudo copiar"); }
       };
     }
 
-    openModal("prodModal");
+    openModal();
   };
-
-  // abrir carrito desde app.js
-  window.openCartModal = function(){
-    openModal("cartModal");
-  };
-
-  // cerrar desde app.js si hace falta
-  window.closeAllModals = closeAllModals;
-
 })();
