@@ -98,6 +98,11 @@ function renderCategorias(){
       STATE.categoria = c;
       renderCategorias();
       renderProductos();
+      console.log("productos:", DB.productos);
+console.log("categorias:", DB.categorias);
+console.log("grid existe:", !!$("grid"));
+console.log("chips existe:", !!$("chips"));
+
       $("btnShareCategory").style.display = (c==="Todas") ? "none" : "inline-flex";
       if (c==="Todas") history.replaceState(null,"",location.pathname+location.search+"#");
       else location.hash = `#cat=${encodeURIComponent(c)}`;
