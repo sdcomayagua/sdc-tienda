@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Soluciones Digitales Comayagua</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Soluciones Digitales Comayagua | Tienda</title>
 
 <style>
 :root{
@@ -18,84 +18,203 @@
   --radius:18px;
   --shadow: 0 14px 30px rgba(0,0,0,.45);
 }
-body{margin:0;font-family:system-ui,Segoe UI,Roboto;background:var(--bg);color:var(--text);}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);}
 
 /* TOPBAR */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);}
-.brand{display:flex;gap:10px;align-items:center;min-width:0;cursor:pointer;}
-.logo{width:42px;height:42px;border-radius:14px;background:var(--primary);display:grid;place-items:center;font-weight:900;}
+.topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(8px);
+}
+.brand{display:flex; gap:10px; align-items:center; min-width:0; cursor:pointer;}
+.logo{
+  width:42px; height:42px; border-radius:14px;
+  background:var(--primary);
+  display:grid; place-items:center;
+  font-weight:900;
+}
 .brandText{min-width:0}
-#storeName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#storeName{
+  font-weight:900;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 #storeSub{font-size:12px;color:var(--muted)}
 @media(max-width:720px){
-  #storeName{color:transparent;position:relative}
-  #storeName::after{content:"SDComayagua";color:var(--text);position:absolute;left:0;top:0}
+  #storeName{color:transparent; position:relative}
+  #storeName::after{content:"SDComayagua"; color:var(--text); position:absolute; left:0; top:0}
 }
-.actions{display:flex;gap:10px;align-items:center;}
-.iconBtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:900;}
-.cartBtn{position:relative;height:42px;padding:0 14px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:900;}
-.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--primary);color:#fff;font-size:12px;margin-left:6px;}
+.actions{display:flex; gap:10px; align-items:center;}
+.iconBtn{
+  width:42px; height:42px; border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-weight:900;
+}
+.cartBtn{
+  position:relative;
+  height:42px; padding:0 14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-weight:900;
+}
+.badge{
+  display:inline-grid; place-items:center;
+  min-width:22px; height:22px;
+  padding:0 6px;
+  border-radius:999px;
+  background:var(--primary);
+  color:#fff;
+  font-size:12px;
+  margin-left:6px;
+}
 
 /* SEARCH */
 .searchWrap{padding:12px}
-.search{width:100%;padding:14px;border-radius:16px;border:1px solid var(--border);background:var(--card);color:var(--text);outline:none;}
+.search{
+  width:100%;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  outline:none;
+}
 
 /* CATS */
-.chips{display:flex;gap:10px;overflow:auto;padding:0 12px 12px;}
-.chip{padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--border);font-weight:800;white-space:nowrap;}
+.chips{display:flex; gap:10px; overflow:auto; padding:0 12px 12px; scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  padding:8px 14px;
+  border-radius:999px;
+  background:var(--card);
+  border:1px solid var(--border);
+  font-weight:800;
+  white-space:nowrap;
+}
 .chip.active{background:var(--primary)}
 
 /* GRID */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px;}
+.grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:12px;}
 @media(min-width:840px){.grid{grid-template-columns:repeat(4,1fr)}}
-.card{background:var(--card);border-radius:var(--radius);overflow:hidden;position:relative;box-shadow:var(--shadow);}
-.cardImg{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  overflow:hidden;
+  position:relative;
+  box-shadow:var(--shadow);
+}
+.cardImg{width:100%; aspect-ratio:1/1; object-fit:cover; background:#000;}
 .cardBody{padding:10px}
-.cardName{font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cardDesc{color:var(--muted);font-size:12px;margin-top:4px;min-height:30px;}
-.priceRow{display:flex;gap:8px;align-items:baseline;margin-top:8px;}
+.cardName{font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.cardDesc{color:var(--muted); font-size:12px; margin-top:4px; min-height:30px}
+.priceRow{display:flex; gap:8px; align-items:baseline; margin-top:8px}
 .price{font-weight:1000}
 .price.offer{color:var(--danger)}
 .old{text-decoration:line-through;color:var(--muted);font-size:12px}
-.btn{margin-top:8px;width:100%;padding:10px;border-radius:12px;border:none;font-weight:900;background:var(--primary);color:#fff;}
+.btn{
+  margin-top:8px;
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:none;
+  font-weight:900;
+  background:var(--primary);
+  color:#fff;
+}
 .btn[disabled]{background:#555}
-.offerTag{position:absolute;top:10px;left:10px;padding:6px 10px;border-radius:999px;font-weight:1000;font-size:12px;background:rgba(255,59,48,.18);border:1px solid rgba(255,59,48,.35);color:var(--danger);}
+
+/* OFERTA TAG */
+.offerTag{
+  position:absolute; top:10px; left:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:1000;
+  font-size:12px;
+  background:rgba(255,59,48,.18);
+  border:1px solid rgba(255,59,48,.35);
+  color:var(--danger);
+}
+
+/* AGOTADO */
 .card.agotado{filter:grayscale(1);opacity:.9;}
 .card.agotado::after{
-  content:"AGOTADO";position:absolute;inset:0;display:grid;place-items:center;
-  font-weight:1000;letter-spacing:2px;color:rgba(255,0,0,.45);
-  background:rgba(0,0,0,.20);transform:rotate(-16deg);
+  content:"AGOTADO";
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  font-weight:1000; letter-spacing:2px;
+  color:rgba(255,0,0,.45);
+  background:rgba(0,0,0,.20);
+  transform:rotate(-16deg);
   font-size:clamp(22px,6vw,42px);
 }
 
-/* MODAL */
-.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:50;}
-.modal{position:fixed;inset:auto 10px 10px 10px;max-width:720px;margin:auto;background:var(--card);border-radius:18px;display:none;z-index:60;box-shadow:var(--shadow);overflow:hidden;}
-.modalHeader{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border);}
+/* MODALS */
+.backdrop{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; z-index:50;}
+.modal{
+  position:fixed;
+  inset:auto 10px 10px 10px;
+  max-width:720px; margin:auto;
+  background:var(--card);
+  border-radius:18px;
+  display:none; z-index:60;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.modalHeader{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px;
+  border-bottom:1px solid var(--border);
+}
 .modalTitle{font-weight:1000}
-.closeBtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:1000;}
-.modalBody{padding:12px;max-height:72vh;overflow:auto;}
-.modalFooter{padding:12px;border-top:1px solid var(--border);display:flex;gap:10px;}
+.closeBtn{
+  width:42px;height:42px;border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--card2);
+  color:var(--text);
+  font-weight:1000;
+}
+.modalBody{padding:12px; max-height:72vh; overflow:auto;}
+.modalFooter{padding:12px; border-top:1px solid var(--border); display:flex; gap:10px;}
 .modalFooter button{flex:1}
 
 /* PRODUCT MODAL */
-.mImg{width:100%;border-radius:14px;aspect-ratio:1/1;object-fit:cover;background:#000;}
-.mMeta{color:var(--muted);font-size:13px;line-height:1.35;margin-top:10px}
+.mImg{width:100%; border-radius:14px; aspect-ratio:1/1; object-fit:cover; background:#000;}
+.mMeta{color:var(--muted); font-size:13px; line-height:1.35; margin-top:10px}
 
 /* CART */
-.tabs{display:flex;gap:10px;margin-bottom:12px;}
-.tab{flex:1;padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-weight:1000;}
-.tab.active{background:rgba(11,87,255,.18);border-color:rgba(11,87,255,.40);}
+.tabs{display:flex; gap:10px; margin-bottom:12px;}
+.tab{
+  flex:1;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  font-weight:1000;
+}
+.tab.active{background:rgba(11,87,255,.18); border-color:rgba(11,87,255,.40);}
 .cartEmpty{padding:12px;border:1px dashed var(--border);border-radius:14px;color:var(--muted);}
-.cartList{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.cartItem{display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:10px;background:var(--card2);}
+.cartList{display:flex; flex-direction:column; gap:10px; margin-top:12px}
+.cartItem{display:flex; gap:10px; align-items:center; border:1px solid var(--border); border-radius:16px; padding:10px; background:var(--card2);}
 .cartItem img{width:62px;height:62px;border-radius:14px;object-fit:cover;background:#000;flex:0 0 auto;}
 .cartMeta{flex:1;min-width:0}
 .cartMeta .n{font-weight:1000;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cartMeta .p{color:var(--muted);font-size:12px;margin-top:4px}
-.qty{display:flex;align-items:center;gap:8px;margin-top:8px;}
-.qty button{width:34px;height:34px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:1000;}
-.qty .trash{background:rgba(255,255,255,.04);color:var(--muted);}
+.qty{display:flex; align-items:center; gap:8px; margin-top:8px}
+.qty button{
+  width:34px;height:34px;border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-weight:1000;
+}
+.qty .trash{background:rgba(255,255,255,.04); color:var(--muted);}
 .totals{margin-top:12px;border:1px solid var(--border);border-radius:16px;padding:10px 12px;background:var(--card2);}
 .totals .row{display:flex;justify-content:space-between;padding:6px 0;color:var(--muted)}
 .totals .row.total{color:var(--text);font-weight:1000;border-top:1px solid var(--border);margin-top:8px;padding-top:10px}
@@ -225,7 +344,9 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto;background:var(--bg);color:v
       <div style="font-weight:900">Método de pago</div>
       <div class="formGrid" style="margin-top:8px">
         <select id="payMethod" class="search"></select>
-        <input id="cashAmount" class="search" type="number" inputmode="numeric" placeholder="¿Con cuánto pagará? (solo efectivo en Comayagua)" style="display:none;">
+        <input id="cashAmount" class="search" type="number" inputmode="numeric"
+               placeholder="¿Con cuánto pagará? (solo efectivo en Comayagua)"
+               style="display:none;">
         <div class="hint" id="payInfo"></div>
       </div>
 
@@ -248,10 +369,10 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto;background:var(--bg);color:v
 <script>
 /* ========= CONFIG ========= */
 const API="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-const CART_KEY="sdc_cart_single_v2";
+const CART_KEY="sdc_cart_single_v3";
 
 let DATA=null;
-let ALL=[], CURRENT=null;
+let ALL=[], BY_ID={}, CURRENT=null;
 let FILTER_CAT="Todas", FILTER_Q="";
 let CART=[];
 
@@ -262,18 +383,25 @@ wa.href="https://wa.me/50431517755?text="+encodeURIComponent("Hola, quiero hacer
 
 fetch(API).then(r=>r.json()).then(j=>{
   DATA=j;
+
   ALL=(j.productos||[]).map(p=>({
     ...p,
+    id:String(p.id||"").trim(),
+    nombre:String(p.nombre||"").trim(),
     precio:Number(p.precio||0),
     precio_anterior:Number(p.precio_anterior||0),
     stock:Number(p.stock||0),
     categoria:String(p.categoria||"General"),
-    subcategoria:String(p.subcategoria||"")
-  }));
-  renderCats();
-  render(ALL);
+    subcategoria:String(p.subcategoria||""),
+    descripcion:String(p.descripcion||""),
+    imagen:String(p.imagen||"")
+  })).filter(p=>p.id && p.nombre);
 
-  // Deptos/munis
+  BY_ID={}; ALL.forEach(p=>BY_ID[p.id]=p);
+
+  renderCats();
+  applyFilters();
+
   fillDeptos();
   fillZonaComayagua();
   fillPropia();
@@ -298,10 +426,23 @@ function applyFilters(){
   render(list);
 }
 
-/* ========= CATEGORÍAS ========= */
+/* ========= CATEGORÍAS (desde Sheets) ========= */
 function renderCats(){
   chips.innerHTML="";
-  const cats=["Todas",...new Set(ALL.map(p=>p.categoria).filter(Boolean))];
+
+  let cats=[];
+  if (DATA && Array.isArray(DATA.categorias) && DATA.categorias.length){
+    cats = DATA.categorias
+      .filter(c => String(c.visible ?? 1) === "1" || c.visible === 1)
+      .sort((a,b)=>Number(a.orden||0)-Number(b.orden||0))
+      .map(c=>String(c.categoria||"").trim())
+      .filter(Boolean);
+  } else {
+    cats = [...new Set(ALL.map(p=>p.categoria).filter(Boolean))].sort();
+  }
+
+  cats = ["Todas", ...cats.filter(c=>c!=="Todas")];
+
   cats.forEach(c=>{
     const b=document.createElement("button");
     b.className="chip"+(c===FILTER_CAT?" active":"");
@@ -322,6 +463,7 @@ function render(list){
   list.forEach(p=>{
     const isOut=(p.stock<=0);
     const isOffer=(p.precio_anterior>p.precio);
+
     const d=document.createElement("div");
     d.className="card"+(isOut?" agotado":"");
     d.innerHTML=`
@@ -334,7 +476,7 @@ function render(list){
           <div class="price ${isOffer?'offer':''}">Lps. ${p.precio}</div>
           ${isOffer?`<div class="old">Lps. ${p.precio_anterior}</div>`:""}
         </div>
-        <button class="btn" ${isOut?"disabled":""} onclick='openProduct(${encodeURIComponent(JSON.stringify(p))})'>
+        <button class="btn" ${isOut?"disabled":""} onclick="openProductById('${p.id}')">
           ${isOut?"Agotado":"Ver detalles"}
         </button>
       </div>`;
@@ -342,9 +484,13 @@ function render(list){
   });
 }
 
-/* ========= PRODUCT MODAL ========= */
-function openProduct(encoded){
-  const p=JSON.parse(decodeURIComponent(encoded));
+/* ========= PRODUCT MODAL (por ID seguro) ========= */
+function openProductById(id){
+  const p = BY_ID[id];
+  if (!p) return;
+  openProduct(p);
+}
+function openProduct(p){
   CURRENT=p;
   mName.textContent=p.nombre||"";
   mCat.textContent=(p.categoria||"")+(p.subcategoria?(" · "+p.subcategoria):"");
@@ -354,7 +500,6 @@ function openProduct(encoded){
   const off=p.precio_anterior>p.precio;
   mOld.textContent=off?("Lps. "+(p.precio_anterior||0)):"";
   btnAdd.disabled=(p.stock<=0);
-
   backdrop.style.display="block";
   prodModal.style.display="block";
 }
@@ -385,7 +530,7 @@ function addToCart(){
 
   let it=CART.find(x=>String(x.id)===id);
   if(!it){
-    it={id, nombre:CURRENT.nombre, precio:Number(CURRENT.precio||0), imagen:CURRENT.imagen||"", qty:0};
+    it={id, nombre:CURRENT.nombre, precio:CURRENT.precio, imagen:CURRENT.imagen||"", qty:0};
     CART.push(it);
   }
   if(it.qty+1>stock){ alert("Stock disponible: "+stock); return; }
@@ -397,21 +542,21 @@ function addToCart(){
 
 function incItem(i){
   const it=CART[i];
-  const prod=ALL.find(p=>String(p.id)===String(it.id));
+  const prod=BY_ID[String(it.id)];
   const stock=prod?Number(prod.stock||0):9999;
   if(it.qty+1>stock){ alert("Stock disponible: "+stock); return; }
   it.qty++;
-  saveCart(); updateBadge(); renderCart();
+  saveCart(); updateBadge(); renderCart(); syncTotals();
 }
 function decItem(i){
   const it=CART[i];
   it.qty--;
   if(it.qty<=0) CART.splice(i,1);
-  saveCart(); updateBadge(); renderCart();
+  saveCart(); updateBadge(); renderCart(); syncTotals();
 }
 function delItem(i){
   CART.splice(i,1);
-  saveCart(); updateBadge(); renderCart();
+  saveCart(); updateBadge(); renderCart(); syncTotals();
 }
 
 /* ========= CART UI ========= */
@@ -428,9 +573,9 @@ function closeCart(){
 }
 
 function showStep(which){
-  stepCart.style.display = (which==='cart')?'block':'none';
-  stepShip.style.display = (which==='ship')?'block':'none';
-  stepPay.style.display  = (which==='pay')?'block':'none';
+  stepCart.style.display=(which==='cart')?'block':'none';
+  stepShip.style.display=(which==='ship')?'block':'none';
+  stepPay.style.display=(which==='pay')?'block':'none';
 
   tCart.classList.toggle('active', which==='cart');
   tShip.classList.toggle('active', which==='ship');
@@ -442,7 +587,6 @@ function showStep(which){
 function renderCart(){
   cartList.innerHTML="";
   cartEmpty.style.display=CART.length?"none":"block";
-
   CART.forEach((it,idx)=>{
     const row=document.createElement("div");
     row.className="cartItem";
@@ -488,20 +632,24 @@ function fillMunis(){
 function findCobertura(dep, mun){
   return (DATA.cobertura_entrega||[]).find(x=>x.departamento===dep && x.municipio===mun) || null;
 }
+function isTrue(v){
+  const x=String(v||"").toLowerCase();
+  return x==="1" || x==="true" || x==="si" || x==="sí";
+}
 
 function updateDeliveryTypeOptions(){
   const dep=depto.value, mun=muni.value;
   const opts=[];
-  if(!dep||!mun){ fillSelect(deliveryType, [], "Tipo de entrega"); return; }
+  if(!dep||!mun){ deliveryType.innerHTML=`<option value="">Tipo de entrega</option>`; return; }
 
   if(dep==="Comayagua" && mun==="Comayagua"){
     opts.push({v:"comayagua_ciudad", t:"Comayagua (ciudad) - entrega local"});
   }else{
     const cov=findCobertura(dep,mun);
     if(cov){
-      if(String(cov.permite_entrega_propia||"").toLowerCase()==="true" || String(cov.permite_entrega_propia)==="1") opts.push({v:"entrega_propia",t:"Entrega propia (cercanos)"});
-      if(String(cov.permite_empresa||"1")==="1" || String(cov.permite_empresa).toLowerCase()==="true") opts.push({v:"empresa",t:"Empresa de envío"});
-      if(String(cov.permite_bus||"1")==="1" || String(cov.permite_bus).toLowerCase()==="true") opts.push({v:"bus",t:"Bus local (encomienda)"});
+      if(isTrue(cov.permite_entrega_propia)) opts.push({v:"entrega_propia",t:"Entrega propia (cercanos)"});
+      if(isTrue(cov.permite_empresa ?? 1)) opts.push({v:"empresa",t:"Empresa de envío"});
+      if(isTrue(cov.permite_bus ?? 1)) opts.push({v:"bus",t:"Bus local (encomienda)"});
     }else{
       opts.push({v:"empresa",t:"Empresa de envío"});
       opts.push({v:"bus",t:"Bus local (encomienda)"});
@@ -588,7 +736,6 @@ function fillPagos(){
   const modalidad=empresaModalidad.value;
 
   let pays=(DATA.pagos||[]).filter(p=>String(p.activo||"1")!=="0");
-  // Empresa normal -> no efectivo
   if(t==="empresa" && modalidad==="normal"){
     pays=pays.filter(p=>p.metodo!=="efectivo");
   }
@@ -620,9 +767,9 @@ function syncTotals(){
 
   updateCashBox();
 
-  // Pay info + cambio estimado
   const p=(DATA.pagos||[]).find(x=>x.metodo===payMethod.value);
   let base=p?String(p.detalle||""):"";
+
   if(deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo"){
     const amt=Number(cashAmount.value||0);
     if(amt<=0){
@@ -641,46 +788,22 @@ function syncTotals(){
 /* ========= WhatsApp ========= */
 function validate(){
   if(!CART.length){ alert("Carrito vacío"); showStep('cart'); return false; }
+  if(!custName.value.trim() || !custPhone.value.trim()){ alert("Completa tu nombre y teléfono."); showStep('ship'); return false; }
+  if(!depto.value || !muni.value){ alert("Selecciona departamento y municipio."); showStep('ship'); return false; }
+  if(!deliveryType.value){ alert("Selecciona tipo de entrega."); showStep('ship'); return false; }
 
-  if(!custName.value.trim() || !custPhone.value.trim()){
-    alert("Completa tu nombre y teléfono.");
-    showStep('ship'); return false;
-  }
-  if(!depto.value || !muni.value){
-    alert("Selecciona departamento y municipio.");
-    showStep('ship'); return false;
-  }
-  if(!deliveryType.value){
-    alert("Selecciona tipo de entrega.");
-    showStep('ship'); return false;
-  }
-  // validar selects por tipo
-  if(deliveryType.value==="comayagua_ciudad" && !comaZona.value){
-    alert("Selecciona tu zona en Comayagua.");
-    showStep('ship'); return false;
-  }
-  if(deliveryType.value==="entrega_propia" && !propiaLugar.value){
-    alert("Selecciona el lugar de entrega propia.");
-    showStep('ship'); return false;
-  }
-  if(deliveryType.value==="empresa" && (!empresa.value || !empresaModalidad.value)){
-    alert("Selecciona empresa y modalidad.");
-    showStep('ship'); return false;
-  }
-  if(deliveryType.value==="bus" && !busLugar.value){
-    alert("Selecciona lugar de bus.");
-    showStep('ship'); return false;
-  }
+  if(deliveryType.value==="comayagua_ciudad" && !comaZona.value){ alert("Selecciona tu zona en Comayagua."); showStep('ship'); return false; }
+  if(deliveryType.value==="entrega_propia" && !propiaLugar.value){ alert("Selecciona el lugar de entrega propia."); showStep('ship'); return false; }
+  if(deliveryType.value==="empresa" && (!empresa.value || !empresaModalidad.value)){ alert("Selecciona empresa y modalidad."); showStep('ship'); return false; }
+  if(deliveryType.value==="bus" && !busLugar.value){ alert("Selecciona lugar de bus."); showStep('ship'); return false; }
 
-  if(!payMethod.value){
-    alert("Selecciona método de pago.");
-    showStep('pay'); return false;
-  }
+  if(!payMethod.value){ alert("Selecciona método de pago."); showStep('pay'); return false; }
+
   if(deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo"){
-    const amt=Number(cashAmount.value||0);
     const ship=calcShipping();
     const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
     const total=subtotal+ship.min;
+    const amt=Number(cashAmount.value||0);
     if(amt<=0){ alert("Indica con cuánto pagará."); showStep('pay'); return false; }
     if(amt<total){ alert("El efectivo es menor al total."); showStep('pay'); return false; }
   }
@@ -718,16 +841,12 @@ function sendWA(){
     msg.push("Zona: "+comaZona.value);
     if(comaColonia.value.trim()) msg.push("Ref: "+comaColonia.value.trim());
   }
-  if(deliveryType.value==="entrega_propia"){
-    msg.push("Lugar: "+propiaLugar.value);
-  }
+  if(deliveryType.value==="entrega_propia") msg.push("Lugar: "+propiaLugar.value);
   if(deliveryType.value==="empresa"){
     msg.push("Empresa: "+empresa.value);
     msg.push("Modalidad: "+empresaModalidad.value);
   }
-  if(deliveryType.value==="bus"){
-    msg.push("Bus: "+busLugar.value);
-  }
+  if(deliveryType.value==="bus") msg.push("Bus: "+busLugar.value);
 
   msg.push("");
   msg.push("Pago: "+payMethod.options[payMethod.selectedIndex].text);
