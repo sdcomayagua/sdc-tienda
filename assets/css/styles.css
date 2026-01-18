@@ -471,3 +471,44 @@ body{
   font-size:12px;
   opacity:.95;
 }
+/* ===== Subcategorías (fila secundaria bonita) ===== */
+.subchips{
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  padding:0 12px 10px;
+  margin-top:-6px;
+  scrollbar-width:none;
+}
+.subchips::-webkit-scrollbar{display:none}
+
+/* subcategoría más pequeña y suave */
+.subchips .chip{
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:900;
+  opacity:.92;
+  background: rgba(255,255,255,.04);
+  box-shadow:none;
+}
+
+/* activa diferente para que no compita con categoría */
+.subchips .chip.active{
+  background: rgba(11,87,255,.18);
+  border-color: rgba(11,87,255,.40);
+  color: var(--text);
+}
+
+/* etiqueta suave */
+.subchips::before{
+  content:"Subcategorías:";
+  align-self:center;
+  color: var(--muted);
+  font-size:12px;
+  font-weight:900;
+  margin-right:6px;
+  opacity:.85;
+}
+@media (max-width: 420px){
+  .subchips::before{ content:"Sub:"; }
+}
