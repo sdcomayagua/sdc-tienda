@@ -254,6 +254,7 @@ async function init(){
   try{
     wireUI();
     showSkeleton();
+await new Promise(r => setTimeout(r, 800)); // solo prueba 0.8s
 
     const data = await apiGetAll(); // JSON directo
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
