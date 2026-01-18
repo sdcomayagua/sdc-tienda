@@ -1,4 +1,4 @@
-let DB = { productos: [], categorias: [], ajustes: [] };
+let DB = { productos: [], categorias: [], subcategorias: [], ajustes: [] };
 let STATE = { categoria: "Todas", subcategoria: "Todas", query: "" };
 
 const $ = (id) => document.getElementById(id);
@@ -342,6 +342,27 @@ async function init(){
 
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
+    function getSubcategoriasDeCategoria(cat){
+  // 1) si hay tabla subcategorias, usarla
+  if (DB.subcategorias && DB.subcategorias.length){
+    return DB.subcategorias
+      .filter(r => (cat==="Todas" ? true : String(r.categoria||"")===cat))
+      .filter(r => String(r.visible ?? 1)==="1" || r.visible===1)
+      .sort((a,b)=>Number(a.orden||0)-Number(b.orden||0))
+      .map(r=>String(r.subcategoria||"").trim())
+      .filter(Boolean);
+  }
+
+  // 2) si no existe, fallback: detectar desde productos (alfabético)
+  const set = new Set();
+  DB.productos.forEach(p=>{
+    const okCat = (cat==="Todas") ? true : p.categoria===cat;
+    if (!okCat) return;
+    if (p.subcategoria && p.subcategoria.trim()) set.add(p.subcategoria.trim());
+  });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b));
+}
+
     DB.ajustes = data.ajustes || [];
 
     applyAjustes();
