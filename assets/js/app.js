@@ -1,16 +1,19 @@
+// assets/js/app.js
 let DB = { productos: [], categorias: [], ajustes: [] };
 let STATE = { categoria: "Todas", query: "" };
 
 const $ = (id) => document.getElementById(id);
-
 function fmtLps(n){ return `Lps. ${Number(n||0).toFixed(0)}`; }
 
+// -------------------- Tema --------------------
 function setTheme(next){
   document.body.classList.toggle("light", next === "light");
   localStorage.setItem("sdc_theme", next);
-  $("btnTheme").textContent = next === "light" ? "🌙" : "☀️";
+  const b = $("btnTheme");
+  if (b) b.textContent = next === "light" ? "🌙" : "☀️";
 }
 
+// -------------------- Ajustes --------------------
 function ajustesMap(){
   const map = {};
   (DB.ajustes||[]).forEach(r=>{
@@ -24,21 +27,22 @@ function ajustesMap(){
 function applyAjustes(){
   const a = ajustesMap();
 
-  $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
-  $("storeSub").textContent = a["subtitulo"] || "Catálogo";
-  $("logoText").textContent = a["siglas"] || "SDC";
-  $("footerBrand").textContent = a["siglas"] || "SDC";
+  if ($("storeName")) $("storeName").textContent = a["nombre_tienda"] || "Soluciones Digitales Comayagua";
+  if ($("storeSub")) $("storeSub").textContent = a["subtitulo"] || "Catálogo";
+  if ($("logoText")) $("logoText").textContent = a["siglas"] || "SDC";
+  if ($("footerBrand")) $("footerBrand").textContent = a["siglas"] || "SDC";
 
   const aviso = [a["aviso_precios"], a["aviso_stock"], a["aviso_envio"]].filter(Boolean).join(" ");
-  if (aviso) $("footerInfo").textContent = aviso;
+  if (aviso && $("footerInfo")) $("footerInfo").textContent = aviso;
 
   const wa = (a["whatsapp_numero"] || "50431517755").replace(/\D/g,"");
   const msg = a["mensaje_whatsapp"] || "Hola, quiero consultar el catálogo.";
-  $("waFloat").href = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
+  if ($("waFloat")) $("waFloat").href = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
 
-  $("year").textContent = new Date().getFullYear();
+  if ($("year")) $("year").textContent = new Date().getFullYear();
 }
 
+// -------------------- Normalizar productos --------------------
 function normalizeProduct(p){
   const out = {
     id: String(p.id||"").trim(),
@@ -54,21 +58,63 @@ function normalizeProduct(p){
     video: String(p.video||p.video_url||"").trim(),
   };
 
-  // Si viene "galeria" como texto: "url1, url2, url3"
+  // soporta "galeria" en un solo campo (csv)
   if (p.galeria && !p.galeria_1){
     const parts = String(p.galeria).split(",").map(s=>s.trim()).filter(Boolean);
-    for (let i=1;i<=8;i++){
-      out[`galeria_${i}`] = parts[i-1] || "";
-    }
+    for (let i=1;i<=8;i++) out[`galeria_${i}`] = parts[i-1] || "";
   } else {
-    for (let i=1;i<=8;i++){
-      out[`galeria_${i}`] = String(p[`galeria_${i}`]||"").trim();
-    }
+    for (let i=1;i<=8;i++) out[`galeria_${i}`] = String(p[`galeria_${i}`]||"").trim();
   }
 
   return out;
 }
 
+// -------------------- Loading UI --------------------
+let LOADING_TIMER = null;
+
+function showSkeleton(){
+  const grid = $("grid");
+  if (!grid) return;
+
+  grid.innerHTML = `
+    <div class="loadingWrap fadeIn">
+      <div class="loadingTitle" id="loadingTitle">Cargando catálogo…</div>
+      <div class="loadingSub" id="loadingSub">Estamos preparando los productos de Soluciones Digitales Comayagua.</div>
+      <div class="spinner"></div>
+    </div>
+
+    <div class="skelGrid fadeIn">
+      ${Array.from({ length: 8 }, () => `
+        <div class="skelCard">
+          <div class="skelImg"></div>
+          <div class="skelBody">
+            <div class="skelLine lg"></div>
+            <div class="skelLine md"></div>
+            <div class="skelLine sm"></div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function startLoadingMessageSwap(){
+  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
+  LOADING_TIMER = setTimeout(() => {
+    const t = document.getElementById("loadingTitle");
+    const s = document.getElementById("loadingSub");
+    if (!t || !s) return;
+    t.textContent = "Sigue cargando…";
+    s.textContent = "Si no aparece en unos segundos, recarga la página o escríbenos por WhatsApp.";
+  }, 4000);
+}
+
+function stopLoadingMessageSwap(){
+  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
+  LOADING_TIMER = null;
+}
+
+// -------------------- Categorías --------------------
 function getCategorias(){
   let cats = [];
   if (DB.categorias && DB.categorias.length){
@@ -87,8 +133,9 @@ function getCategorias(){
 
 function renderCategorias(){
   const chips = $("chips");
-  chips.innerHTML = "";
+  if (!chips) return;
 
+  chips.innerHTML = "";
   getCategorias().forEach(c=>{
     const b = document.createElement("button");
     b.className = "chip" + (STATE.categoria===c ? " active" : "");
@@ -98,12 +145,10 @@ function renderCategorias(){
       STATE.categoria = c;
       renderCategorias();
       renderProductos();
-      console.log("productos:", DB.productos);
-console.log("categorias:", DB.categorias);
-console.log("grid existe:", !!$("grid"));
-console.log("chips existe:", !!$("chips"));
 
-      $("btnShareCategory").style.display = (c==="Todas") ? "none" : "inline-flex";
+      const btn = $("btnShareCategory");
+      if (btn) btn.style.display = (c==="Todas") ? "none" : "inline-flex";
+
       if (c==="Todas") history.replaceState(null,"",location.pathname+location.search+"#");
       else location.hash = `#cat=${encodeURIComponent(c)}`;
     };
@@ -112,6 +157,7 @@ console.log("chips existe:", !!$("chips"));
   });
 }
 
+// -------------------- Productos --------------------
 function filteredProductos(){
   const q = STATE.query.trim().toLowerCase();
   return DB.productos
@@ -122,7 +168,6 @@ function filteredProductos(){
       (p.subcategoria||"").toLowerCase().includes(q)
     ))
     .sort((a,b)=>{
-      // disponibles primero
       const av = a.stock>0 ? 0 : 1;
       const bv = b.stock>0 ? 0 : 1;
       if (av!==bv) return av-bv;
@@ -138,12 +183,13 @@ function productCard(p){
   const isOut = Number(p.stock||0) <= 0;
   const isOffer = Number(p.precio_anterior||0) > Number(p.precio||0);
 
-  card.innerHTML = `
-  <img class="cardImg" 
-     src="${p.imagen || "assets/img/no-image.png"}" 
-     alt=""
-     onerror="this.onerror=null; this.src='assets/img/no-image.png';">
+  const imgSrc = p.imagen || "assets/img/no-image.png";
 
+  card.innerHTML = `
+    <img class="cardImg"
+         src="${imgSrc}"
+         alt=""
+         onerror="this.onerror=null; this.src='assets/img/no-image.png';">
     <div class="cardBody">
       <div class="cardName">${p.nombre || ""}</div>
       <div class="cardDesc">${p.descripcion || p.subcategoria || p.categoria || ""}</div>
@@ -165,7 +211,6 @@ function productCard(p){
   }
 
   card.onclick = ()=>{
-    // abre modal producto (ui.js)
     if (typeof window.openProduct === "function") window.openProduct(p);
   };
 
@@ -174,13 +219,18 @@ function productCard(p){
 
 function renderProductos(){
   const grid = $("grid");
-  grid.innerHTML = ""; // LIMPIA skeleton antes de pintar
+  if (!grid) return;
+
+  // limpia skeleton
+  grid.innerHTML = "";
 
   const list = filteredProductos();
 
-  $("sectionTitle").textContent = STATE.categoria==="Todas"
-    ? `Productos (${list.length})`
-    : `${STATE.categoria} (${list.length})`;
+  if ($("sectionTitle")){
+    $("sectionTitle").textContent = STATE.categoria==="Todas"
+      ? `Productos (${list.length})`
+      : `${STATE.categoria} (${list.length})`;
+  }
 
   if (!list.length){
     const empty = document.createElement("div");
@@ -194,6 +244,7 @@ function renderProductos(){
   list.forEach(p=>grid.appendChild(productCard(p)));
 }
 
+// -------------------- Hash --------------------
 function applyHash(){
   const h = location.hash || "";
   if (h.startsWith("#cat=")){
@@ -201,98 +252,64 @@ function applyHash(){
     STATE.categoria = cat || "Todas";
     renderCategorias();
     renderProductos();
-    $("btnShareCategory").style.display = (STATE.categoria==="Todas") ? "none" : "inline-flex";
+    if ($("btnShareCategory")) $("btnShareCategory").style.display = (STATE.categoria==="Todas") ? "none" : "inline-flex";
   }
 }
 
+// -------------------- UI events --------------------
 function wireUI(){
-  // tema
   const saved = localStorage.getItem("sdc_theme") || "dark";
   setTheme(saved);
-  $("btnTheme").onclick = ()=>{
-    const now = document.body.classList.contains("light") ? "light" : "dark";
-    setTheme(now==="light" ? "dark" : "light");
-  };
 
-  // buscar
-  $("btnSearch").onclick = ()=>$("searchInput").focus();
-  $("searchInput").addEventListener("input",(e)=>{
-    STATE.query = e.target.value || "";
-    renderProductos();
-  });
+  if ($("btnTheme")){
+    $("btnTheme").onclick = ()=>{
+      const now = document.body.classList.contains("light") ? "light" : "dark";
+      setTheme(now==="light" ? "dark" : "light");
+    };
+  }
 
-  // botones hero
-  $("btnGoTop").onclick = ()=>window.scrollTo({top:0, behavior:"smooth"});
-  $("btnGoAll").onclick = ()=>{
-    STATE.categoria="Todas";
-    STATE.query="";
-    $("searchInput").value="";
-    renderCategorias();
-    renderProductos();
-    $("btnShareCategory").style.display = "none";
-    history.replaceState(null,"",location.pathname+location.search+"#");
-  };
+  if ($("btnSearch") && $("searchInput")){
+    $("btnSearch").onclick = ()=>$("searchInput").focus();
+    $("searchInput").addEventListener("input",(e)=>{
+      STATE.query = e.target.value || "";
+      renderProductos();
+    });
+  }
 
-  // compartir categoría
-  $("btnShareCategory").onclick = async ()=>{
-    if (STATE.categoria==="Todas") return;
-    const url = location.origin + location.pathname + "#cat=" + encodeURIComponent(STATE.categoria);
-    try{ await navigator.clipboard.writeText(url); alert("Enlace copiado"); }
-    catch(e){ alert("No se pudo copiar"); }
-  };
+  if ($("btnGoTop")){
+    $("btnGoTop").onclick = ()=>window.scrollTo({top:0, behavior:"smooth"});
+  }
+  if ($("btnGoAll") && $("searchInput")){
+    $("btnGoAll").onclick = ()=>{
+      STATE.categoria="Todas";
+      STATE.query="";
+      $("searchInput").value="";
+      renderCategorias();
+      renderProductos();
+      if ($("btnShareCategory")) $("btnShareCategory").style.display = "none";
+      history.replaceState(null,"",location.pathname+location.search+"#");
+    };
+  }
+
+  if ($("btnShareCategory")){
+    $("btnShareCategory").onclick = async ()=>{
+      if (STATE.categoria==="Todas") return;
+      const url = location.origin + location.pathname + "#cat=" + encodeURIComponent(STATE.categoria);
+      try{ await navigator.clipboard.writeText(url); alert("Enlace copiado"); }
+      catch(e){ alert("No se pudo copiar"); }
+    };
+  }
 }
 
-function showSkeleton(){
-  let LOADING_TIMER = null;
-
-function startLoadingMessageSwap(){
-  // limpia si ya había un timer anterior
-  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
-
-  LOADING_TIMER = setTimeout(() => {
-    const title = document.getElementById("loadingTitle");
-    const sub = document.getElementById("loadingSub");
-    if (!title || !sub) return;
-
-    title.textContent = "Sigue cargando…";
-    sub.textContent = "Si no aparece en unos segundos, recarga la página o escríbenos por WhatsApp.";
-  }, 4000);
-}
-
-function stopLoadingMessageSwap(){
-  if (LOADING_TIMER) clearTimeout(LOADING_TIMER);
-  LOADING_TIMER = null;
-}
-
-  $("grid").innerHTML = `
-    <div class="skelGrid">
-      ${Array.from({ length: 8 }, () => `
-        <div class="skelCard">
-          <div class="skelImg"></div>
-          <div class="skelBody">
-            <div class="skelLine lg"></div>
-            <div class="skelLine md"></div>
-            <div class="skelLine sm"></div>
-          </div>
-        </div>
-      `).join("")}
-    </div>
-  `;
-}
-
+// -------------------- Init --------------------
 async function init(){
   try{
     wireUI();
     showSkeleton();
-   showSkeleton();
-startLoadingMessageSwap();
+    startLoadingMessageSwap();
 
-console.log("Antes de apiGetAll()");
-const data = await apiGetAll();
-console.log("Después de apiGetAll()", data);
-
-stopLoadingMessageSwap();
-
+    const data = await apiGetAll(); // <-- si falla o tarda, api.js ya hace timeout
+    stopLoadingMessageSwap();
 
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
     DB.categorias = data.categorias || [];
@@ -306,18 +323,23 @@ stopLoadingMessageSwap();
     window.addEventListener("hashchange", applyHash);
 
   }catch(err){
-  console.error(err);
-  $("sectionTitle").textContent = "Error cargando catálogo.";
-  $("grid").innerHTML = `
-    <div class="loadingWrap fadeIn">
-      <div class="loadingTitle">No se pudo cargar</div>
-      <div class="loadingSub">Revisa la conexión o vuelve a intentar.</div>
-      <div style="margin-top:10px; font-size:12px; color:var(--muted); text-align:left; white-space:pre-wrap;">
+    stopLoadingMessageSwap();
+    console.error(err);
+
+    if ($("sectionTitle")) $("sectionTitle").textContent = "No se pudo cargar el catálogo.";
+    if ($("grid")) {
+      $("grid").innerHTML = `
+        <div class="loadingWrap fadeIn" style="text-align:left;">
+          <div class="loadingTitle">No se pudo cargar</div>
+          <div class="loadingSub">Revisa tu conexión o intenta nuevamente.</div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap;">
 ${String(err && (err.stack || err.message) ? (err.stack || err.message) : err)}
-      </div>
-      <button class="btn btnPrimary" style="margin-top:14px;" onclick="location.reload()">Reintentar</button>
-    </div>
-  `;
+          </div>
+          <button class="btn btnPrimary" style="margin-top:14px;" onclick="location.reload()">Reintentar</button>
+        </div>
+      `;
+    }
+  }
 }
 
 init();
