@@ -165,15 +165,16 @@ function getSubcategoriasDeCategoria(cat){
 }
 
 function renderSubcategorias(){
-  if (STATE.categoria === "Todas") {
-  sub.style.display = "none";
-  sub.innerHTML = "";
-  STATE.subcategoria = "Todas";
-  return;
-}
-
   const sub = $("subchips");
   if (!sub) return;
+
+  // ✅ si estás en "Todas", NO mostrar subcategorías
+  if (STATE.categoria === "Todas") {
+    sub.style.display = "none";
+    sub.innerHTML = "";
+    STATE.subcategoria = "Todas";
+    return;
+  }
 
   const subs = getSubcategoriasDeCategoria(STATE.categoria);
 
@@ -211,6 +212,7 @@ function renderSubcategorias(){
     sub.appendChild(b);
   });
 }
+
 
 /* ===== Productos ===== */
 function filteredProductos(){
