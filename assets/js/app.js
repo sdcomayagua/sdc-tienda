@@ -239,6 +239,7 @@ function wireUI(){
 async function init(){
   try{
     wireUI();
+$("grid").innerHTML = `<div style="color:var(--muted);padding:10px 2px;">Cargando productos…</div>`;
 
     const data = await apiGetAll(); // JSON directo
     DB.productos = (data.productos || []).map(normalizeProduct).filter(p=>p.id && p.nombre);
