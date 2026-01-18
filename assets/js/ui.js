@@ -142,4 +142,51 @@
 
     if (vids){
       vids.innerHTML = "";
-      const url
+      const url = String(p.video || "").trim();
+      if (!url){
+        vids.style.display = "none";
+      } else {
+        vids.style.display = "flex";
+        const a = document.createElement("a");
+        a.className = "vbtn";
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = videoLabel(url);
+        vids.appendChild(a);
+      }
+    }
+
+    if (addBtn){
+      const agotado = Number(p.stock||0) <= 0;
+      addBtn.disabled = agotado;
+      addBtn.textContent = agotado ? "Agotado" : "Agregar al carrito";
+
+      addBtn.onclick = ()=>{
+        if (agotado) return;
+        if (typeof window.checkoutAdd === "function"){
+          const ok = window.checkoutAdd(p);
+          if (ok){
+            toast("Agregado al carrito ✅");
+            window.checkoutRefreshBadge && window.checkoutRefreshBadge();
+          }
+        } else {
+          toast("Error: checkout no cargó");
+        }
+      };
+    }
+
+    if (shareBtn){
+      shareBtn.onclick = async ()=>{
+        const url = location.origin + location.pathname + "#p=" + encodeURIComponent(p.id||"");
+        try{ await navigator.clipboard.writeText(url); toast("Enlace copiado ✅"); }
+        catch{ toast("No se pudo copiar"); }
+      };
+    }
+
+    const backdrop = getEl("backdrop");
+    if (backdrop) backdrop.style.display = "block";
+    modal.style.display = "block";
+    modal.setAttribute("aria-hidden","false");
+  };
+})();
