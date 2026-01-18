@@ -405,7 +405,9 @@ function addToCart(p){
   updateCartBadge();
   renderCart();
   updateDeliveryUI();
-  if (window.openCartModal) window.openCartModal();
+  // No abrir carrito automáticamente
+toast("Agregado al carrito ✅");
+
 }
 window.addToCart = addToCart;
 
@@ -900,3 +902,25 @@ async function init(){
 }
 
 init();
+function toast(msg){
+  let t = document.getElementById("toast");
+  if (!t){
+    t = document.createElement("div");
+    t.id = "toast";
+    t.style.position = "fixed";
+    t.style.left = "50%";
+    t.style.bottom = "88px";
+    t.style.transform = "translateX(-50%)";
+    t.style.padding = "10px 14px";
+    t.style.borderRadius = "14px";
+    t.style.background = "rgba(0,0,0,.75)";
+    t.style.color = "white";
+    t.style.fontWeight = "800";
+    t.style.zIndex = "9999";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = "1";
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>{ t.style.opacity = "0"; }, 1200);
+}
