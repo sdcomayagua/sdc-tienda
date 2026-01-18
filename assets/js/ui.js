@@ -57,8 +57,12 @@ mainImg.onerror = function () {
         gallery.forEach((src, idx) => {
           const im = document.createElement("img");
           im.className = "thumb" + (idx === 0 ? " active" : "");
-          im.src = src;
-          im.alt = "thumb";
+        im.src = src;
+im.alt = "thumb";
+im.onerror = function () {
+  this.onerror = null;
+  this.src = "assets/img/no-image.png";
+};
           im.onclick = () => {
             mainImg.src = src;
             Array.from(thumbs.children).forEach(x => x.classList.remove("active"));
