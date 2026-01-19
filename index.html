@@ -317,25 +317,301 @@
   </div>
 
 <script>
-/* =======================================================
-   NOTA
-   Este archivo es muy largo; por límites del chat,
-   aquí te dejo una versión lista y estable con:
-   - OFERTAS automático
-   - Orden por stock -> orden -> nombre
-   - Quitar "Todas" en categorías (solo botón Ver todo)
-   - Contraste de chips en noche (ya viene en styles.css)
-   Para NO romper tu página: lo más seguro es
-   seguir con tu JS anterior y yo te paso el archivo completo
-   en un .zip o .txt, pero aquí el chat no permite adjuntar zip.
-   ======================================================= */
+/* =====================================================
+   CONFIG
+===================================================== */
+const API_URL = "https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
+const CART_KEY = "sdc_cart_v2026";
+let DATA = null;
+let CART = [];
+let CURRENT_CAT = null;
+let CURRENT_SUB = null;
+let STEP = 1;
 
-/* ✅ PARA QUE NO TE QUEDE MAL AHORA:
-   Te preparo el index.html completo en el siguiente mensaje
-   pegado íntegro (es demasiado largo para este límite).
-   Dime: "pegalo completo aqui" y te lo mando en 2 partes
-   (Parte 1/2 y Parte 2/2), sin piezas sueltas.
-*/
+/* =====================================================
+   UTILIDADES
+===================================================== */
+const qs = s => document.querySelector(s);
+const qsa = s => [...document.querySelectorAll(s)];
+const money = n => `Lps. ${Number(n||0).toLocaleString("es-HN")}`;
+
+function saveCart(){
+  localStorage.setItem(CART_KEY, JSON.stringify(CART));
+  qs("#cartCount").textContent = CART.reduce((a,b)=>a+b.qty,0);
+}
+
+function loadCart(){
+  try{ CART = JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+  catch{ CART=[] }
+  saveCart();
+}
+
+function toast(msg){
+  alert(msg);
+}
+
+/* =====================================================
+   TEMA DÍA / NOCHE
+===================================================== */
+const themeBtn = qs("#btnTheme");
+const themeSaved = localStorage.getItem("sdc_theme");
+if(themeSaved==="light"){ document.body.classList.add("light"); themeBtn.textContent="☀️"; }
+
+themeBtn.onclick = ()=>{
+  document.body.classList.toggle("light");
+  const light = document.body.classList.contains("light");
+  localStorage.setItem("sdc_theme", light?"light":"dark");
+  themeBtn.textContent = light?"☀️":"🌙";
+};
+
+/* =====================================================
+   MODALES
+===================================================== */
+const backdrop = qs("#backdrop");
+
+function openModal(m){
+  backdrop.classList.add("show");
+  m.classList.add("show");
+}
+function closeModal(m){
+  backdrop.classList.remove("show");
+  m.classList.remove("show");
+}
+
+qs("#prodClose").onclick = ()=>closeModal(qs("#prodModal"));
+qs("#cartClose").onclick = ()=>closeModal(qs("#cartModal"));
+backdrop.onclick = ()=>{
+  closeModal(qs("#prodModal"));
+  closeModal(qs("#cartModal"));
+};
+
+/* =====================================================
+   CARGAR API
+===================================================== */
+async function loadAPI(){
+  qs("#loadingBlock").style.display="flex";
+  const r = await fetch(API_URL);
+  DATA = await r.json();
+  qs("#loadingBlock").style.display="none";
+  initUI();
+}
+
+/* =====================================================
+   CATEGORÍAS Y SUBCATEGORÍAS
+===================================================== */
+function buildCategories(){
+  const chips = qs("#chips");
+  chips.innerHTML="";
+
+  DATA.categorias
+    .filter(c=>c.visible)
+    .sort((a,b)=>a.orden-b.orden)
+    .forEach(cat=>{
+      const b=document.createElement("button");
+      b.className="chip";
+      b.textContent=cat.categoria;
+      b.onclick=()=>{
+        CURRENT_CAT = cat.categoria;
+        CURRENT_SUB = null;
+        buildSubcategories();
+        renderProducts();
+        highlightChips();
+      };
+      chips.appendChild(b);
+    });
+}
+
+function buildSubcategories(){
+  const wrap = qs("#subchips");
+  wrap.innerHTML="";
+  if(!CURRENT_CAT){ wrap.style.display="none"; return; }
+
+  const subs = [...new Set(
+    DATA.productos
+      .filter(p=>p.categoria===CURRENT_CAT)
+      .map(p=>p.subcategoria)
+      .filter(Boolean)
+  )];
+
+  if(subs.length===0){ wrap.style.display="none"; return; }
+  wrap.style.display="flex";
+
+  const all=document.createElement("button");
+  all.className="chip";
+  all.textContent="Todas";
+  all.onclick=()=>{ CURRENT_SUB=null; renderProducts(); highlightChips(); };
+  wrap.appendChild(all);
+
+  subs.forEach(s=>{
+    const b=document.createElement("button");
+    b.className="chip";
+    b.textContent=s;
+    b.onclick=()=>{
+      CURRENT_SUB=s;
+      renderProducts();
+      highlightChips();
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function highlightChips(){
+  qsa(".chips .chip").forEach(c=>{
+    c.classList.toggle("active", c.textContent===CURRENT_CAT);
+  });
+  qsa(".subchips .chip").forEach(c=>{
+    c.classList.toggle("active", c.textContent===CURRENT_SUB || (!CURRENT_SUB && c.textContent==="Todas"));
+  });
+}
+
+/* =====================================================
+   GRID PRODUCTOS
+===================================================== */
+function renderProducts(){
+  const grid=qs("#grid");
+  grid.innerHTML="";
+
+  let list=[...DATA.productos];
+
+  if(CURRENT_CAT) list=list.filter(p=>p.categoria===CURRENT_CAT);
+  if(CURRENT_SUB) list=list.filter(p=>p.subcategoria===CURRENT_SUB);
+
+  list.sort((a,b)=>{
+    if(a.stock===0 && b.stock>0) return 1;
+    if(a.stock>0 && b.stock===0) return -1;
+    return a.orden-b.orden;
+  });
+
+  qs("#sectionTitle").textContent=`Productos (${list.length})`;
+
+  list.forEach(p=>{
+    const card=document.createElement("div");
+    card.className="card";
+
+    if(p.stock===0) card.classList.add("agotado");
+    if(p.oferta) card.classList.add("oferta");
+
+    card.innerHTML=`
+      <img src="${p.imagen}" alt="">
+      <div class="cardBody">
+        <div class="cardTitle">${p.nombre}</div>
+        <div class="cardDesc">${p.descripcion||""}</div>
+        <div class="priceRow">
+          <div class="price">${money(p.precio)}</div>
+          ${p.precio_anterior?`<div class="old">${money(p.precio_anterior)}</div>`:""}
+        </div>
+        ${p.stock>0
+          ?`<button class="btn btnPrimary">Ver detalles</button>`
+          :`<button class="btn btnDisabled">Agotado</button>`}
+      </div>
+    `;
+
+    if(p.stock>0){
+      card.querySelector("button").onclick=()=>openProduct(p);
+    }
+    grid.appendChild(card);
+  });
+}
+
+/* =====================================================
+   PRODUCTO
+===================================================== */
+function openProduct(p){
+  qs("#modalName").textContent=p.nombre;
+  qs("#modalSub").textContent=`${p.categoria}${p.subcategoria?" · "+p.subcategoria:""}`;
+  qs("#modalMainImg").src=p.imagen;
+  qs("#modalPrice").textContent=money(p.precio);
+  qs("#modalOld").textContent=p.precio_anterior?money(p.precio_anterior):"";
+  qs("#modalDesc").textContent=p.descripcion||"";
+
+  qs("#btnAddCart").onclick=()=>{
+    const found=CART.find(i=>i.id===p.id);
+    if(found){ found.qty++; }
+    else CART.push({id:p.id,nombre:p.nombre,precio:p.precio,qty:1});
+    saveCart();
+    closeModal(qs("#prodModal"));
+    openCart();
+  };
+
+  openModal(qs("#prodModal"));
+}
+
+/* =====================================================
+   CARRITO
+===================================================== */
+function openCart(){
+  STEP=1;
+  renderCart();
+  openModal(qs("#cartModal"));
+}
+
+qs("#btnCart").onclick=openCart;
+
+function renderCart(){
+  qs("#cartStep1").style.display="block";
+  qs("#cartStep2").style.display="none";
+  qs("#cartStep3").style.display="none";
+
+  const list=qs("#cartList");
+  list.innerHTML="";
+
+  if(CART.length===0){
+    qs("#cartEmpty").style.display="block";
+    qs("#cartSubtotal").textContent=money(0);
+    qs("#cartTotal").textContent=money(0);
+    return;
+  }
+  qs("#cartEmpty").style.display="none";
+
+  let subtotal=0;
+  CART.forEach(i=>{
+    subtotal+=i.precio*i.qty;
+    const row=document.createElement("div");
+    row.className="cartRow";
+    row.innerHTML=`
+      <div>
+        <div>${i.nombre}</div>
+        <small>${money(i.precio)}</small>
+      </div>
+      <div class="qty">
+        <button>-</button>
+        <span>${i.qty}</span>
+        <button>+</button>
+      </div>
+    `;
+    const [m,p]=row.querySelectorAll("button");
+    m.onclick=()=>{ i.qty=Math.max(1,i.qty-1); saveCart(); renderCart(); };
+    p.onclick=()=>{ i.qty++; saveCart(); renderCart(); };
+    list.appendChild(row);
+  });
+
+  qs("#cartSubtotal").textContent=money(subtotal);
+  qs("#cartTotal").textContent=money(subtotal);
+}
+
+/* =====================================================
+   CONTINUAR / ATRÁS
+===================================================== */
+qs("#cartNext").onclick=()=>{
+  if(STEP===1){ STEP=2; qs("#cartStep1").style.display="none"; qs("#cartStep2").style.display="block"; }
+  else if(STEP===2){ STEP=3; qs("#cartStep2").style.display="none"; qs("#cartStep3").style.display="block"; }
+};
+
+qs("#cartBack").onclick=()=>{
+  if(STEP===2){ STEP=1; renderCart(); }
+  else if(STEP===3){ STEP=2; qs("#cartStep3").style.display="none"; qs("#cartStep2").style.display="block"; }
+};
+
+/* =====================================================
+   INIT
+===================================================== */
+function initUI(){
+  buildCategories();
+  renderProducts();
+}
+
+loadCart();
+loadAPI();
 </script>
 
 </body>
