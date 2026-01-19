@@ -1,698 +1,799 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-<title>SDComayagua | Catálogo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SDComayagua | Catálogo</title>
 
-<style>
-:root{
-  --bg:#0b0f19; --card:#111a2e; --card2:#0f172a;
-  --text:#e7eefc; --muted:#9fb2d6;
-  --primary:#0b57ff; --danger:#ff2f2f;
-  --soft:#1b2a4d; --border:rgba(255,255,255,.14);
-  --shadow:0 12px 28px rgba(0,0,0,.35); --radius:18px;
-}
-body.light{
-  --bg:#f6f8ff; --card:#ffffff; --card2:#ffffff;
-  --text:#0b1220; --muted:#5a6a87;
-  --soft:#e9efff; --border:rgba(0,0,0,.12);
-  --shadow:0 12px 24px rgba(0,0,0,.10);
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);}
+  <!-- META -->
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="description" content="Catálogo oficial de Soluciones Digitales Comayagua" />
 
-.topbar{
-  position:sticky; top:0; z-index:50;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 14px;
-  background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
-  backdrop-filter: blur(10px);
-}
-body.light .topbar{background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,0));}
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 
-.brand{display:flex; gap:10px; align-items:center; min-width:0; cursor:pointer;}
-.logo{
-  width:42px; height:42px; border-radius:14px;
-  display:grid; place-items:center;
-  background:var(--primary); color:#fff; font-weight:1000;
-}
-.brandText{min-width:0; display:flex; flex-direction:column; line-height:1.05}
-#storeName{font-weight:1000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:58vw; text-decoration:none; color:inherit}
-#storeSub{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:58vw}
-@media(min-width:860px){ #storeName,#storeSub{max-width:520px} }
-@media(max-width:720px){
-  #storeName{color:transparent; position:relative; font-size:16px}
-  #storeName::after{content:"SDComayagua"; color:var(--text); position:absolute; left:0; top:0}
-  #storeSub{font-size:11px; opacity:.9}
-}
-
-.topActions{display:flex; gap:10px; align-items:center;}
-.iconBtn{
-  width:42px; height:42px; border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--card); color:var(--text);
-  box-shadow:var(--shadow); font-size:16px;
-}
-.cartBtn{
-  position:relative; height:42px; padding:0 14px;
-  border-radius:14px; border:1px solid var(--border);
-  background:var(--card); color:var(--text);
-  box-shadow:var(--shadow); font-weight:1000;
-}
-.badge{
-  display:inline-grid; place-items:center;
-  min-width:22px; height:22px; padding:0 6px;
-  border-radius:999px; background:var(--primary);
-  color:#fff; font-size:12px; margin-left:6px;
-}
-
-.searchWrap{padding:8px 12px 12px;}
-.search{
-  width:100%; padding:14px;
-  border-radius:16px; border:1px solid var(--border);
-  background:var(--card); color:var(--text);
-  outline:none; box-shadow:var(--shadow);
-}
-
-.chips,.subchips{
-  display:flex; gap:10px; overflow:auto;
-  padding:10px 12px 12px; scrollbar-width:none;
-}
-.chips::-webkit-scrollbar,.subchips::-webkit-scrollbar{display:none}
-.chip{
-  padding:10px 14px; border-radius:999px;
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--text); font-weight:1000; font-size:13px;
-  white-space:nowrap; cursor:pointer;
-}
-.chip.active{background:var(--primary); border-color:transparent; color:#fff}
-body:not(.light) .chip{
-  color: rgba(231,238,252,.92);
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.18);
-}
-.subchips{margin-top:-10px; padding-top:0; padding-bottom:10px; display:none}
-.subchips .chip{padding:8px 12px; font-size:12px; background:rgba(255,255,255,.04)}
-body.light .subchips .chip{background:rgba(0,0,0,.04)}
-
-.sectionHeader{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:0 12px;}
-.sectionTitle{font-weight:1000; font-size:16px}
-.btnRow{display:flex; gap:10px; flex-wrap:wrap}
-.btn{
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--text);
-  padding:12px 14px;
-  border-radius:16px;
-  font-weight:1000;
-}
-.btnMini{padding:9px 10px; border-radius:12px; font-size:12px;}
-.btnPrimary{background:var(--primary); border-color:transparent; color:#fff;}
-.btnSoft{background:var(--soft)}
-.btnFull{width:100%}
-
-.gridWrap{padding:10px 12px 18px}
-.grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;}
-@media(min-width:840px){ .grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
-
-.card{
-  border:1px solid var(--border);
-  background:var(--card);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  overflow:hidden;
-  position:relative;
-}
-.cardImg{width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:var(--card2);}
-.cardBody{padding:12px}
-.cardName{font-weight:1000; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.cardDesc{color:var(--muted); font-size:12px; margin-top:6px; min-height:30px}
-.priceRow{display:flex; gap:8px; align-items:baseline; margin-top:10px}
-.price{font-weight:1000}
-.price.offer{color:var(--danger)}
-.old{color:var(--muted); text-decoration:line-through; font-size:12px}
-.offerTag{
-  position:absolute; top:10px; left:10px;
-  padding:6px 10px; border-radius:999px;
-  font-weight:1000; font-size:12px;
-  background:rgba(255,47,47,.14);
-  border:1px solid rgba(255,47,47,.35);
-  color:var(--danger);
-}
-.card.out{filter:grayscale(1); opacity:.82}
-.watermark{
-  position:absolute; inset:0; display:grid; place-items:center;
-  pointer-events:none; font-weight:1000; letter-spacing:2px;
-  transform:rotate(-18deg); color:rgba(255,0,0,.35);
-  font-size:clamp(18px,7vw,44px); text-transform:uppercase;
-}
-
-/* modal base */
-.modalBackdrop{position:fixed; inset:0; z-index:80; background:rgba(0,0,0,.58); display:none;}
-.modal{
-  position:fixed; inset:auto 12px 12px 12px; z-index:90;
-  max-width:860px; margin:0 auto;
-  border:1px solid var(--border); background:var(--card);
-  border-radius:22px; box-shadow:var(--shadow);
-  display:none; max-height:88vh; overflow:hidden;
-}
-.modalHeader{display:flex; justify-content:space-between; align-items:center; padding:14px; border-bottom:1px solid var(--border);}
-.modalTitle{font-weight:1000; font-size:18px}
-.modalSub{color:var(--muted); font-size:12px; margin-top:3px}
-.closeBtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:18px}
-.modalBody{padding:14px; overflow:auto; max-height:calc(88vh - 140px)}
-.modalFooter{padding:12px 14px; border-top:1px solid var(--border); display:flex; gap:10px; flex-wrap:wrap}
-.modalFooter .btn{flex:1}
-
-/* prod modal */
-.prodMainImg{width:100%; border-radius:16px; border:1px solid var(--border); background:var(--card2); aspect-ratio:1/1; object-fit:cover}
-.thumbs{display:flex; gap:10px; overflow:auto; padding:10px 0 6px; scrollbar-width:none}
-.thumbs::-webkit-scrollbar{display:none}
-.thumb{width:64px;height:64px;border-radius:14px;border:1px solid var(--border);object-fit:cover;opacity:.85}
-.thumb.active{opacity:1; outline:2px solid rgba(11,87,255,.35)}
-.prodMeta{color:var(--muted); line-height:1.35; font-size:13px; white-space:pre-wrap; margin-top:10px}
-.videoBtns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-.vbtn{padding:10px 12px; border-radius:16px; border:1px solid var(--border); background:var(--soft); color:var(--text); font-weight:1000; text-decoration:none}
-.tabs{display:flex; gap:10px; margin-bottom:12px}
-.tab{flex:1; padding:10px 12px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,.04); color:var(--text); font-weight:1000}
-body.light .tab{background:rgba(0,0,0,.04)}
-.tab.active{background:rgba(11,87,255,.18); border-color:rgba(11,87,255,.45)}
-</style>
+  <!-- ICONOS -->
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
 </head>
 
-<body>
+<body class="dark">
+
+<!-- =========================
+HEADER
+========================= -->
 <header class="topbar">
-  <div class="brand" id="brandHome">
-    <div class="logo" id="logoText">SDC</div>
-    <div class="brandText">
-      <a id="storeName" href="javascript:void(0)">Soluciones Digitales Comayagua</a>
-      <div id="storeSub">Catálogo</div>
+  <div class="brand">
+    <div class="logo">SDC</div>
+    <div class="brand-text">
+      <strong>SDComayagua</strong>
+      <span>Catálogo</span>
     </div>
   </div>
 
-  <div class="topActions">
-    <button class="iconBtn" id="btnSearch">🔎</button>
-    <button class="iconBtn" id="btnTheme">🌙</button>
-    <button class="cartBtn" id="btnCart">🛒 <span class="badge" id="cartCount">0</span></button>
+  <div class="top-actions">
+    <button id="btnSearch" class="icon-btn" aria-label="Buscar">
+      🔍
+    </button>
+
+    <button id="btnTheme" class="icon-btn" aria-label="Modo día/noche">
+      🌙
+    </button>
+
+    <button id="btnCart" class="icon-btn cart-btn" aria-label="Carrito">
+      🛒
+      <span id="cartCount" class="cart-count">0</span>
+    </button>
   </div>
 </header>
 
-<nav class="chips" id="chips"></nav>
-<nav class="subchips" id="subchips"></nav>
+<!-- =========================
+BUSCADOR
+========================= -->
+<section class="search-box">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Buscar producto..."
+    autocomplete="off"
+  />
+</section>
 
-<div class="searchWrap">
-  <input class="search" id="searchInput" placeholder="Buscar producto..." />
-</div>
+<!-- =========================
+CATEGORÍAS PRINCIPALES
+(OJO: aquí NO va el botón TODAS,
+ese solo va en subcategorías)
+========================= -->
+<section class="categories" id="categories">
+  <!-- dinámico -->
+</section>
 
-<div class="sectionHeader">
-  <div class="sectionTitle" id="sectionTitle">Productos</div>
-  <div class="btnRow">
-    <button class="btn btnMini" id="btnViewAll" style="display:none">Ver todo</button>
-    <button class="btn btnMini" id="btnShareCategory" style="display:none">Compartir categoría</button>
-    <button class="btn btnMini" id="btnShareSub" style="display:none">Compartir sub</button>
-  </div>
-</div>
+<!-- =========================
+SUBCATEGORÍAS
+(AQUÍ sí va TODAS)
+========================= -->
+<section class="subcategories" id="subcategories">
+  <!-- dinámico -->
+</section>
 
-<div class="gridWrap"><div class="grid" id="grid"></div></div>
+<!-- =========================
+TÍTULO SECCIÓN
+========================= -->
+<section class="section-title">
+  <h2 id="productsTitle">Productos</h2>
+</section>
 
-<div class="modalBackdrop" id="backdrop"></div>
+<!-- =========================
+GRID DE PRODUCTOS
+========================= -->
+<main class="products-grid" id="productsGrid">
+  <!-- tarjetas dinámicas -->
+</main>
 
-<!-- Producto -->
-<div class="modal" id="prodModal" aria-hidden="true">
-  <div class="modalHeader">
-    <div>
-      <div class="modalTitle" id="modalName">Producto</div>
-      <div class="modalSub" id="modalSub">—</div>
+<!-- =========================
+BOTÓN WHATSAPP FLOTANTE
+========================= -->
+<a
+  href="https://wa.me/50431517755"
+  target="_blank"
+  class="whatsapp-float"
+  aria-label="WhatsApp"
+>
+  WhatsApp
+</a>
+
+<!-- =========================
+OVERLAY GENERAL
+========================= -->
+<div id="overlay" class="overlay hidden"></div>
+<!-- =========================
+MODAL PRODUCTO (DETALLES)
+========================= -->
+<section id="productModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-header">
+    <div class="modal-header-text">
+      <h3 id="modalProductName">Producto</h3>
+      <p id="modalProductSub">Categoría · Subcategoría</p>
     </div>
-    <button class="closeBtn" id="prodClose">✕</button>
+    <button id="closeProductModal" class="modal-close" aria-label="Cerrar">✕</button>
   </div>
-  <div class="modalBody">
-    <img class="prodMainImg" id="modalMainImg" src="" alt="">
-    <div class="thumbs" id="modalThumbs" style="display:none"></div>
 
-    <div class="priceRow">
-      <div class="price" id="modalPrice">Lps. 0</div>
-      <div class="old" id="modalOld"></div>
+  <div class="modal-body">
+    <div class="product-media">
+      <img id="modalMainImage" class="product-main-image" src="" alt="Producto" />
+      <div id="modalThumbs" class="product-thumbs hidden"></div>
     </div>
 
-    <div class="prodMeta" id="modalDesc"></div>
-    <div class="videoBtns" id="modalVideos" style="display:none"></div>
-    <div class="hint" id="modalHint"></div>
+    <div class="product-info">
+      <div class="product-price">
+        <span id="modalPrice" class="price">Lps. 0</span>
+        <span id="modalOldPrice" class="old-price"></span>
+      </div>
 
-    <div class="modalFooter" style="border-top:none; padding:0; margin-top:12px">
-      <button class="btn btnPrimary" id="btnAddCart">Agregar al carrito</button>
-      <button class="btn btnSoft" id="btnKeepBuying">Seguir comprando</button>
-      <button class="btn btnSoft" id="btnGoPay">Ir a pagar</button>
+      <p id="modalDesc" class="product-desc"></p>
+
+      <div id="modalVideoButtons" class="video-buttons hidden"></div>
+
+      <p id="modalHint" class="hint"></p>
+
+      <div class="product-actions">
+        <button id="btnAddToCart" class="btn primary">Agregar al carrito</button>
+        <button id="btnKeepBuying" class="btn soft">Seguir comprando</button>
+        <button id="btnGoPay" class="btn soft">Ir a pagar</button>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Carrito -->
-<div class="modal" id="cartModal" aria-hidden="true">
-  <div class="modalHeader">
-    <div>
-      <div class="modalTitle">Carrito y pedido</div>
-      <div class="modalSub">1-2-3</div>
+<!-- =========================
+MODAL CARRITO (1-2-3)
+========================= -->
+<section id="cartModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-header">
+    <div class="modal-header-text">
+      <h3>Carrito y pedido</h3>
+      <p>1-2-3</p>
     </div>
-    <button class="closeBtn" id="cartClose">✕</button>
+    <button id="closeCartModal" class="modal-close" aria-label="Cerrar">✕</button>
   </div>
-  <div class="modalBody">
+
+  <div class="modal-body">
+    <!-- TABS -->
     <div class="tabs">
-      <button class="tab active" id="tab1">Carrito</button>
-      <button class="tab" id="tab2">Entrega</button>
-      <button class="tab" id="tab3">Pago</button>
+      <button class="tab active" id="tabStep1">Carrito</button>
+      <button class="tab" id="tabStep2">Entrega</button>
+      <button class="tab" id="tabStep3">Pago</button>
     </div>
 
-    <div id="step1">
-      <div id="cartEmpty" class="cartEmpty" style="display:none">Tu carrito está vacío.</div>
-      <div class="cartList" id="cartList"></div>
+    <!-- STEP 1 -->
+    <div id="step1" class="step">
+      <div id="cartEmpty" class="empty-box hidden">Tu carrito está vacío.</div>
+      <div id="cartItems" class="cart-items"></div>
+
       <div class="totals">
-        <div class="row"><span>Subtotal</span><span id="cartSubtotal">Lps. 0</span></div>
-        <div class="row"><span>Envío</span><span id="cartShip">Lps. 0</span></div>
-        <div class="row total"><span>Total</span><span id="cartTotal">Lps. 0</span></div>
+        <div class="row">
+          <span>Subtotal</span>
+          <span id="subtotalValue">Lps. 0</span>
+        </div>
+        <div class="row">
+          <span>Envío</span>
+          <span id="shippingValue">Lps. 0</span>
+        </div>
+        <div class="row total">
+          <span>Total</span>
+          <span id="totalValue">Lps. 0</span>
+        </div>
       </div>
     </div>
 
-    <div id="step2" style="display:none">
-      <div class="hint">✅ Paso Entrega: lo ajustamos con tu audio (reglas exactas).</div>
-      <input class="search" id="dummyEntrega" placeholder="Dirección / referencia">
+    <!-- STEP 2 -->
+    <div id="step2" class="step hidden">
+      <p class="hint">
+        Paso Entrega: aquí vamos a poner tus reglas (Comayagua / fuera / empresa / bus) cuando me mandes el audio.
+      </p>
+
+      <div class="form">
+        <label>Nombre</label>
+        <input id="custName" type="text" placeholder="Tu nombre" />
+
+        <label>Teléfono</label>
+        <input id="custPhone" type="tel" placeholder="Ej: 9999-9999" />
+
+        <label>Dirección / Referencia</label>
+        <textarea id="custAddress" placeholder="Ej: barrio, colonia, referencia..."></textarea>
+      </div>
     </div>
 
-    <div id="step3" style="display:none">
-      <div class="hint">✅ Paso Pago: lo ajustamos con tu audio.</div>
-      <button class="btn btnPrimary btnFull" id="btnSendWA">Enviar por WhatsApp</button>
+    <!-- STEP 3 -->
+    <div id="step3" class="step hidden">
+      <p class="hint">
+        Paso Pago: se ajusta con tus reglas exactas (efectivo con cambio en Comayagua, transferencia, PayPal, Tigo, contra entrega).
+      </p>
+
+      <button id="btnSendWhatsApp" class="btn primary full">Enviar por WhatsApp</button>
     </div>
   </div>
 
-  <div class="modalFooter">
-    <button class="btn btnSoft" id="cartBack">Atrás</button>
-    <button class="btn btnPrimary" id="cartNext">Continuar</button>
+  <div class="modal-footer">
+    <button id="btnBack" class="btn soft">Atrás</button>
+    <button id="btnNext" class="btn primary">Continuar</button>
   </div>
-</div>
+</section>
 
 <script>
+/* =========================================================
+   SDC - PARTE 3/3 (JS completo)
+========================================================= */
+
 const API_URL = "https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-const THEME_KEY="sdc_theme_v2";
-const CART_KEY="sdc_cart_main_v2";
-const WA_DEFAULT="50431517755";
+const CART_KEY = "sdc_cart_v1";
+const THEME_KEY = "sdc_theme_v1";
+const WA_NUMBER = "50431517755";
 
-let DB={productos:[], categorias:[], ajustes:[]};
-let STATE={categoria:null, subcategoria:null, query:""};
-let CART=[];
-let CURRENT_PRODUCT=null;
+/* ===== Helpers ===== */
+const $ = (id)=>document.getElementById(id);
+const safe = (v)=>String(v ?? "").trim();
+const money = (n)=>`Lps. ${Math.round(Number(n||0)).toLocaleString("es-HN")}`;
+const isOffer = (p)=>Number(p.precio_anterior||0) > Number(p.precio||0);
+const isOut   = (p)=>Number(p.stock||0) <= 0;
 
-const $=id=>document.getElementById(id);
-const money=n=>`Lps. ${Math.round(Number(n||0)).toLocaleString("es-HN")}`;
-const isOffer=p=>Number(p.precio_anterior||0)>Number(p.precio||0);
-const isOut=p=>Number(p.stock||0)<=0;
+/* ===== DOM ===== */
+const overlay = $("overlay");
+const grid = $("productsGrid");
+const catsWrap = $("categories");
+const subWrap = $("subcategories");
+const searchInput = $("searchInput");
+const productsTitle = $("productsTitle");
 
-function setTheme(next){
-  document.body.classList.toggle("light", next==="light");
-  localStorage.setItem(THEME_KEY,next);
-  $("btnTheme").textContent = next==="light" ? "☀️":"🌙";
+const productModal = $("productModal");
+const cartModal = $("cartModal");
+const modalMainImage = $("modalMainImage");
+const modalThumbs = $("modalThumbs");
+const modalVideoButtons = $("modalVideoButtons");
+
+const modalProductName = $("modalProductName");
+const modalProductSub = $("modalProductSub");
+const modalPrice = $("modalPrice");
+const modalOldPrice = $("modalOldPrice");
+const modalDesc = $("modalDesc");
+const modalHint = $("modalHint");
+
+const btnAddToCart = $("btnAddToCart");
+const btnKeepBuying = $("btnKeepBuying");
+const btnGoPay = $("btnGoPay");
+
+const cartEmpty = $("cartEmpty");
+const cartList = $("cartList");
+const cartSubtotalEl = $("cartSubtotal");
+const cartTotalEl = $("cartTotal");
+
+const btnNext = $("cartNext");
+const btnBack = $("cartBack");
+
+const step1 = $("cartStep1");
+const step2 = $("cartStep2");
+const step3 = $("cartStep3");
+
+const tab1 = $("tabStep1");
+const tab2 = $("tabStep2");
+const tab3 = $("tabStep3");
+
+/* ===== State ===== */
+let DATA = null;
+let PRODUCTS = [];
+let BY_ID = {};
+let CATEGORY = null;      // categoría seleccionada (null = ver todo)
+let SUBCAT = null;        // subcategoría seleccionada (null = todas)
+let QUERY = "";
+let CURRENT_PRODUCT = null;
+
+let CART = [];            // [{id, qty}]
+let STEP = 1;
+
+/* ===== Overlay helpers ===== */
+function showOverlay(){ overlay.classList.remove("hidden"); }
+function hideOverlay(){ overlay.classList.add("hidden"); }
+
+function openModal(modal){
+  showOverlay();
+  modal.classList.remove("hidden");
 }
-(function(){ setTheme(localStorage.getItem(THEME_KEY)||"dark"); })();
+function closeModal(modal){
+  modal.classList.add("hidden");
+  // Si ningún modal abierto, quita overlay
+  const anyOpen = !productModal.classList.contains("hidden") || !cartModal.classList.contains("hidden");
+  if(!anyOpen) hideOverlay();
+}
 
-$("btnTheme").onclick=()=>{
-  const now=document.body.classList.contains("light")?"light":"dark";
-  setTheme(now==="light"?"dark":"light");
-};
-$("brandHome").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
-$("storeName").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
-$("btnSearch").onclick=()=>$("searchInput").focus();
+/* ===== Theme ===== */
+function applyTheme(){
+  const saved = localStorage.getItem(THEME_KEY) || "dark";
+  document.body.classList.toggle("light", saved==="light");
+  $("btnTheme").textContent = saved==="light" ? "☀️" : "🌙";
+}
+function toggleTheme(){
+  const isLight = document.body.classList.contains("light");
+  localStorage.setItem(THEME_KEY, isLight ? "dark" : "light");
+  applyTheme();
+}
 
+/* ===== Cart storage ===== */
 function loadCart(){
-  try{ CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]"); }catch{ CART=[]; }
+  try{ CART = JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
+  catch{ CART=[]; }
   if(!Array.isArray(CART)) CART=[];
-  updateBadge();
+  updateCartBadge();
 }
 function saveCart(){
-  localStorage.setItem(CART_KEY,JSON.stringify(CART));
-  updateBadge();
+  localStorage.setItem(CART_KEY, JSON.stringify(CART));
+  updateCartBadge();
 }
-function updateBadge(){
-  $("cartCount").textContent = String(CART.reduce((a,it)=>a+Number(it.qty||0),0));
+function updateCartBadge(){
+  const count = CART.reduce((a,it)=>a + Number(it.qty||0), 0);
+  $("cartCount").textContent = String(count);
 }
+
+/* ===== Cart math ===== */
 function cartSubtotal(){
   return CART.reduce((sum,it)=>{
-    const p=DB.productos.find(x=>x.id===it.id);
-    return p? sum + Number(p.precio||0)*Number(it.qty||0) : sum;
+    const p = BY_ID[it.id];
+    if(!p) return sum;
+    return sum + (Number(p.precio||0) * Number(it.qty||0));
   },0);
 }
+function renderCart(){
+  cartList.innerHTML = "";
 
-function showBackdrop(){ $("backdrop").style.display="block"; }
-function hideBackdrop(){ $("backdrop").style.display="none"; }
-function openModal(el){ showBackdrop(); el.style.display="block"; el.setAttribute("aria-hidden","false"); }
-function closeModal(el){
-  el.style.display="none"; el.setAttribute("aria-hidden","true");
-  if($("prodModal").style.display!=="block" && $("cartModal").style.display!=="block") hideBackdrop();
-}
-$("backdrop").onclick=()=>{
-  if($("prodModal").style.display==="block") closeModal($("prodModal"));
-  if($("cartModal").style.display==="block") closeModal($("cartModal"));
-};
-$("prodClose").onclick=()=>closeModal($("prodModal"));
-$("cartClose").onclick=()=>closeModal($("cartModal"));
-
-$("searchInput").addEventListener("input",(e)=>{
-  STATE.query=e.target.value||"";
-  renderProducts();
-});
-
-async function loadAPI(){
-  const res=await fetch(API_URL,{cache:"no-store"});
-  const data=await res.json();
-
-  DB.productos=(data.productos||[]).map(p=>({
-    id:String(p.id||"").trim(),
-    nombre:String(p.nombre||"").trim(),
-    precio:Number(p.precio||0),
-    precio_anterior:Number(p.precio_anterior||0),
-    stock:Number(p.stock||0),
-    categoria:String(p.categoria||"General").trim()||"General",
-    subcategoria:String(p.subcategoria||"").trim(),
-    imagen:String(p.imagen||"").trim(),
-    descripcion:String(p.descripcion||"").trim(),
-    orden:Number(p.orden||999999),
-    video:String(p.video||p.video_url||"").trim(),
-    galeria_1:String(p.galeria_1||"").trim(),
-    galeria_2:String(p.galeria_2||"").trim(),
-    galeria_3:String(p.galeria_3||"").trim(),
-    galeria_4:String(p.galeria_4||"").trim(),
-    galeria_5:String(p.galeria_5||"").trim(),
-    galeria_6:String(p.galeria_6||"").trim(),
-    galeria_7:String(p.galeria_7||"").trim(),
-    galeria_8:String(p.galeria_8||"").trim(),
-  })).filter(p=>p.id && p.nombre);
-
-  DB.categorias=(data.categorias||[]).map(c=>({
-    categoria:String(c.categoria||"").trim(),
-    orden:Number(c.orden||999999),
-    visible:String(c.visible??1)==="1" || c.visible===1 || c.visible===true
-  })).filter(c=>c.categoria);
-
-  DB.ajustes=data.ajustes||[];
-
-  const a=ajustesMap();
-  $("storeName").textContent=a.nombre_tienda||"Soluciones Digitales Comayagua";
-  $("storeSub").textContent=a.subtitulo||"Catálogo";
-  $("logoText").textContent=a.siglas||"SDC";
-  const wa=(a.whatsapp_numero||WA_DEFAULT).replace(/\D/g,"");
-  $("waFloat").href=`https://wa.me/${wa}?text=${encodeURIComponent(a.mensaje_whatsapp||"Hola, quiero consultar el catálogo.")}`;
-
-  renderCategories();
-  renderSubcategories();
-  renderProducts();
-}
-
-function ajustesMap(){
-  const map={};
-  (DB.ajustes||[]).forEach(r=>{
-    const k=String(r.clave||"").trim();
-    const v=String(r.valor||"").trim();
-    if(k) map[k]=v;
-  });
-  return map;
-}
-
-function getCategories(){
-  let cats=[];
-  if(DB.categorias.length){
-    cats=DB.categorias.filter(c=>c.visible).sort((a,b)=>a.orden-b.orden).map(c=>c.categoria);
+  if(CART.length===0){
+    cartEmpty.style.display = "block";
   }else{
-    cats=[...new Set(DB.productos.map(p=>p.categoria))].sort((a,b)=>a.localeCompare(b));
+    cartEmpty.style.display = "none";
   }
-  const hasOffers=DB.productos.some(isOffer);
-  const out=["VER TODO"];
-  if(hasOffers) out.push("OFERTAS");
-  cats.forEach(c=>{ if(c!=="OFERTAS") out.push(c); });
-  return out;
-}
 
-function getSubcats(cat){
-  if(!cat || cat==="VER TODO" || cat==="OFERTAS") return [];
-  return [...new Set(DB.productos.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-}
+  CART.forEach((it, idx)=>{
+    const p = BY_ID[it.id];
+    if(!p) return;
 
-function renderCategories(){
-  const wrap=$("chips");
-  wrap.innerHTML="";
-  getCategories().forEach(c=>{
-    const b=document.createElement("button");
-    const active = (!STATE.categoria && c==="VER TODO") || (STATE.categoria===c);
-    b.className="chip"+(active?" active":"");
-    b.textContent=c;
-    b.onclick=()=>{
-      if(c==="VER TODO"){ STATE.categoria=null; STATE.subcategoria=null; }
-      else { STATE.categoria=c; STATE.subcategoria=null; }
-      renderCategories(); renderSubcategories(); renderProducts();
-      updateShareButtons();
+    const row = document.createElement("div");
+    row.className = "cartRow";
+    row.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre}</div>
+        <small style="color:var(--muted)">${money(p.precio)} · Cant: ${it.qty}</small>
+      </div>
+      <div class="qty">
+        <button type="button" class="qtyMinus">-</button>
+        <span class="qtyNum">${it.qty}</span>
+        <button type="button" class="qtyPlus">+</button>
+        <button type="button" class="qtyDel" title="Eliminar">🗑️</button>
+      </div>
+    `;
+
+    row.querySelector(".qtyMinus").onclick = ()=>{
+      it.qty = Math.max(1, it.qty-1);
+      saveCart();
+      renderCart();
+      renderCartTotals();
     };
-    wrap.appendChild(b);
+    row.querySelector(".qtyPlus").onclick = ()=>{
+      // stock limit
+      const stock = Number(p.stock||0);
+      if(stock>0 && it.qty+1 > stock){
+        alert("Stock disponible: " + stock);
+        return;
+      }
+      it.qty++;
+      saveCart();
+      renderCart();
+      renderCartTotals();
+    };
+    row.querySelector(".qtyDel").onclick = ()=>{
+      CART.splice(idx,1);
+      saveCart();
+      renderCart();
+      renderCartTotals();
+    };
+
+    cartList.appendChild(row);
   });
-  updateShareButtons();
+
+  renderCartTotals();
+}
+function renderCartTotals(){
+  const sub = cartSubtotal();
+  cartSubtotalEl.textContent = money(sub);
+  cartTotalEl.textContent = money(sub); // envío/pago lo ajustamos con tu audio después
 }
 
-function renderSubcategories(){
-  const wrap=$("subchips");
-  wrap.innerHTML="";
-  const subs=getSubcats(STATE.categoria);
-  if(!subs.length){ wrap.style.display="none"; return; }
-  wrap.style.display="flex";
+/* ===== Steps ===== */
+function setStep(n){
+  STEP = n;
+  step1.style.display = (n===1) ? "block" : "none";
+  step2.style.display = (n===2) ? "block" : "none";
+  step3.style.display = (n===3) ? "block" : "none";
 
-  const all=document.createElement("button");
-  all.className="chip"+(!STATE.subcategoria?" active":"");
-  all.textContent="Todas";
-  all.onclick=()=>{ STATE.subcategoria=null; renderSubcategories(); renderProducts(); updateShareButtons(); };
-  wrap.appendChild(all);
-
-  subs.forEach(sc=>{
-    const b=document.createElement("button");
-    b.className="chip"+(STATE.subcategoria===sc?" active":"");
-    b.textContent=sc;
-    b.onclick=()=>{ STATE.subcategoria=sc; renderSubcategories(); renderProducts(); updateShareButtons(); };
-    wrap.appendChild(b);
-  });
-  updateShareButtons();
+  tab1.classList.toggle("active", n===1);
+  tab2.classList.toggle("active", n===2);
+  tab3.classList.toggle("active", n===3);
 }
+tab1.onclick = ()=>setStep(1);
+tab2.onclick = ()=>setStep(2);
+tab3.onclick = ()=>setStep(3);
 
-function updateShareButtons(){
-  $("btnViewAll").style.display = (STATE.categoria && STATE.categoria!=="VER TODO") ? "inline-flex":"none";
-  $("btnShareCategory").style.display = (STATE.categoria && STATE.categoria!=="VER TODO") ? "inline-flex":"none";
-  $("btnShareSub").style.display = (STATE.categoria && STATE.subcategoria) ? "inline-flex":"none";
-}
-$("btnViewAll").onclick=()=>{ STATE.categoria=null; STATE.subcategoria=null; $("searchInput").value=""; STATE.query=""; renderCategories(); renderSubcategories(); renderProducts(); };
-$("btnShareCategory").onclick=()=>{ navigator.clipboard.writeText(location.origin+location.pathname+"#cat="+encodeURIComponent(STATE.categoria)); alert("Enlace copiado"); };
-$("btnShareSub").onclick=()=>{ navigator.clipboard.writeText(location.origin+location.pathname+"#cat="+encodeURIComponent(STATE.categoria)+"&sub="+encodeURIComponent(STATE.subcategoria)); alert("Enlace copiado"); };
-
-function filtered(){
-  let list=DB.productos.slice();
-  if(STATE.categoria){
-    if(STATE.categoria==="OFERTAS") list=list.filter(isOffer);
-    else if(STATE.categoria!=="VER TODO") list=list.filter(p=>p.categoria===STATE.categoria);
+btnBack.onclick = ()=>{
+  if(STEP>1) setStep(STEP-1);
+};
+btnNext.onclick = ()=>{
+  if(STEP===1){
+    if(CART.length===0){ alert("Tu carrito está vacío."); return; }
+    setStep(2);
+    return;
   }
-  if(STATE.subcategoria) list=list.filter(p=>p.subcategoria===STATE.subcategoria);
+  if(STEP===2){
+    // validación mínima
+    const name = safe($("custName").value);
+    const addr = safe($("custAddress").value);
+    if(name.length<3){ alert("Escribe tu nombre."); return; }
+    if(addr.length<6){ alert("Escribe tu dirección / referencia."); return; }
+    setStep(3);
+    return;
+  }
+  if(STEP===3){
+    sendWhatsApp();
+  }
+};
 
-  const q=(STATE.query||"").toLowerCase().trim();
-  if(q) list=list.filter(p=>p.nombre.toLowerCase().includes(q) || p.descripcion.toLowerCase().includes(q));
+/* ===== WhatsApp ===== */
+function sendWhatsApp(){
+  if(CART.length===0){ alert("Carrito vacío"); return; }
 
-  list.sort((a,b)=>{
-    const av=a.stock>0?0:1, bv=b.stock>0?0:1;
-    if(av!==bv) return av-bv;
-    if(a.orden!==b.orden) return a.orden-b.orden;
-    return a.nombre.localeCompare(b.nombre);
+  const name = safe($("custName").value);
+  const phone = safe($("custPhone").value);
+  const addr = safe($("custAddress").value);
+
+  let lines = [];
+  lines.push("🛒 PEDIDO SDC");
+  lines.push("");
+  if(name) lines.push("👤 " + name);
+  if(phone) lines.push("📞 " + phone);
+  if(addr) lines.push("📍 " + addr);
+  lines.push("");
+  lines.push("Productos:");
+  CART.forEach(it=>{
+    const p = BY_ID[it.id];
+    if(!p) return;
+    lines.push(`- ${it.qty} x ${p.nombre} (${money(p.precio)})`);
   });
+  lines.push("");
+  lines.push("Total: " + money(cartSubtotal()));
+
+  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+  window.open(url, "_blank");
+}
+
+$("btnSendWhatsApp").onclick = sendWhatsApp;
+
+/* ===== Products: sort/filter ===== */
+function getCategories(){
+  // sin “Todas” en categorías (solo subcategorías)
+  const base = (DATA?.categorias && DATA.categorias.length)
+    ? DATA.categorias
+        .filter(c => String(c.visible ?? 1) === "1" || c.visible === 1 || c.visible === true)
+        .sort((a,b)=>Number(a.orden||999999)-Number(b.orden||999999))
+        .map(c=>safe(c.categoria))
+        .filter(Boolean)
+    : [...new Set(PRODUCTS.map(p=>p.categoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+
+  const cats = [];
+  // OFERTAS automático si hay ofertas
+  if(PRODUCTS.some(isOffer)) cats.push("OFERTAS");
+  base.forEach(c=>{ if(c && c!=="OFERTAS") cats.push(c); });
+  return cats;
+}
+
+function getSubcategories(cat){
+  if(!cat || cat==="OFERTAS") return [];
+  return [...new Set(PRODUCTS.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b));
+}
+
+function filteredProducts(){
+  let list = [...PRODUCTS];
+
+  if(CATEGORY){
+    if(CATEGORY==="OFERTAS"){
+      list = list.filter(isOffer);
+    } else {
+      list = list.filter(p=>p.categoria===CATEGORY);
+    }
+  }
+  if(SUBCAT){
+    list = list.filter(p=>p.subcategoria===SUBCAT);
+  }
+  const q = (QUERY||"").toLowerCase().trim();
+  if(q){
+    list = list.filter(p=>
+      (p.nombre||"").toLowerCase().includes(q) ||
+      (p.descripcion||"").toLowerCase().includes(q) ||
+      (p.subcategoria||"").toLowerCase().includes(q)
+    );
+  }
+
+  // Orden: disponibles -> orden -> nombre -> agotados
+  list.sort((a,b)=>{
+    const av = a.stock>0 ? 0 : 1;
+    const bv = b.stock>0 ? 0 : 1;
+    if(av!==bv) return av-bv;
+    const ao = Number(a.orden||999999);
+    const bo = Number(b.orden||999999);
+    if(ao!==bo) return ao-bo;
+    return (a.nombre||"").localeCompare(b.nombre||"");
+  });
+
   return list;
 }
 
+function renderCategories(){
+  catsWrap.innerHTML = "";
+
+  // Botón “Ver todo”
+  const btnAll = document.createElement("button");
+  btnAll.className = "chip" + (!CATEGORY ? " active" : "");
+  btnAll.textContent = "VER TODO";
+  btnAll.onclick = ()=>{
+    CATEGORY=null;
+    SUBCAT=null;
+    renderCategories();
+    renderSubcategories();
+    renderProducts();
+  };
+  catsWrap.appendChild(btnAll);
+
+  getCategories().forEach(cat=>{
+    const b = document.createElement("button");
+    b.className = "chip" + (CATEGORY===cat ? " active":"");
+    b.textContent = cat;
+    b.onclick = ()=>{
+      CATEGORY = cat;
+      SUBCAT = null;
+      renderCategories();
+      renderSubcategories();
+      renderProducts();
+    };
+    catsWrap.appendChild(b);
+  });
+}
+
+function renderSubcategories(){
+  subWrap.innerHTML = "";
+
+  const subs = getSubcategories(CATEGORY);
+  if(!CATEGORY || CATEGORY==="OFERTAS" || subs.length===0){
+    subWrap.style.display = "none";
+    return;
+  }
+  subWrap.style.display = "flex";
+
+  const bAll = document.createElement("button");
+  bAll.className = "chip" + (!SUBCAT ? " active":"");
+  bAll.textContent = "Todas";
+  bAll.onclick = ()=>{
+    SUBCAT=null;
+    renderSubcategories();
+    renderProducts();
+  };
+  subWrap.appendChild(bAll);
+
+  subs.forEach(su=>{
+    const b = document.createElement("button");
+    b.className = "chip" + (SUBCAT===su ? " active":"");
+    b.textContent = su;
+    b.onclick = ()=>{
+      SUBCAT=su;
+      renderSubcategories();
+      renderProducts();
+    };
+    subWrap.appendChild(b);
+  });
+}
+
 function renderProducts(){
-  const grid=$("grid");
-  const list=filtered();
-  grid.innerHTML="";
-  $("sectionTitle").textContent = `Productos (${list.length})`;
+  const list = filteredProducts();
+  productsTitle.textContent = `${CATEGORY ? CATEGORY : "Productos"} (${list.length})`;
+
+  grid.innerHTML = "";
+  if(list.length===0){
+    grid.innerHTML = `<div class="loading">No hay productos para mostrar.</div>`;
+    return;
+  }
 
   list.forEach(p=>{
-    const c=document.createElement("div");
-    c.className="card"+(isOut(p)?" out":"");
-    c.innerHTML=`
-      ${isOffer(p)?`<div class="offerTag">OFERTA</div>`:""}
-      <img class="cardImg" src="${p.imagen||""}" alt="">
+    const card = document.createElement("div");
+    card.className = "card" + (isOut(p) ? " agotado":"") + (isOffer(p) ? " oferta":"");
+
+    const oldHtml = isOffer(p) ? `<div class="old">${money(p.precio_anterior)}</div>` : "";
+    const btnHtml = isOut(p)
+      ? `<button class="btn btnDisabled" disabled>Agotado</button>`
+      : `<button class="btn btnPrimary">Ver detalles</button>`;
+
+    card.innerHTML = `
+      <img src="${p.imagen||""}" alt="">
       <div class="cardBody">
-        <div class="cardName">${p.nombre}</div>
-        <div class="cardDesc">${p.descripcion||p.subcategoria||""}</div>
+        <div class="cardTitle">${p.nombre}</div>
+        <div class="cardDesc">${p.descripcion||""}</div>
         <div class="priceRow">
-          <div class="price ${isOffer(p)?"offer":""}">${money(p.precio)}</div>
-          <div class="old">${isOffer(p)?money(p.precio_anterior):""}</div>
+          <div class="price">${money(p.precio)}</div>
+          ${oldHtml}
         </div>
-        <button class="btn btnPrimary btnFull" ${isOut(p)?"disabled":""}>${isOut(p)?"Agotado":"Ver detalles"}</button>
+        ${btnHtml}
       </div>
     `;
-    if(isOut(p)){
-      const wm=document.createElement("div");
-      wm.className="watermark";
-      wm.textContent="AGOTADO";
-      c.appendChild(wm);
+
+    // Tocar toda la tarjeta abre detalles
+    if(!isOut(p)){
+      card.onclick = ()=>openProductModal(p);
     }
-    c.onclick=()=>openProduct(p);
-    grid.appendChild(c);
+
+    grid.appendChild(card);
   });
 }
 
-function openProduct(p){
-  CURRENT_PRODUCT=p;
+/* ===== Modal producto + galería ===== */
+function openProductModal(p){
+  CURRENT_PRODUCT = p;
 
-  $("modalName").textContent=p.nombre;
-  $("modalSub").textContent=`${p.categoria}${p.subcategoria?(" · "+p.subcategoria):""}`;
-  $("modalPrice").textContent=money(p.precio);
-  $("modalOld").textContent=isOffer(p)?money(p.precio_anterior):"";
-  $("modalDesc").textContent=p.descripcion||"";
+  modalProductName.textContent = p.nombre;
+  modalProductSub.textContent = `${p.categoria}${p.subcategoria?(" · "+p.subcategoria):""}`;
+  modalPrice.textContent = money(p.precio);
+  modalOldPrice.textContent = isOffer(p) ? money(p.precio_anterior) : "";
+  modalDesc.textContent = p.descripcion || "";
 
-  const urls=[p.imagen,p.galeria_1,p.galeria_2,p.galeria_3,p.galeria_4,p.galeria_5,p.galeria_6,p.galeria_7,p.galeria_8].filter(Boolean);
-  const gallery=[...new Set(urls)].slice(0,8);
+  // galería
+  const gallery = [];
+  if(p.imagen) gallery.push(p.imagen);
+  for(let i=1;i<=8;i++){
+    const g = p[`galeria_${i}`];
+    if(g) gallery.push(g);
+  }
+  const uniq = [...new Set(gallery.filter(Boolean))].slice(0,8);
 
-  $("modalMainImg").src=gallery[0]||"";
-
-  const thumbs=$("modalThumbs");
-  thumbs.innerHTML="";
-  if(gallery.length<=1){ thumbs.style.display="none"; }
-  else{
-    thumbs.style.display="flex";
-    gallery.forEach((src,idx)=>{
-      const im=document.createElement("img");
-      im.className="thumb"+(idx===0?" active":"");
-      im.src=src;
-      im.onclick=(e)=>{
-        e.stopPropagation();
-        $("modalMainImg").src=src;
-        [...thumbs.children].forEach(x=>x.classList.remove("active"));
+  modalMainImage.src = uniq[0] || "";
+  modalThumbs.innerHTML = "";
+  if(uniq.length<=1){
+    modalThumbs.classList.add("hidden");
+  }else{
+    modalThumbs.classList.remove("hidden");
+    uniq.forEach((src, idx)=>{
+      const im = document.createElement("img");
+      im.src = src;
+      im.className = "thumb" + (idx===0 ? " active":"");
+      im.onclick = ()=>{
+        modalMainImage.src = src;
+        qsaThumbs().forEach(x=>x.classList.remove("active"));
         im.classList.add("active");
       };
-      thumbs.appendChild(im);
+      modalThumbs.appendChild(im);
     });
   }
 
-  const vids=$("modalVideos");
-  vids.innerHTML="";
-  if(!p.video){ vids.style.display="none"; }
-  else{
-    vids.style.display="flex";
-    const a=document.createElement("a");
-    a.className="vbtn"; a.href=p.video; a.target="_blank"; a.rel="noopener";
-    a.textContent="Ver video";
-    vids.appendChild(a);
+  // video
+  modalVideoButtons.innerHTML = "";
+  const v = safe(p.video);
+  if(v){
+    modalVideoButtons.classList.remove("hidden");
+    const a = document.createElement("a");
+    a.href = v;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.className = "vbtn";
+    a.textContent = "Ver video";
+    modalVideoButtons.appendChild(a);
+  }else{
+    modalVideoButtons.classList.add("hidden");
   }
 
-  $("modalHint").textContent="";
-  $("btnAddCart").disabled=isOut(p);
-
-  openModal($("prodModal"));
+  modalHint.textContent = "";
+  openModal(productModal);
 }
 
-$("btnKeepBuying").onclick=()=>closeModal($("prodModal"));
-$("btnGoPay").onclick=()=>{ closeModal($("prodModal")); openCart(); };
+function qsaThumbs(){ return [...modalThumbs.querySelectorAll("img")]; }
 
-$("btnAddCart").onclick=()=>{
-  const p=CURRENT_PRODUCT;
-  if(!p || isOut(p)) return;
+/* ===== Modal product buttons ===== */
+btnAddToCart.onclick = ()=>{
+  if(!CURRENT_PRODUCT) return;
+  if(isOut(CURRENT_PRODUCT)){ toast("Agotado"); return; }
 
-  let it=CART.find(x=>x.id===p.id);
-  if(!it) CART.push({id:p.id, qty:1});
-  else it.qty++;
-
+  const stock = Number(CURRENT_PRODUCT.stock||0);
+  let it = CART.find(x=>x.id===CURRENT_PRODUCT.id);
+  if(!it){
+    CART.push({id:CURRENT_PRODUCT.id, qty:1});
+  }else{
+    if(stock>0 && it.qty+1 > stock){
+      alert("Stock disponible: "+stock);
+      return;
+    }
+    it.qty++;
+  }
   saveCart();
-  $("modalHint").textContent="✅ Agregado. Seguir comprando o ir a pagar.";
+  modalHint.textContent = "✅ Agregado. Seguir comprando o ir a pagar.";
+};
+btnKeepBuying.onclick = ()=>closeModal(productModal);
+btnGoPay.onclick = ()=>{
+  closeModal(productModal);
+  openCart();
 };
 
+/* ===== Cart open ===== */
 function openCart(){
+  STEP=1;
+  setStepUI(1);
   renderCart();
-  updateTotals();
-  showStep(1);
-  openModal($("cartModal"));
+  openModal(cartModal);
 }
-$("btnCart").onclick=openCart;
 
-let step=1;
-function showStep(n){
-  step=n;
-  $("step1").style.display=n===1?"block":"none";
-  $("step2").style.display=n===2?"block":"none";
-  $("step3").style.display=n===3?"block":"none";
-  $("tab1").classList.toggle("active",n===1);
-  $("tab2").classList.toggle("active",n===2);
-  $("tab3").classList.toggle("active",n===3);
-  $("cartBack").style.visibility=n===1?"hidden":"visible";
-  $("cartNext").textContent=n===3?"Enviar":"Continuar";
+function setStepUI(n){
+  STEP = n;
+  step1.classList.toggle("hidden", n!==1);
+  step2.classList.toggle("hidden", n!==2);
+  step3.classList.toggle("hidden", n!==3);
+
+  tab1.classList.toggle("active", n===1);
+  tab2.classList.toggle("active", n===2);
+  tab3.classList.toggle("active", n===3);
+
+  btnBack.style.display = (n===1) ? "none" : "inline-block";
+  btnNext.textContent = (n===3) ? "Enviar" : "Continuar";
 }
-function renderCart(){
-  const list=$("cartList");
-  list.innerHTML="";
-  if(!CART.length){ $("cartEmpty").style.display="block"; return; }
-  $("cartEmpty").style.display="none";
 
-  CART.forEach(it=>{
-    const p=DB.productos.find(x=>x.id===it.id);
-    if(!p) return;
-    const row=document.createElement("div");
-    row.className="cartItem";
-    row.innerHTML=`
-      <img class="cartItemImg" src="${p.imagen||""}">
-      <div>
-        <div class="cartItemName">${p.nombre}</div>
-        <div class="cartItemMeta">${money(p.precio)} · Cant: ${it.qty}</div>
-        <div class="qtyRow">
-          <div class="qtyCtrls">
-            <button class="qtyBtn">−</button>
-            <div class="qtyNum">${it.qty}</div>
-            <button class="qtyBtn">+</button>
-          </div>
-          <button class="trashBtn">🗑 Eliminar</button>
-        </div>
-      </div>
-    `;
-    const minus=row.querySelectorAll(".qtyBtn")[0];
-    const plus=row.querySelectorAll(".qtyBtn")[1];
-    const num=row.querySelector(".qtyNum");
-    const del=row.querySelector(".trashBtn");
-    minus.onclick=()=>{ it.qty=Math.max(1,it.qty-1); num.textContent=it.qty; saveCart(); updateTotals(); };
-    plus.onclick=()=>{ it.qty++; num.textContent=it.qty; saveCart(); updateTotals(); };
-    del.onclick=()=>{ CART=CART.filter(x=>x.id!==it.id); saveCart(); renderCart(); updateTotals(); };
-    list.appendChild(row);
+tab1.onclick = ()=>setStepUI(1);
+tab2.onclick = ()=>setStepUI(2);
+tab3.onclick = ()=>setStepUI(3);
+
+btnBack.onclick = ()=>{ if(STEP>1) setStepUI(STEP-1); };
+btnNext.onclick = ()=>{
+  if(STEP===1){
+    if(CART.length===0){ alert("Carrito vacío"); return; }
+    setStepUI(2);
+  }else if(STEP===2){
+    const n = safe($("custName").value);
+    const a = safe($("custAddress").value);
+    if(n.length<3){ alert("Escribe tu nombre"); return; }
+    if(a.length<6){ alert("Escribe tu dirección"); return; }
+    setStepUI(3);
+  }else{
+    sendWhatsApp();
+  }
+};
+
+/* ===== Buttons close ===== */
+$("closeProductModal").onclick = ()=>closeModal(productModal);
+$("closeCartModal").onclick = ()=>closeModal(cartModal);
+
+$("btnCart").onclick = openCart;
+
+/* ===== Search + theme + overlay ===== */
+$("btnTheme").onclick = toggleTheme;
+$("btnSearch").onclick = ()=>$("searchInput").focus();
+$("btnTheme").onclick = toggleTheme;
+
+overlay.onclick = ()=>{
+  closeModal(productModal);
+  closeModal(cartModal);
+};
+
+/* ===== Init ===== */
+function init(){
+  applyTheme();
+  loadCart();
+
+  // no dependemos de categorias sheet para que nunca quede vacío
+  loadAPI().catch(err=>{
+    grid.innerHTML = `<div class="loading">Error cargando catálogo: ${String(err.message||err)}</div>`;
   });
 }
 
-function updateTotals(){
-  const sub=cartSubtotal();
-  $("cartSubtotal").textContent=money(sub);
-  $("cartShip").textContent=money(0);
-  $("cartTotal").textContent=money(sub);
-}
-
-$("cartBack").onclick=()=>{ if(step>1) showStep(step-1); };
-$("cartNext").onclick=()=>{
-  if(step===1){ if(!CART.length){alert("Carrito vacío"); return;} showStep(2); return; }
-  if(step===2){ showStep(3); return; }
-  if(step===3){
-    const a=ajustesMap();
-    const wa=(a.whatsapp_numero||WA_DEFAULT).replace(/\D/g,"");
-    const msg=[];
-    msg.push("🛒 Pedido SDC");
-    CART.forEach(it=>{
-      const p=DB.productos.find(x=>x.id===it.id);
-      if(p) msg.push(`- ${it.qty} x ${p.nombre} (${money(p.precio)})`);
-    });
-    msg.push("Total: "+money(cartSubtotal()));
-    window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg.join("\n"))}`,"_blank");
-  }
-};
-
-$("btnSendWA").onclick=()=>$("cartNext").click();
-
-loadCart();
-loadAPI();
+init();
 </script>
 
 </body>
 </html>
+```0
