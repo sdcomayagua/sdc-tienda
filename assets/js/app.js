@@ -1,15 +1,15 @@
-/* SDComayagua - app.js (LEGIBLE)
+/* SDComayagua - app.js (PRO)
    - Catálogo + categorías/subcategorías + ofertas
    - Modal producto (galería + video)
    - Carrito 1-2-3
-   - UI carrito mejorada (sin "Eliminar" grande, sin "Cantidad: X")
+   - Entrega + Pagos con tus reglas (Comayagua/municipios con domicilio vs empresas)
 */
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
 
-const CART_KEY = "sdc_cart_pro_v2";
-const THEME_KEY = "sdc_theme_pro_v2";
+const CART_KEY = "sdc_cart_pro_v3";
+const THEME_KEY = "sdc_theme_pro_v3";
 const WA_NUMBER = "50431517755";
 
 const $ = (id) => document.getElementById(id);
@@ -31,6 +31,36 @@ let CURRENT_SUB = null; // null = todas
 let QUERY = "";
 let STEP = 1;
 
+/** Checkout selections */
+let CHECKOUT = {
+  depto: "",
+  muni: "",
+  entrega_tipo: "", // "domicilio" | "empresa" | "bus"
+  empresa_envio: "", // C807 | Cargo Expreso | Forza
+  pago_metodo: "", // efectivo | transferencia | paypal | tigo_money | pagar_al_recibir
+  efectivo_con: 0,
+  cambio: 0,
+};
+
+/** Municipios con ENTREGA A DOMICILIO (según tu mensaje) */
+const MUNICIPIOS_DOMICILIO = new Set([
+  "Comayagua",
+  "Villa de San Antonio",
+  "Lejamaní",
+  "Lejamani",
+  "Lamaní",
+  "Lamani",
+  "Ajuterique",
+  "Flores",
+  "Yarumela",
+  "Jarumela",
+  "La Paz",
+]);
+
+/** Empresas disponibles */
+const EMPRESAS_ENVIO = ["C807", "Cargo Expreso", "Forza"];
+const PERMITE_BUS_LOCAL = true;
+
 /** Theme */
 function applyTheme() {
   const saved = localStorage.getItem(THEME_KEY) || "dark";
@@ -47,11 +77,7 @@ function toggleTheme() {
 /** Overlay + modals */
 function openOverlay() { $("overlay").style.display = "block"; }
 function closeOverlay() { $("overlay").style.display = "none"; }
-
-function openModal(id) {
-  openOverlay();
-  $(id).style.display = "block";
-}
+function openModal(id) { openOverlay(); $(id).style.display = "block"; }
 function closeModal(id) {
   $(id).style.display = "none";
   if ($("productModal").style.display !== "block" && $("cartModal").style.display !== "block") {
@@ -61,11 +87,8 @@ function closeModal(id) {
 
 /** Cart storage */
 function loadCart() {
-  try {
-    CART = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-  } catch {
-    CART = [];
-  }
+  try { CART = JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
+  catch { CART = []; }
   if (!Array.isArray(CART)) CART = [];
   updateBadge();
 }
@@ -104,15 +127,11 @@ function categoriesList() {
       a.localeCompare(b)
     );
   }
-
   const out = [];
   if (PRODUCTS.some(isOffer)) out.push("OFERTAS");
-  cats.forEach((c) => {
-    if (c && String(c).toUpperCase() !== "OFERTAS") out.push(c);
-  });
+  cats.forEach((c) => { if (c && String(c).toUpperCase() !== "OFERTAS") out.push(c); });
   return out;
 }
-
 function subcategoriesList(cat) {
   if (!cat || cat === "OFERTAS") return [];
   return [
@@ -151,7 +170,6 @@ function renderCategories() {
     bar.appendChild(b);
   });
 }
-
 function renderSubcategories() {
   const bar = $("subcategories");
   bar.innerHTML = "";
@@ -189,24 +207,18 @@ function renderSubcategories() {
 /** Filter/sort */
 function filteredProducts() {
   let list = [...PRODUCTS];
-
-  if (CURRENT_CAT) {
-    list = CURRENT_CAT === "OFERTAS" ? list.filter(isOffer) : list.filter((p) => p.categoria === CURRENT_CAT);
-  }
+  if (CURRENT_CAT) list = CURRENT_CAT === "OFERTAS" ? list.filter(isOffer) : list.filter((p) => p.categoria === CURRENT_CAT);
   if (CURRENT_SUB) list = list.filter((p) => p.subcategoria === CURRENT_SUB);
 
   const q = (QUERY || "").toLowerCase().trim();
   if (q) {
-    list = list.filter((p) => {
-      return (
-        (p.nombre || "").toLowerCase().includes(q) ||
-        (p.descripcion || "").toLowerCase().includes(q) ||
-        (p.subcategoria || "").toLowerCase().includes(q)
-      );
-    });
+    list = list.filter((p) =>
+      (p.nombre || "").toLowerCase().includes(q) ||
+      (p.descripcion || "").toLowerCase().includes(q) ||
+      (p.subcategoria || "").toLowerCase().includes(q)
+    );
   }
 
-  // disponibles -> orden -> nombre -> agotados
   list.sort((a, b) => {
     const av = a.stock > 0 ? 0 : 1;
     const bv = b.stock > 0 ? 0 : 1;
@@ -259,7 +271,6 @@ function renderProducts() {
       ${out ? `<div class="tagOut">AGOTADO</div>` : ""}
     `;
 
-    // tocar tarjeta abre detalles (si no agotado)
     if (!out) {
       card.addEventListener("click", (e) => {
         if (e.target.closest("button")) return;
@@ -280,11 +291,7 @@ function parseGallery(p) {
     if (p[k]) urls.push(p[k]);
   }
   if (p.galeria) {
-    String(p.galeria)
-      .split(",")
-      .map((x) => x.trim())
-      .filter(Boolean)
-      .forEach((u) => urls.push(u));
+    String(p.galeria).split(",").map((x) => x.trim()).filter(Boolean).forEach((u) => urls.push(u));
   }
   return [...new Set(urls.filter(Boolean))].slice(0, 8);
 }
@@ -295,7 +302,6 @@ function videoLabel(url) {
   if (u.includes("facebook.com") || u.includes("fb.watch")) return "Ver en Facebook";
   return "Ver video";
 }
-
 function openProduct(pid) {
   const p = BY_ID[pid];
   if (!p) return;
@@ -335,9 +341,7 @@ function openProduct(pid) {
   if (v) {
     vwrap.classList.remove("hidden");
     const a = document.createElement("a");
-    a.href = v;
-    a.target = "_blank";
-    a.rel = "noopener";
+    a.href = v; a.target = "_blank"; a.rel = "noopener";
     a.className = "videoBtn";
     a.textContent = videoLabel(v);
     vwrap.appendChild(a);
@@ -351,13 +355,12 @@ function openProduct(pid) {
 
   openModal("productModal");
 }
-window.__openProduct = openProduct; // ✅ clave del onclick inline
+window.__openProduct = openProduct;
 
-/** Cart UI (mejorada: sin texto "Eliminar" grande, sin "Cantidad: X") */
+/** Cart (UI limpia) */
 function renderCart() {
   const list = $("cartItems");
   list.innerHTML = "";
-
   $("cartEmpty").style.display = CART.length ? "none" : "block";
 
   CART.forEach((it, idx) => {
@@ -382,23 +385,17 @@ function renderCart() {
 
     row.querySelector(".minus").onclick = () => {
       it.qty = Math.max(1, it.qty - 1);
-      saveCart();
-      renderCart();
-      updateTotals();
+      saveCart(); renderCart(); updateTotals();
     };
     row.querySelector(".plus").onclick = () => {
       const stock = Number(p.stock || 0);
       if (stock > 0 && it.qty + 1 > stock) return alert("Stock disponible: " + stock);
       it.qty++;
-      saveCart();
-      renderCart();
-      updateTotals();
+      saveCart(); renderCart(); updateTotals();
     };
     row.querySelector(".trash").onclick = () => {
       CART.splice(idx, 1);
-      saveCart();
-      renderCart();
-      updateTotals();
+      saveCart(); renderCart(); updateTotals();
     };
 
     list.appendChild(row);
@@ -412,7 +409,6 @@ function updateTotals() {
   $("shipTotal").textContent = money(0);
   $("grandTotal").textContent = money(sub);
 }
-
 function setStep(n) {
   STEP = n;
   $("step1").classList.toggle("hidden", n !== 1);
@@ -425,15 +421,14 @@ function setStep(n) {
   $("btnNext").textContent = n === 3 ? "Enviar por WhatsApp" : "Continuar";
   $("btnSendWA").style.display = n === 3 ? "block" : "none";
 }
-
 function openCart() {
   setStep(1);
   renderCart();
   openModal("cartModal");
 }
-
 function sendWhatsApp() {
   if (!CART.length) return alert("Carrito vacío");
+
   const name = safe($("custName").value);
   const phone = safe($("custPhone").value);
   const addr = safe($("custAddr").value);
@@ -454,18 +449,12 @@ function sendWhatsApp() {
 
 /** Events */
 function wire() {
-  $("overlay").onclick = () => {
-    closeModal("productModal");
-    closeModal("cartModal");
-  };
+  $("overlay").onclick = () => { closeModal("productModal"); closeModal("cartModal"); };
   $("closeProduct").onclick = () => closeModal("productModal");
   $("closeCart").onclick = () => closeModal("cartModal");
 
   $("btnKeepBuying").onclick = () => closeModal("productModal");
-  $("btnGoPay").onclick = () => {
-    closeModal("productModal");
-    openCart();
-  };
+  $("btnGoPay").onclick = () => { closeModal("productModal"); openCart(); };
 
   $("btnAddCart").onclick = () => {
     if (!CURRENT || isOut(CURRENT)) return;
@@ -484,16 +473,14 @@ function wire() {
   $("btnNext").onclick = () => {
     if (STEP === 1) {
       if (!CART.length) return alert("Tu carrito está vacío.");
-      setStep(2);
-      return;
+      setStep(2); return;
     }
     if (STEP === 2) {
       const name = safe($("custName").value);
       const addr = safe($("custAddr").value);
       if (name.length < 3) return alert("Escribe tu nombre");
       if (addr.length < 6) return alert("Escribe tu dirección");
-      setStep(3);
-      return;
+      setStep(3); return;
     }
     if (STEP === 3) sendWhatsApp();
   };
@@ -562,11 +549,5 @@ async function init() {
   }
 }
 
-/** renderCategories/subcategories/filteredProducts already in file */
-function renderCategories(){const bar=$("categoryBar");bar.innerHTML="";const all=document.createElement("button");all.className="pill"+(!CURRENT_CAT?" active":"");all.textContent="VER TODO";all.onclick=()=>{CURRENT_CAT=null;CURRENT_SUB=null;renderCategories();renderSubcategories();renderProducts();};bar.appendChild(all);categoriesList().forEach(cat=>{const b=document.createElement("button");b.className="pill"+(CURRENT_CAT===cat?" active":"");b.textContent=cat;b.onclick=()=>{CURRENT_CAT=cat;CURRENT_SUB=null;renderCategories();renderSubcategories();renderProducts();};bar.appendChild(b);});}
-function renderSubcategories(){const bar=$("subcategories");bar.innerHTML="";const subs=subcategoriesList(CURRENT_CAT);if(!CURRENT_CAT||CURRENT_CAT==="OFERTAS"||subs.length===0){bar.style.display="none";return;}bar.style.display="flex";const all=document.createElement("button");all.className="pill"+(!CURRENT_SUB?" active":"");all.textContent="Todas";all.onclick=()=>{CURRENT_SUB=null;renderSubcategories();renderProducts();};bar.appendChild(all);subs.forEach(sc=>{const b=document.createElement("button");b.className="pill"+(CURRENT_SUB===sc?" active":"");b.textContent=sc;b.onclick=()=>{CURRENT_SUB=sc;renderSubcategories();renderProducts();};bar.appendChild(b);});}
-function categoriesList(){let cats=[];if(DATA&&Array.isArray(DATA.categorias)&&DATA.categorias.length){cats=DATA.categorias.filter(c=>String(c.visible??1)==="1"||c.visible===1||c.visible===true).sort((a,b)=>Number(a.orden||999999)-Number(b.orden||999999)).map(c=>safe(c.categoria)).filter(Boolean);}else{cats=[...new Set(PRODUCTS.map(p=>p.categoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b));}const out=[];if(PRODUCTS.some(isOffer))out.push("OFERTAS");cats.forEach(c=>{if(c&&String(c).toUpperCase()!=="OFERTAS")out.push(c);});return out;}
-function subcategoriesList(cat){if(!cat||cat==="OFERTAS")return[];return[...new Set(PRODUCTS.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
-function filteredProducts(){let list=[...PRODUCTS];if(CURRENT_CAT){list=(CURRENT_CAT==="OFERTAS")?list.filter(isOffer):list.filter(p=>p.categoria===CURRENT_CAT);}if(CURRENT_SUB)list=list.filter(p=>p.subcategoria===CURRENT_SUB);const q=(QUERY||"").toLowerCase().trim();if(q){list=list.filter(p=>(p.nombre||"").toLowerCase().includes(q)||(p.descripcion||"").toLowerCase().includes(q)||(p.subcategoria||"").toLowerCase().includes(q));}list.sort((a,b)=>{const av=a.stock>0?0:1,bv=b.stock>0?0:1;if(av!==bv)return av-bv;const ao=Number(a.orden||999999),bo=Number(b.orden||999999);if(ao!==bo)return ao-bo;return(a.nombre||"").localeCompare(b.nombre||"");});return list;}
-
 document.addEventListener("DOMContentLoaded", init);
+})();
