@@ -1,276 +1,39 @@
-<!-- ================== FIX 1/4 ================== -->
-<script>
-/* Evitar inicializaciones duplicadas */
-if (!window.__SDC_APP_LOADED__) {
-  window.__SDC_APP_LOADED__ = true;
-} else {
-  console.warn("SDC app ya estaba cargada, se evita duplicado.");
-}
-</script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDComayagua | Rescate</title>
+  <style>
+    body{margin:0;font-family:system-ui;background:#0b1220;color:#e6ebff}
+    .bar{padding:14px;font-weight:900;background:rgba(0,0,0,.35)}
+    .box{padding:14px}
+    .ok{color:#7ee787}
+    .bad{color:#ff7b72}
+    pre{white-space:pre-wrap;background:rgba(255,255,255,.06);padding:12px;border-radius:12px;overflow:auto}
+  </style>
+</head>
+<body>
+  <div class="bar">SDComayagua — Rescate</div>
+  <div class="box">
+    <div id="status">Probando API…</div>
+    <pre id="out"></pre>
+  </div>
 
-<style>
-/* ===== Variables base ===== */
-:root{
-  --bg:#0b1220;
-  --bg-soft:#111a2e;
-  --card:#0f1a33;
-  --border:rgba(255,255,255,.08);
-  --text:#e8ecf3;
-  --muted:#a9b2c7;
-  --primary:#1e6bff;
-}
-
-/* ===== Modo día ===== */
-body.light{
-  --bg:#f2f4f8;
-  --bg-soft:#ffffff;
-  --card:#ffffff;
-  --border:#e2e6ef;
-  --text:#111827;
-  --muted:#6b7280;
-  --primary:#1e6bff;
-}
-
-/* ===== Corrección fondo general ===== */
-body{
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* ===== Evitar headers duplicados ===== */
-header + header,
-.topbar + .topbar{
-  display:none !important;
-}
-</style>
-<!-- ================ FIN FIX 1/4 ================= -->
-
-<!-- ================== FIX 2/4 ================== -->
-<style>
-/* Quita scrollbar / línea rara en barras horizontales */
-#categoryBar, #subcategories{
-  scrollbar-width: none !important;
-}
-#categoryBar::-webkit-scrollbar,
-#subcategories::-webkit-scrollbar{
-  display:none !important;
-}
-
-/* Mejor contraste en modo noche para pills no activas */
-body:not(.light) .pill{
-  color: rgba(232,236,243,.92) !important;
-  background: rgba(255,255,255,.06) !important;
-  border-color: rgba(255,255,255,.18) !important;
-}
-body:not(.light) .pill:hover{
-  background: rgba(255,255,255,.09) !important;
-}
-
-/* En modo día que no queden pálidas */
-body.light .pill{
-  color: var(--muted) !important;
-}
-body.light .pill.active{
-  color:#fff !important;
-}
-</style>
-
-<script>
-/* ===== DEDUPE: elimina duplicados si pegaste el HTML 2 veces ===== */
-(function(){
-  function keepFirstRemoveRest(selector){
-    const nodes = document.querySelectorAll(selector);
-    if(!nodes || nodes.length <= 1) return;
-    for(let i=1;i<nodes.length;i++){
-      nodes[i].remove();
-    }
-  }
-
-  // IDs duplicados (por si pegaste 2 veces)
-  keepFirstRemoveRest('[id="categoryBar"]');
-  keepFirstRemoveRest('[id="subcategories"]');
-  keepFirstRemoveRest('[id="searchInput"]');
-  keepFirstRemoveRest('[id="productsGrid"]');
-  keepFirstRemoveRest('[id="overlay"]');
-
-  keepFirstRemoveRest('[id="productModal"]');
-  keepFirstRemoveRest('[id="cartModal"]');
-
-  keepFirstRemoveRest('[id="modalThumbs"]');
-  keepFirstRemoveRest('[id="modalVideoButtons"]');
-
-  keepFirstRemoveRest('[id="cartItems"]');
-  keepFirstRemoveRest('[id="cartEmpty"]');
-
-  // Si hay dos títulos "Productos", deja el primero
-  keepFirstRemoveRest('.section-title');
-
-  // Si por error quedaron dos grids de productos, deja el primero
-  keepFirstRemoveRest('.products');
-
-  console.log("✅ DEDUPE aplicado (si había duplicados, ya se removieron).");
-})();
-</script>
-<!-- ================ FIN FIX 2/4 ================= -->
-
-<!-- ================== FIX 3/4 ================== -->
-<style>
-/* ===== Inputs bonitos dentro del carrito ===== */
-#cartModal input.search,
-#cartModal textarea.search,
-#cartModal input,
-#cartModal textarea{
-  width:100% !important;
-  padding:14px 14px !important;
-  border-radius:16px !important;
-  border:1px solid var(--border) !important;
-  background:var(--bg-soft) !important;
-  color:var(--text) !important;
-  outline:none !important;
-}
-#cartModal textarea{
-  min-height:90px !important;
-  resize:vertical !important;
-}
-
-/* Evita que se “descuadre” el footer del modal en móvil */
-#cartModal .modal-footer{
-  position:sticky;
-  bottom:0;
-  background:var(--card);
-  border-top:1px solid var(--border);
-}
-
-/* Botón enviar solo bonito */
-#btnSendWhatsApp{
-  margin-top:12px !important;
-}
-</style>
-
-<script>
-/* ===== FIX LOGICO + UI DEL CARRITO ===== */
-(function(){
-  // Helpers seguros
-  const $id = (x)=>document.getElementById(x);
-
-  const cartModal = $id("cartModal");
-  if(!cartModal) return;
-
-  const step1 = $id("cartStep1");
-  const step2 = $id("cartStep2");
-  const step3 = $id("cartStep3");
-
-  const tab1 = $id("tabStep1");
-  const tab2 = $id("tabStep2");
-  const tab3 = $id("tabStep3");
-
-  const btnBack = $id("btnBack");
-  const btnNext = $id("btnNext");
-  const btnSend = $id("btnSendWhatsApp");
-
-  const cartEmpty = $id("cartEmpty");
-  const cartItems = $id("cartItems");
-
-  const subtotalValue = $id("subtotalValue");
-  const shippingValue = $id("shippingValue");
-  const totalValue    = $id("totalValue");
-
-  const custName = $id("custName");
-  const custAddress = $id("custAddress");
-
-  // Si el código original no expone STEP, lo creamos
-  if(typeof window.__SDC_STEP__ === "undefined") window.__SDC_STEP__ = 1;
-
-  function setStep(n){
-    window.__SDC_STEP__ = n;
-
-    if(step1) step1.classList.toggle("hidden", n!==1);
-    if(step2) step2.classList.toggle("hidden", n!==2);
-    if(step3) step3.classList.toggle("hidden", n!==3);
-
-    if(tab1) tab1.classList.toggle("active", n===1);
-    if(tab2) tab2.classList.toggle("active", n===2);
-    if(tab3) tab3.classList.toggle("active", n===3);
-
-    // Botones
-    if(btnBack) btnBack.style.display = (n===1) ? "none" : "inline-block";
-    if(btnNext) btnNext.textContent = (n===3) ? "Enviar por WhatsApp" : "Continuar";
-    if(btnSend) btnSend.style.display = (n===3) ? "block" : "none";
-  }
-
-  // Hacer que las tabs funcionen
-  if(tab1) tab1.onclick = ()=>setStep(1);
-  if(tab2) tab2.onclick = ()=>setStep(2);
-  if(tab3) tab3.onclick = ()=>setStep(3);
-
-  // Continuar / Atrás
-  if(btnBack) btnBack.onclick = ()=>{
-    const n = window.__SDC_STEP__;
-    if(n>1) setStep(n-1);
-  };
-
-  if(btnNext) btnNext.onclick = ()=>{
-    const n = window.__SDC_STEP__;
-
-    // Paso 1 -> 2
-    if(n===1){
-      // si no hay items reales, no avanza
-      const hasItems = cartItems && cartItems.children && cartItems.children.length>0;
-      if(!hasItems){
-        alert("Tu carrito está vacío.");
-        return;
-      }
-      setStep(2);
-      return;
-    }
-
-    // Paso 2 -> 3
-    if(n===2){
-      const nameOk = custName ? String(custName.value||"").trim().length>=3 : true;
-      const addrOk = custAddress ? String(custAddress.value||"").trim().length>=6 : true;
-      if(!nameOk){ alert("Escribe tu nombre."); return; }
-      if(!addrOk){ alert("Escribe tu dirección / referencia."); return; }
-      setStep(3);
-      return;
-    }
-
-    // Paso 3 -> enviar (si existe función)
-    if(n===3){
-      if(typeof window.sendWhatsApp === "function") window.sendWhatsApp();
-      else if(btnSend) btnSend.click();
-    }
-  };
-
-  // Fix “carrito vacío” que aparecía aunque había productos
-  function refreshEmptyState(){
-    if(!cartEmpty || !cartItems) return;
-    const hasItems = cartItems.children && cartItems.children.length>0;
-    cartEmpty.style.display = hasItems ? "none" : "block";
-    if(!hasItems) cartEmpty.textContent = "Tu carrito está vacío.";
-  }
-
-  // Observa cambios en cartItems (cuando agregas/quitas productos)
-  if(cartItems){
-    const obs = new MutationObserver(()=>refreshEmptyState());
-    obs.observe(cartItems, {childList:true, subtree:false});
-    refreshEmptyState();
-  }
-
-  // Asegura que al abrir el modal siempre inicie en paso 1
-  const openBtn = $id("cartBtn");
-  if(openBtn){
-    const old = openBtn.onclick;
-    openBtn.onclick = function(e){
-      if(typeof old === "function") old.call(this, e);
-      setTimeout(()=>{ setStep(1); refreshEmptyState(); }, 0);
-    };
-  }
-
-  // Inicializa
-  setStep(1);
-
-  console.log("✅ FIX carrito aplicado (pasos + estilos + vacío).");
-})();
-</script>
-<!-- ================ FIN FIX 3/4 ================= -->
-
+  <script>
+    const API_URL="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
+    fetch(API_URL,{cache:"no-store"})
+      .then(r=>r.json())
+      .then(j=>{
+        const n = (j.productos||[]).length;
+        document.getElementById("status").innerHTML =
+          n ? `<span class="ok">✅ API OK:</span> productos=${n}` :
+              `<span class="bad">⚠️ API respondió pero sin productos</span>`;
+        document.getElementById("out").textContent = JSON.stringify({productos:n, categorias:(j.categorias||[]).length}, null, 2);
+      })
+      .catch(e=>{
+        document.getElementById("status").innerHTML = `<span class="bad">❌ Error:</span> ${String(e)}`;
+      });
+  </script>
+</body>
+</html>
