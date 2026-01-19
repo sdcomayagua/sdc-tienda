@@ -18,6 +18,17 @@
   --radius:18px;
   --shadow: 0 14px 30px rgba(0,0,0,.45);
 }
+body.light{
+  --bg:#f6f8ff;
+  --card:#ffffff;
+  --card2:#ffffff;
+  --text:#0b1220;
+  --muted:#5a6a87;
+  --primary:#0b57ff;
+  --danger:#d61f1f;
+  --border:rgba(0,0,0,.12);
+  --shadow: 0 14px 30px rgba(0,0,0,.14);
+}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);}
 
@@ -26,15 +37,17 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   position:sticky; top:0; z-index:20;
   display:flex; align-items:center; justify-content:space-between;
   padding:12px;
-  background:rgba(0,0,0,.6);
+  background:rgba(0,0,0,.30);
   backdrop-filter:blur(8px);
 }
+body.light .topbar{ background:rgba(255,255,255,.65); }
 .brand{display:flex; gap:10px; align-items:center; min-width:0; cursor:pointer;}
 .logo{
   width:42px; height:42px; border-radius:14px;
   background:var(--primary);
   display:grid; place-items:center;
   font-weight:900;
+  color:#fff;
 }
 .brandText{min-width:0}
 #storeName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -94,7 +107,7 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   font-weight:800;
   white-space:nowrap;
 }
-.chip.active{background:var(--primary)}
+.chip.active{background:var(--primary); color:#fff}
 
 /* SUBCATS */
 .subchips{
@@ -110,11 +123,36 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   background:rgba(255,255,255,.04);
   box-shadow:none;
 }
+body.light .subchips .chip{ background:rgba(0,0,0,.04); }
 .subLabel{
   color:var(--muted);
   font-weight:900;
   font-size:12px;
   padding:0 12px 6px;
+}
+
+/* SHARE BAR */
+.shareBar{
+  display:flex;
+  gap:10px;
+  padding:0 12px 12px;
+}
+.shareBtn{
+  flex:1;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  font-weight:1000;
+}
+body.light .shareBtn{ background:rgba(0,0,0,.04); }
+.shareBtn.primary{
+  background:rgba(11,87,255,.18);
+  border-color:rgba(11,87,255,.40);
+}
+@media(max-width:420px){
+  .shareBar{flex-direction:column;}
 }
 
 /* GRID */
@@ -145,6 +183,12 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   background:var(--primary);
   color:#fff;
 }
+.btnSoft{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+body.light .btnSoft{ background:rgba(0,0,0,.04); }
 .btn[disabled]{background:#555}
 
 /* OFERTA TAG */
@@ -204,6 +248,8 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 /* PRODUCT MODAL */
 .mImg{width:100%; border-radius:14px; aspect-ratio:1/1; object-fit:cover; background:#000;}
 .mMeta{color:var(--muted); font-size:13px; line-height:1.35; margin-top:10px}
+.prodActions{display:flex; gap:10px; margin-top:12px}
+@media(max-width:720px){.prodActions{flex-direction:column}}
 
 /* CART */
 .tabs{display:flex; gap:10px; margin-bottom:12px;}
@@ -216,6 +262,7 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
   color:var(--text);
   font-weight:1000;
 }
+body.light .tab{ background:rgba(0,0,0,.04); }
 .tab.active{background:rgba(11,87,255,.18); border-color:rgba(11,87,255,.40);}
 .cartEmpty{padding:12px;border:1px dashed var(--border);border-radius:14px;color:var(--muted);}
 .cartList{display:flex; flex-direction:column; gap:10px; margin-top:12px}
@@ -241,6 +288,15 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 
 /* WA FLOAT */
 .wa{position:fixed;right:16px;bottom:16px;background:#25D366;color:#fff;padding:14px;border-radius:999px;font-weight:900;text-decoration:none;z-index:30;}
+
+/* TOAST */
+.toast{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+  background:rgba(0,0,0,.78); color:#fff;
+  padding:10px 14px; border-radius:14px;
+  font-weight:900; z-index:9999;
+  opacity:0; transition:opacity .2s ease;
+}
 </style>
 </head>
 
@@ -257,6 +313,7 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 
   <div class="actions">
     <button class="iconBtn" onclick="document.getElementById('q').focus()">🔎</button>
+    <button class="iconBtn" id="themeBtn" onclick="toggleTheme()">🌙</button>
     <button class="cartBtn" onclick="openCart()">🛒 <span class="badge" id="cartCount">0</span></button>
   </div>
 </div>
@@ -269,6 +326,11 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 
 <div class="subLabel" id="subLabel" style="display:none;">Subcategorías</div>
 <div class="subchips" id="subchips" style="display:none;"></div>
+
+<div class="shareBar" id="shareBar" style="display:none;">
+  <button class="shareBtn primary" id="shareCatBtn" onclick="shareCategory()">Compartir categoría</button>
+  <button class="shareBtn" id="shareSubBtn" onclick="shareSubcategory()">Compartir subcategoría</button>
+</div>
 
 <div class="grid" id="grid">
   <div style="grid-column:1/-1;text-align:center"><b>CARGANDO…</b></div>
@@ -292,7 +354,13 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
       <div class="price" id="mPrice"></div>
       <div class="old" id="mOld"></div>
     </div>
-    <button class="btn" id="btnAdd" onclick="addToCart()">Agregar al carrito</button>
+    <div class="hint" id="mStock"></div>
+
+    <div class="prodActions">
+      <button class="btn" id="btnAdd" onclick="addToCart()">Agregar al carrito</button>
+      <button class="btn btnSoft" onclick="copyProductLink()">Copiar enlace</button>
+      <button class="btn btnSoft" onclick="shareProductWA()">WhatsApp</button>
+    </div>
   </div>
 </div>
 
@@ -383,19 +451,43 @@ body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);c
 </div>
 
 <a class="wa" id="wa" target="_blank">WhatsApp</a>
+<div class="toast" id="toast"></div>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-const CART_KEY="sdc_cart_single_v4";
+const CART_KEY="sdc_cart_single_v6";
+const THEME_KEY="sdc_theme_v1";
 
 let DATA=null;
 let ALL=[], BY_ID={}, CURRENT=null;
 let FILTER_CAT="Todas", FILTER_SUB="Todas", FILTER_Q="";
 let CART=[];
 
-// doble toque
 let lastCatTap={v:null,t:0};
 let lastSubTap={v:null,t:0};
+
+function toastMsg(msg){
+  toast.textContent=msg;
+  toast.style.opacity="1";
+  clearTimeout(window.__t);
+  window.__t=setTimeout(()=>toast.style.opacity="0",1200);
+}
+
+/* ===== Theme ===== */
+function applySavedTheme(){
+  const t = localStorage.getItem(THEME_KEY) || "dark";
+  document.body.classList.toggle("light", t==="light");
+  themeBtn.textContent = (t==="light") ? "🌙" : "☀️";
+}
+function toggleTheme(){
+  const isLight = document.body.classList.contains("light");
+  const next = isLight ? "dark" : "light";
+  document.body.classList.toggle("light", next==="light");
+  localStorage.setItem(THEME_KEY, next);
+  themeBtn.textContent = (next==="light") ? "🌙" : "☀️";
+}
+
+applySavedTheme();
 
 loadCart();
 updateBadge();
@@ -419,12 +511,11 @@ fetch(API).then(r=>r.json()).then(j=>{
 
   BY_ID={}; ALL.forEach(p=>BY_ID[p.id]=p);
 
-  // leer hash si viene compartido
   applyHash();
-
   renderCats();
   renderSubcats();
   applyFilters();
+  updateShareButtons();
 
   fillDeptos();
   fillZonaComayagua();
@@ -433,29 +524,62 @@ fetch(API).then(r=>r.json()).then(j=>{
   fillBus();
   fillEmpresaModalidad();
   fillPagos();
+
+  // abrir producto si viene #p=ID
+  const pid = getHashParam("p");
+  if(pid && BY_ID[pid]) openProductById(pid);
+
 }).catch(e=>{
   grid.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">Error cargando API: ${e}</div>`;
 });
 
-/* ===== Hash ===== */
-function applyHash(){
+/* ===== Hash helpers ===== */
+function getHashParam(k){
   const h=(location.hash||"").replace("#","");
-  if(!h) return;
   const p=new URLSearchParams(h);
-  const cat=p.get("cat");
-  const sub=p.get("sub");
-  if(cat) FILTER_CAT=decodeURIComponent(cat);
-  if(sub) FILTER_SUB=decodeURIComponent(sub);
+  const v=p.get(k);
+  return v ? decodeURIComponent(v) : "";
 }
+function setHashCatSub(cat, sub){
+  let h=`#cat=${encodeURIComponent(cat)}`;
+  if(sub && sub!=="Todas") h+=`&sub=${encodeURIComponent(sub)}`;
+  history.replaceState(null,"",location.pathname+location.search+h);
+}
+function setHashProduct(id){
+  history.replaceState(null,"",location.pathname+location.search+`#p=${encodeURIComponent(id)}`);
+}
+function applyHash(){
+  const cat=getHashParam("cat");
+  const sub=getHashParam("sub");
+  if(cat) FILTER_CAT=cat;
+  if(sub) FILTER_SUB=sub;
+}
+
 function copyLinkCat(cat){
   const url=location.origin+location.pathname+`#cat=${encodeURIComponent(cat)}`;
   navigator.clipboard.writeText(url);
-  alert("Enlace copiado");
+  toastMsg("Enlace copiado ✅");
 }
 function copyLinkSub(cat,sub){
   const url=location.origin+location.pathname+`#cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(sub)}`;
   navigator.clipboard.writeText(url);
-  alert("Enlace copiado");
+  toastMsg("Enlace copiado ✅");
+}
+
+/* ===== Share buttons visible ===== */
+function updateShareButtons(){
+  if(FILTER_CAT==="Todas"){
+    shareBar.style.display="none";
+    return;
+  }
+  shareBar.style.display="flex";
+  shareCatBtn.style.display="block";
+  shareSubBtn.style.display = (FILTER_SUB!=="Todas") ? "block" : "none";
+}
+function shareCategory(){ copyLinkCat(FILTER_CAT); }
+function shareSubcategory(){
+  if(FILTER_CAT==="Todas" || FILTER_SUB==="Todas") return;
+  copyLinkSub(FILTER_CAT, FILTER_SUB);
 }
 
 /* ===== Search ===== */
@@ -490,6 +614,7 @@ function renderCats(){
   } else {
     cats = [...new Set(ALL.map(p=>p.categoria).filter(Boolean))].sort();
   }
+
   cats=["Todas", ...cats.filter(c=>c!=="Todas")];
 
   cats.forEach(c=>{
@@ -498,7 +623,6 @@ function renderCats(){
     b.textContent=c;
 
     b.onclick=()=>{
-      // doble toque copiar
       const now=Date.now();
       if(lastCatTap.v===c && (now-lastCatTap.t)<650){
         copyLinkCat(c);
@@ -509,11 +633,16 @@ function renderCats(){
 
       FILTER_CAT=c;
       FILTER_SUB="Todas";
+      setHashCatSub(FILTER_CAT, FILTER_SUB);
+
       document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
       b.classList.add("active");
+
       renderSubcats();
       applyFilters();
+      updateShareButtons();
     };
+
     chips.appendChild(b);
   });
 }
@@ -521,7 +650,6 @@ function renderCats(){
 /* ===== Subcategorías ===== */
 function getSubcatsForCat(cat){
   if(cat==="Todas") return [];
-  // si existe hoja subcategorias
   if(DATA && Array.isArray(DATA.subcategorias) && DATA.subcategorias.length){
     return DATA.subcategorias
       .filter(r => String(r.categoria||"").trim()===cat)
@@ -530,7 +658,6 @@ function getSubcatsForCat(cat){
       .map(r=>String(r.subcategoria||"").trim())
       .filter(Boolean);
   }
-  // fallback: desde productos
   return [...new Set(ALL.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))].sort();
 }
 
@@ -554,9 +681,11 @@ function renderSubcats(){
   allBtn.textContent="Todas";
   allBtn.onclick=()=>{
     FILTER_SUB="Todas";
+    setHashCatSub(FILTER_CAT, FILTER_SUB);
     Array.from(subchips.children).forEach(x=>x.classList.remove("active"));
     allBtn.classList.add("active");
     applyFilters();
+    updateShareButtons();
   };
   subchips.appendChild(allBtn);
 
@@ -574,9 +703,12 @@ function renderSubcats(){
       lastSubTap={v:sc,t:now};
 
       FILTER_SUB=sc;
+      setHashCatSub(FILTER_CAT, FILTER_SUB);
+
       Array.from(subchips.children).forEach(x=>x.classList.remove("active"));
       b.classList.add("active");
       applyFilters();
+      updateShareButtons();
     };
     subchips.appendChild(b);
   });
@@ -629,12 +761,28 @@ function openProduct(p){
   const off=p.precio_anterior>p.precio;
   mOld.textContent=off?("Lps. "+(p.precio_anterior||0)):"";
   btnAdd.disabled=(p.stock<=0);
+  mStock.textContent = (p.stock>0) ? `Stock: ${p.stock}` : `Agotado`;
+  setHashProduct(p.id);
   backdrop.style.display="block";
   prodModal.style.display="block";
 }
 function closeProduct(){
   prodModal.style.display="none";
   if(cartModal.style.display!=="block") backdrop.style.display="none";
+  // volver al hash de categoría/sub si existe
+  if(FILTER_CAT!=="Todas") setHashCatSub(FILTER_CAT, FILTER_SUB);
+}
+function copyProductLink(){
+  if(!CURRENT) return;
+  const url=location.origin+location.pathname+`#p=${encodeURIComponent(CURRENT.id)}`;
+  navigator.clipboard.writeText(url);
+  toastMsg("Enlace copiado ✅");
+}
+function shareProductWA(){
+  if(!CURRENT) return;
+  const url=location.origin+location.pathname+`#p=${encodeURIComponent(CURRENT.id)}`;
+  const msg=`Hola, me interesa este producto:%0A${CURRENT.nombre}%0A${url}`;
+  window.open("https://wa.me/50431517755?text="+msg,"_blank");
 }
 function closeAny(){
   closeProduct();
@@ -663,6 +811,7 @@ function addToCart(){
   saveCart();
   updateBadge();
   closeProduct();
+  toastMsg("Agregado ✅");
 }
 function incItem(i){
   const it=CART[i];
@@ -724,7 +873,7 @@ function renderCart(){
   });
 }
 
-/* ===== Delivery / Pay / Totals / WA (igual que antes) ===== */
+/* ===== Delivery/Pay/Totals/WA ===== */
 function fillSelect(sel, items, placeholder){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
   items.forEach(v=>{
@@ -888,23 +1037,23 @@ function syncTotals(){
   shipHint.textContent = ship.range ? "Bus local: envío estimado (rango), se confirma antes de enviar." : "Tarifa calculada desde Sheets.";
 }
 function validate(){
-  if(!CART.length){ alert("Carrito vacío"); showStep('cart'); return false; }
-  if(!custName.value.trim() || !custPhone.value.trim()){ alert("Completa tu nombre y teléfono."); showStep('ship'); return false; }
-  if(!depto.value || !muni.value){ alert("Selecciona departamento y municipio."); showStep('ship'); return false; }
-  if(!deliveryType.value){ alert("Selecciona tipo de entrega."); showStep('ship'); return false; }
-  if(deliveryType.value==="comayagua_ciudad" && !comaZona.value){ alert("Selecciona tu zona en Comayagua."); showStep('ship'); return false; }
-  if(deliveryType.value==="entrega_propia" && !propiaLugar.value){ alert("Selecciona el lugar de entrega propia."); showStep('ship'); return false; }
-  if(deliveryType.value==="empresa" && (!empresa.value || !empresaModalidad.value)){ alert("Selecciona empresa y modalidad."); showStep('ship'); return false; }
-  if(deliveryType.value==="bus" && !busLugar.value){ alert("Selecciona lugar de bus."); showStep('ship'); return false; }
-  if(!payMethod.value){ alert("Selecciona método de pago."); showStep('pay'); return false; }
+  if(!CART.length){ toastMsg("Carrito vacío"); showStep('cart'); return false; }
+  if(!custName.value.trim() || !custPhone.value.trim()){ toastMsg("Completa nombre y teléfono"); showStep('ship'); return false; }
+  if(!depto.value || !muni.value){ toastMsg("Selecciona ubicación"); showStep('ship'); return false; }
+  if(!deliveryType.value){ toastMsg("Selecciona entrega"); showStep('ship'); return false; }
+  if(deliveryType.value==="comayagua_ciudad" && !comaZona.value){ toastMsg("Selecciona zona"); showStep('ship'); return false; }
+  if(deliveryType.value==="entrega_propia" && !propiaLugar.value){ toastMsg("Selecciona lugar"); showStep('ship'); return false; }
+  if(deliveryType.value==="empresa" && (!empresa.value || !empresaModalidad.value)){ toastMsg("Empresa y modalidad"); showStep('ship'); return false; }
+  if(deliveryType.value==="bus" && !busLugar.value){ toastMsg("Selecciona bus"); showStep('ship'); return false; }
+  if(!payMethod.value){ toastMsg("Selecciona pago"); showStep('pay'); return false; }
 
   if(deliveryType.value==="comayagua_ciudad" && payMethod.value==="efectivo"){
     const ship=calcShipping();
     const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
     const total=subtotal+ship.min;
     const amt=Number(cashAmount.value||0);
-    if(amt<=0){ alert("Indica con cuánto pagará."); showStep('pay'); return false; }
-    if(amt<total){ alert("El efectivo es menor al total."); showStep('pay'); return false; }
+    if(amt<=0){ toastMsg("Indica con cuánto pagará"); showStep('pay'); return false; }
+    if(amt<total){ toastMsg("Efectivo menor al total"); showStep('pay'); return false; }
   }
   return true;
 }
@@ -922,15 +1071,12 @@ function sendWA(){
   msg.push("📞 "+custPhone.value.trim());
   msg.push("📍 "+depto.value+" / "+muni.value);
   msg.push("");
-
   msg.push("Productos:");
   CART.forEach(it=> msg.push(`- ${it.qty} x ${it.nombre} (Lps. ${it.precio})`) );
-
   msg.push("");
   msg.push("Subtotal: Lps. "+subtotal);
   msg.push("Envío: "+ship.text);
   msg.push("Total: Lps. "+totalMin);
-
   msg.push("");
   msg.push("Entrega: "+deliveryType.options[deliveryType.selectedIndex].text);
   if(deliveryType.value==="comayagua_ciudad"){
@@ -940,7 +1086,6 @@ function sendWA(){
   if(deliveryType.value==="entrega_propia") msg.push("Lugar: "+propiaLugar.value);
   if(deliveryType.value==="empresa"){ msg.push("Empresa: "+empresa.value); msg.push("Modalidad: "+empresaModalidad.value); }
   if(deliveryType.value==="bus") msg.push("Bus: "+busLugar.value);
-
   msg.push("");
   msg.push("Pago: "+payMethod.options[payMethod.selectedIndex].text);
   const p=(DATA.pagos||[]).find(x=>x.metodo===payMethod.value);
@@ -960,7 +1105,7 @@ function copySummary(){
   const subtotal=CART.reduce((a,it)=>a+(it.precio*it.qty),0);
   const total=subtotal+ship.min;
   navigator.clipboard.writeText(`Pedido SDC\nSubtotal: Lps. ${subtotal}\nEnvío: ${ship.text}\nTotal: Lps. ${total}`);
-  alert("Resumen copiado");
+  toastMsg("Resumen copiado ✅");
 }
 </script>
 
