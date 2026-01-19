@@ -83,14 +83,28 @@
     </div>
 
     <div id="step2" class="hidden">
-      <div class="tx">Entrega (lo ajustamos con tu audio):</div>
+      <div class="tx"><b>Ubicación</b> (Honduras)</div>
+      <select id="selDepto"></select>
+      <select id="selMuni"></select>
+
+      <div id="entregaBox" class="tx"></div>
+
+      <div class="tx" style="margin-top:6px"><b>Datos</b></div>
       <input id="custName" placeholder="Tu nombre">
       <input id="custPhone" placeholder="Ej: 9999-9999">
       <textarea id="custAddr" placeholder="Dirección / Referencia"></textarea>
+
+      <div id="efectivoBox" class="hidden">
+        <div class="tx"><b>Efectivo</b>: ¿con cuánto pagas?</div>
+        <input id="cashWith" placeholder="Ej: 2000">
+        <div class="tx" id="cashChange"></div>
+      </div>
     </div>
 
     <div id="step3" class="hidden">
-      <div class="tx">Pago (lo ajustamos con tu audio):</div>
+      <div class="tx"><b>Método de pago</b></div>
+      <select id="selPago"></select>
+      <div id="pagoInfo" class="tx"></div>
       <button class="bp full" id="btnSendWA">Enviar por WhatsApp</button>
     </div>
   </div>
@@ -102,5 +116,4 @@
 </div>
 
 <script src="assets/js/app.js"></script>
-<!-- PEGAR_CODIGO_AQUI -->
 </body></html>
