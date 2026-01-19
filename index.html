@@ -1,21 +1,43 @@
-<!doctype html><html lang="es"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SDComayagua | Catálogo</title><meta name="theme-color" content="#0b57ff">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>SDComayagua | Catálogo</title>
+<meta name="theme-color" content="#0b57ff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.min.css">
-</head><body>
-<header class="h"><div class="t">
-  <div class="b" id="goTop" title="Inicio"><div class="l" id="logoText">SDC</div><div class="bt"><strong id="storeName">SDComayagua</strong><span id="storeSub">Catálogo</span></div></div>
-  <div class="a">
-    <button class="ib" id="searchBtn" aria-label="Buscar"><i class="ri-search-line"></i></button>
-    <button class="ib" id="themeBtn" aria-label="Día/Noche"><i class="ri-moon-line"></i></button>
-    <button class="ib" id="cartBtn" aria-label="Carrito"><i class="ri-shopping-cart-2-line"></i><span class="bd" id="cartCount">0</span></button>
-  </div>
-</div></header>
+</head>
 
-<div class="s"><input id="searchInput" type="text" placeholder="Buscar producto..."></div>
+<body>
+<header class="h">
+  <div class="t">
+    <div class="b" id="goTop" title="Inicio">
+      <div class="l" id="logoText">SDC</div>
+      <div class="bt">
+        <strong id="storeName">SDComayagua</strong>
+        <span id="storeSub">Catálogo</span>
+      </div>
+    </div>
+
+    <div class="a">
+      <button class="ib" id="searchBtn" aria-label="Buscar"><i class="ri-search-line"></i></button>
+      <button class="ib" id="themeBtn" aria-label="Día/Noche"><i class="ri-moon-line"></i></button>
+      <button class="ib" id="cartBtn" aria-label="Carrito">
+        <i class="ri-shopping-cart-2-line"></i>
+        <span class="bd" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="s">
+  <input id="searchInput" type="text" placeholder="Buscar producto...">
+</div>
+
 <div class="bar" id="categoryBar"></div>
 <div class="bar" id="subcategories" style="display:none"></div>
 
@@ -35,20 +57,34 @@
 
 <div id="overlay"></div>
 
-<!-- PRODUCTO -->
-<div class="m" id="productModal" aria-hidden="true">
+<!-- MODAL PRODUCTO -->
+<div class="m" id="productModal">
   <div class="mh">
-    <div><h3 class="mt" id="modalName">Producto</h3><div class="ms" id="modalSub">—</div></div>
+    <div>
+      <h3 class="mt" id="modalName">Producto</h3>
+      <div class="ms" id="modalSub">—</div>
+    </div>
     <button class="mc" id="closeProduct">✕</button>
   </div>
+
   <div class="mb">
     <div class="g2">
-      <div><img id="modalMainImg" class="mi" src="" alt=""><div id="modalThumbs" class="th hidden"></div></div>
       <div>
-        <div class="pr"><div class="p" id="modalPrice">Lps. 0</div><div class="o" id="modalOld"></div></div>
+        <img id="modalMainImg" class="mi" src="" alt="">
+        <div id="modalThumbs" class="th hidden"></div>
+      </div>
+
+      <div>
+        <div class="pr">
+          <div class="p" id="modalPrice">Lps. 0</div>
+          <div class="o" id="modalOld"></div>
+        </div>
+
         <div class="tx" id="modalDesc"></div>
         <div id="modalVideo" class="vb hidden"></div>
+
         <div class="tx" id="modalHint"></div>
+
         <div class="rb">
           <button class="bp" id="btnAddCart">Agregar al carrito</button>
           <button class="bs" id="btnKeepBuying">Seguir comprando</button>
@@ -59,12 +95,13 @@
   </div>
 </div>
 
-<!-- CARRITO -->
-<div class="m" id="cartModal" aria-hidden="true">
+<!-- MODAL CARRITO -->
+<div class="m" id="cartModal">
   <div class="mh">
     <div><h3 class="mt">Carrito y pedido</h3><div class="ms">1-2-3</div></div>
     <button class="mc" id="closeCart">✕</button>
   </div>
+
   <div class="mb">
     <div class="tabs">
       <button class="tab active" id="tab1">Carrito</button>
@@ -83,28 +120,12 @@
     </div>
 
     <div id="step2" class="hidden">
-      <div class="tx"><b>Ubicación</b> (Honduras)</div>
-      <select id="selDepto"></select>
-      <select id="selMuni"></select>
-
-      <div id="entregaBox" class="tx"></div>
-
-      <div class="tx" style="margin-top:6px"><b>Datos</b></div>
-      <input id="custName" placeholder="Tu nombre">
-      <input id="custPhone" placeholder="Ej: 9999-9999">
-      <textarea id="custAddr" placeholder="Dirección / Referencia"></textarea>
-
-      <div id="efectivoBox" class="hidden">
-        <div class="tx"><b>Efectivo</b>: ¿con cuánto pagas?</div>
-        <input id="cashWith" placeholder="Ej: 2000">
-        <div class="tx" id="cashChange"></div>
-      </div>
+      <!-- Se llena dinámico por app.js -->
+      <div class="tx">Cargando opciones de entrega…</div>
     </div>
 
     <div id="step3" class="hidden">
-      <div class="tx"><b>Método de pago</b></div>
-      <select id="selPago"></select>
-      <div id="pagoInfo" class="tx"></div>
+      <div class="tx">Revisa tu pedido y envía por WhatsApp.</div>
       <button class="bp full" id="btnSendWA">Enviar por WhatsApp</button>
     </div>
   </div>
@@ -116,4 +137,5 @@
 </div>
 
 <script src="assets/js/app.js"></script>
-</body></html>
+</body>
+</html>
