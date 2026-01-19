@@ -1,19 +1,16 @@
-/* SDComayagua - app.js (PRO Entrega/Pagos Honduras)
-   - Catálogo + modal
-   - Carrito 1-2-3
-   - Paso 2: Departamento/Municipio (18 deptos + municipios)
-   - Comayagua ciudad: zonas (centrica/alejada/fuera) con costos desde Sheets
-   - Municipios cercanos con domicilio: sí (sin zonas)
-   - Otros: empresas C807/Cargo/Forza (+ bus opcional)
-   - Pago: efectivo con cambio SOLO en domicilio (ciudad/municipio cercano)
+/* SDComayagua - app.js (Entrega/Pagos Honduras completo)
+   Requiere en API:
+   - municipios_hn: {departamento, municipio}
+   - zonas_comayagua_ciudad: {zona, colonia_barrio, costo, referencia}
+   - productos, categorias (opcional), ajustes (opcional)
 */
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
 
-const CART_KEY = "sdc_cart_pro_v4";
-const THEME_KEY = "sdc_theme_pro_v4";
-const WA_NUMBER = "50431517755";
+const CART_KEY = "sdc_cart_pro_v5";
+const THEME_KEY = "sdc_theme_pro_v5";
+const WA_DEFAULT = "50431517755";
 
 const $ = (id) => document.getElementById(id);
 const safe = (v) => String(v ?? "").trim();
@@ -28,37 +25,41 @@ let BY_ID = {};
 let CART = [];
 let CURRENT = null;
 
-let CURRENT_CAT = null;
-let CURRENT_SUB = null;
+let CURRENT_CAT = null; // null = ver todo
+let CURRENT_SUB = null; // null = todas
 let QUERY = "";
 let STEP = 1;
 
-/** Regla tuya: municipios con entrega a domicilio (además de Comayagua ciudad con zonas) */
+/** Municipios con domicilio (según tu mensaje) */
 const MUNICIPIOS_DOMICILIO = new Set([
   "Comayagua",
   "Villa de San Antonio",
-  "Lejamaní","Lejamani",
-  "Lamaní","Lamani",
+  "Lejamaní", "Lejamani",
+  "Lamaní", "Lamani",
   "Ajuterique",
   "Flores",
-  "Yarumela","Jarumela",
+  "Yarumela", "Jarumela",
   "La Paz"
 ]);
 
+/** Empresas disponibles */
 const EMPRESAS_ENVIO = ["C807", "Cargo Expreso", "Forza"];
 const PERMITE_BUS_LOCAL = true;
 
-/** Checkout */
+/** Checkout state */
 let CHECKOUT = {
   departamento: "",
   municipio: "",
-  entrega_tipo: "",      // "domicilio_ciudad" | "domicilio_muni" | "empresa" | "bus"
+
+  entrega_tipo: "",      // domicilio_ciudad | domicilio_muni | empresa | bus
   zona: "",              // centrica | alejada | fuera (solo Comayagua ciudad)
   colonia_barrio: "",
   referencia: "",
   envio_costo: 0,
+
   empresa_envio: "",
-  modalidad_envio: "",   // normal | pagar_al_recibir | bus (texto)
+  modalidad_envio: "",   // normal | pagar_al_recibir | bus
+
   pago_metodo: "",       // efectivo | transferencia | paypal | tigo_money | pagar_al_recibir
   efectivo_con: 0,
   cambio: 0,
@@ -113,6 +114,27 @@ async function loadAPI() {
   const r = await fetch(API_URL, { cache: "no-store" });
   if (!r.ok) throw new Error("API HTTP " + r.status);
   return await r.json();
+}
+
+/* ========================= AJUSTES ========================= */
+function ajustesMap() {
+  const map = {};
+  (DATA?.ajustes || []).forEach((r) => {
+    const k = safe(r.clave);
+    const v = safe(r.valor);
+    if (k) map[k] = v;
+  });
+  return map;
+}
+function applyAjustes() {
+  const a = ajustesMap();
+  $("storeName").textContent = a["nombre_tienda"] || "SDComayagua";
+  $("storeSub").textContent = a["subtitulo"] || "Catálogo";
+  $("logoText").textContent = a["siglas"] || "SDC";
+
+  const wa = (a["whatsapp_numero"] || WA_DEFAULT).replace(/\D/g, "");
+  const msg = a["mensaje_whatsapp"] || "Hola, quiero hacer un pedido.";
+  // el WA principal se usa al final en pedido; aquí puedes poner un flotante si quieres más adelante
 }
 
 /* ========================= CATEGORIES ========================= */
@@ -204,6 +226,7 @@ function renderSubcategories() {
 /* ========================= PRODUCTS ========================= */
 function filteredProducts() {
   let list = [...PRODUCTS];
+
   if (CURRENT_CAT) list = CURRENT_CAT === "OFERTAS" ? list.filter(isOffer) : list.filter((p) => p.categoria === CURRENT_CAT);
   if (CURRENT_SUB) list = list.filter((p) => p.subcategoria === CURRENT_SUB);
 
@@ -337,7 +360,9 @@ function openProduct(pid) {
     a.className = "videoBtn";
     a.textContent = videoLabel(v);
     vwrap.appendChild(a);
-  } else vwrap.classList.add("hidden");
+  } else {
+    vwrap.classList.add("hidden");
+  }
 
   $("btnAddCart").disabled = isOut(p);
   $("btnAddCart").textContent = isOut(p) ? "Agotado" : "Agregar al carrito";
@@ -347,7 +372,347 @@ function openProduct(pid) {
 }
 window.__openProduct = openProduct;
 
-/* ========================= CART + CHECKOUT UI ========================= */
+/* ========================= CHECKOUT UI: DEPARTAMENTO/MUNICIPIO + ZONAS ========================= */
+function hnDepartamentos() {
+  const rows = DATA?.municipios_hn || [];
+  const set = new Set(rows.map((r) => safe(r.departamento)).filter(Boolean));
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+function hnMunicipios(depto) {
+  const rows = DATA?.municipios_hn || [];
+  return rows
+    .filter((r) => safe(r.departamento) === depto)
+    .map((r) => safe(r.municipio))
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+}
+function zonasComayaguaRows() {
+  return Array.isArray(DATA?.zonas_comayagua_ciudad) ? DATA.zonas_comayagua_ciudad : [];
+}
+function zonasUnicas() {
+  const rows = zonasComayaguaRows();
+  const set = new Set(rows.map((r) => safe(r.zona)).filter(Boolean));
+  return [...set];
+}
+function coloniasPorZona(zona) {
+  const rows = zonasComayaguaRows();
+  return rows
+    .filter((r) => safe(r.zona) === zona)
+    .map((r) => ({
+      colonia_barrio: safe(r.colonia_barrio),
+      costo: Number(r.costo || 0),
+      referencia: safe(r.referencia),
+    }))
+    .filter((x) => x.colonia_barrio)
+    .sort((a, b) => a.colonia_barrio.localeCompare(b.colonia_barrio));
+}
+
+/* Crea UI dinámica dentro del step2 */
+function ensureEntregaUI() {
+  const step2 = $("step2");
+  if (!step2) return;
+
+  if ($("deptoSelect")) return; // ya existe
+
+  // Insert UI encima de inputs básicos
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `
+    <div class="hint">Selecciona tu ubicación:</div>
+    <select id="deptoSelect"></select>
+    <select id="muniSelect"></select>
+
+    <div id="domicilioBlock" class="hidden">
+      <div class="hint"><b>Entrega a domicilio</b> (solo en municipios permitidos)</div>
+      <div id="comayaguaZonasBlock" class="hidden">
+        <div class="hint">Comayagua ciudad: elige zona y colonia/barrio</div>
+        <select id="zonaSelect"></select>
+        <select id="coloniaSelect"></select>
+        <div class="hint" id="zonaInfo"></div>
+      </div>
+    </div>
+
+    <div id="empresaBlock" class="hidden">
+      <div class="hint"><b>Envío por empresa</b></div>
+      <select id="empresaSelect"></select>
+      <select id="modalidadSelect"></select>
+      <div class="hint" id="empresaInfo"></div>
+    </div>
+
+    <div id="busBlock" class="hidden">
+      <div class="hint"><b>Bus / encomienda</b> (costo varía 80–150)</div>
+    </div>
+
+    <div class="hint" style="margin-top:12px"><b>Método de pago</b></div>
+    <select id="pagoSelect"></select>
+
+    <div id="efectivoBlock" class="hidden">
+      <input id="efectivoCon" placeholder="¿Con cuánto pagará? (solo domicilio)" inputmode="numeric">
+      <div class="hint" id="cambioInfo"></div>
+    </div>
+  `;
+  step2.insertBefore(wrap, step2.firstChild);
+
+  // llenar empresas
+  const emp = $("empresaSelect");
+  EMPRESAS_ENVIO.forEach((x) => {
+    const o = document.createElement("option");
+    o.value = x; o.textContent = x;
+    emp.appendChild(o);
+  });
+  const mod = $("modalidadSelect");
+  ["normal", "pagar_al_recibir"].forEach((x) => {
+    const o = document.createElement("option");
+    o.value = x;
+    o.textContent = x === "normal" ? "Normal (anticipado)" : "Pagar al recibir";
+    mod.appendChild(o);
+  });
+
+  // bus
+  if (!PERMITE_BUS_LOCAL) $("busBlock").classList.add("hidden");
+
+  // listeners
+  $("deptoSelect").addEventListener("change", () => {
+    CHECKOUT.departamento = $("deptoSelect").value;
+    fillMunicipios();
+    applyEntrega();
+  });
+  $("muniSelect").addEventListener("change", () => {
+    CHECKOUT.municipio = $("muniSelect").value;
+    applyEntrega();
+  });
+  $("zonaSelect")?.addEventListener("change", () => {
+    CHECKOUT.zona = $("zonaSelect").value;
+    fillColonias();
+  });
+  $("coloniaSelect")?.addEventListener("change", () => {
+    const opt = $("coloniaSelect").selectedOptions[0];
+    CHECKOUT.colonia_barrio = opt?.value || "";
+    CHECKOUT.envio_costo = Number(opt?.dataset.costo || 0);
+    CHECKOUT.referencia = opt?.dataset.ref || "";
+    $("zonaInfo").textContent = CHECKOUT.referencia ? `Referencia: ${CHECKOUT.referencia} · Costo: ${money(CHECKOUT.envio_costo)}` : `Costo: ${money(CHECKOUT.envio_costo)}`;
+    updateTotals();
+    updateCambio();
+  });
+  $("empresaSelect").addEventListener("change", () => {
+    CHECKOUT.empresa_envio = $("empresaSelect").value;
+    updateEmpresaInfo();
+  });
+  $("modalidadSelect").addEventListener("change", () => {
+    CHECKOUT.modalidad_envio = $("modalidadSelect").value;
+    updateEmpresaInfo();
+    fillPagos();
+  });
+  $("pagoSelect").addEventListener("change", () => {
+    CHECKOUT.pago_metodo = $("pagoSelect").value;
+    updatePagoUI();
+  });
+  $("efectivoCon").addEventListener("input", () => {
+    CHECKOUT.efectivo_con = Number(String($("efectivoCon").value || "").replace(/[^\d]/g, "") || 0);
+    updateCambio();
+  });
+
+  // llenar deptos inicial
+  fillDepartamentos();
+  fillMunicipios();
+  applyEntrega();
+}
+
+function fillDepartamentos() {
+  const sel = $("deptoSelect");
+  sel.innerHTML = `<option value="">Departamento</option>`;
+  hnDepartamentos().forEach((d) => {
+    const o = document.createElement("option");
+    o.value = d; o.textContent = d;
+    sel.appendChild(o);
+  });
+}
+function fillMunicipios() {
+  const sel = $("muniSelect");
+  const d = $("deptoSelect").value;
+  sel.innerHTML = `<option value="">Municipio</option>`;
+  if (!d) return;
+  hnMunicipios(d).forEach((m) => {
+    const o = document.createElement("option");
+    o.value = m; o.textContent = m;
+    sel.appendChild(o);
+  });
+}
+
+function fillZonas() {
+  const sel = $("zonaSelect");
+  sel.innerHTML = `<option value="">Zona</option>`;
+  const zones = zonasUnicas();
+  // asegurar orden centrica/alejada/fuera si existen
+  const order = ["centrica", "alejada", "fuera"];
+  zones.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  zones.forEach((z) => {
+    const o = document.createElement("option");
+    o.value = z; o.textContent = z;
+    sel.appendChild(o);
+  });
+}
+
+function fillColonias() {
+  const zona = $("zonaSelect").value;
+  CHECKOUT.zona = zona;
+  const sel = $("coloniaSelect");
+  sel.innerHTML = `<option value="">Colonia/Barrio</option>`;
+  if (!zona) return;
+  const cols = coloniasPorZona(zona);
+  cols.forEach((c) => {
+    const o = document.createElement("option");
+    o.value = c.colonia_barrio;
+    o.textContent = `${c.colonia_barrio} (${money(c.costo)})`;
+    o.dataset.costo = String(c.costo || 0);
+    o.dataset.ref = c.referencia || "";
+    sel.appendChild(o);
+  });
+}
+
+function applyEntrega() {
+  const depto = safe(CHECKOUT.departamento);
+  const muni = safe(CHECKOUT.municipio);
+
+  // reset
+  CHECKOUT.entrega_tipo = "";
+  CHECKOUT.envio_costo = 0;
+  CHECKOUT.zona = "";
+  CHECKOUT.colonia_barrio = "";
+  CHECKOUT.referencia = "";
+  CHECKOUT.empresa_envio = "";
+  CHECKOUT.modalidad_envio = "";
+
+  $("domicilioBlock").classList.add("hidden");
+  $("comayaguaZonasBlock").classList.add("hidden");
+  $("empresaBlock").classList.add("hidden");
+  $("busBlock").classList.add("hidden");
+
+  // No selection yet
+  if (!depto || !muni) {
+    fillPagos(); // deja solo placeholder
+    updateTotals();
+    updatePagoUI();
+    return;
+  }
+
+  // Caso Comayagua/Comayagua = domicilio con zonas
+  if (depto === "Comayagua" && muni === "Comayagua") {
+    CHECKOUT.entrega_tipo = "domicilio_ciudad";
+    $("domicilioBlock").classList.remove("hidden");
+    $("comayaguaZonasBlock").classList.remove("hidden");
+
+    fillZonas();
+    $("coloniaSelect").innerHTML = `<option value="">Colonia/Barrio</option>`;
+    $("zonaInfo").textContent = "Elige zona y colonia para calcular el costo.";
+    fillPagos();
+    updateTotals();
+    updatePagoUI();
+    return;
+  }
+
+  // Municipios con domicilio
+  if (MUNICIPIOS_DOMICILIO.has(muni) && (depto === "Comayagua" || depto === "La Paz")) {
+    CHECKOUT.entrega_tipo = "domicilio_muni";
+    $("domicilioBlock").classList.remove("hidden");
+    // Por ahora costo 0 (si quieres hoja futura tarifas_entrega_propia lo conectamos)
+    CHECKOUT.envio_costo = 0;
+    fillPagos();
+    updateTotals();
+    updatePagoUI();
+    return;
+  }
+
+  // Fuera / no domicilio => empresas (y bus opcional)
+  CHECKOUT.entrega_tipo = "empresa";
+  $("empresaBlock").classList.remove("hidden");
+  if (PERMITE_BUS_LOCAL) $("busBlock").classList.remove("hidden");
+  CHECKOUT.empresa_envio = EMPRESAS_ENVIO[0];
+  $("empresaSelect").value = CHECKOUT.empresa_envio;
+  CHECKOUT.modalidad_envio = $("modalidadSelect").value || "normal";
+  updateEmpresaInfo();
+
+  fillPagos();
+  updateTotals();
+  updatePagoUI();
+}
+
+function updateEmpresaInfo() {
+  CHECKOUT.empresa_envio = $("empresaSelect").value;
+  CHECKOUT.modalidad_envio = $("modalidadSelect").value;
+  $("empresaInfo").textContent =
+    `Empresa: ${CHECKOUT.empresa_envio} · ${CHECKOUT.modalidad_envio === "normal" ? "Normal (anticipado)" : "Pagar al recibir"}`;
+}
+
+function fillPagos() {
+  const sel = $("pagoSelect");
+  sel.innerHTML = `<option value="">Método de pago</option>`;
+
+  const domicilio = CHECKOUT.entrega_tipo === "domicilio_ciudad" || CHECKOUT.entrega_tipo === "domicilio_muni";
+
+  if (domicilio) {
+    ["efectivo", "transferencia", "paypal", "tigo_money"].forEach((m) => {
+      const o = document.createElement("option");
+      o.value = m;
+      o.textContent =
+        m === "efectivo" ? "Efectivo (pagar al recibir)" :
+        m === "transferencia" ? "Transferencia bancaria" :
+        m === "paypal" ? "PayPal" : "Tigo Money";
+      sel.appendChild(o);
+    });
+  } else {
+    // fuera/demás: empresas/bus
+    ["transferencia", "paypal", "tigo_money", "pagar_al_recibir"].forEach((m) => {
+      const o = document.createElement("option");
+      o.value = m;
+      o.textContent =
+        m === "transferencia" ? "Transferencia bancaria" :
+        m === "paypal" ? "PayPal" :
+        m === "tigo_money" ? "Tigo Money" : "Pagar al recibir";
+      sel.appendChild(o);
+    });
+  }
+
+  CHECKOUT.pago_metodo = "";
+  updatePagoUI();
+}
+
+function updatePagoUI() {
+  const domicilio = CHECKOUT.entrega_tipo === "domicilio_ciudad" || CHECKOUT.entrega_tipo === "domicilio_muni";
+  const metodo = $("pagoSelect").value;
+  CHECKOUT.pago_metodo = metodo;
+
+  // efectivo solo domicilio
+  if (domicilio && metodo === "efectivo") {
+    $("efectivoBlock").classList.remove("hidden");
+  } else {
+    $("efectivoBlock").classList.add("hidden");
+    CHECKOUT.efectivo_con = 0;
+    CHECKOUT.cambio = 0;
+    if ($("efectivoCon")) $("efectivoCon").value = "";
+    if ($("cambioInfo")) $("cambioInfo").textContent = "";
+  }
+}
+
+function updateCambio() {
+  const domicilio = CHECKOUT.entrega_tipo === "domicilio_ciudad" || CHECKOUT.entrega_tipo === "domicilio_muni";
+  if (!domicilio) return;
+  if (CHECKOUT.pago_metodo !== "efectivo") return;
+
+  const total = cartSubtotal() + Number(CHECKOUT.envio_costo || 0);
+  const con = Number(CHECKOUT.efectivo_con || 0);
+  const cambio = con > 0 ? con - total : 0;
+  CHECKOUT.cambio = cambio > 0 ? cambio : 0;
+
+  if (con <= 0) {
+    $("cambioInfo").textContent = "Escribe con cuánto pagará para calcular el cambio.";
+  } else if (cambio < 0) {
+    $("cambioInfo").textContent = `Faltan ${money(Math.abs(cambio))} para completar el total.`;
+  } else {
+    $("cambioInfo").textContent = `Cambio estimado: ${money(cambio)}.`;
+  }
+}
+
+/* ========================= CART UI ========================= */
 function renderCart() {
   const list = $("cartItems");
   list.innerHTML = "";
@@ -399,6 +764,7 @@ function updateTotals() {
   $("subTotal").textContent = money(sub);
   $("shipTotal").textContent = money(CHECKOUT.envio_costo || 0);
   $("grandTotal").textContent = money(sub + Number(CHECKOUT.envio_costo || 0));
+  updateCambio();
 }
 
 function setStep(n) {
@@ -412,6 +778,8 @@ function setStep(n) {
   $("btnBack").style.display = n === 1 ? "none" : "inline-block";
   $("btnNext").textContent = n === 3 ? "Enviar por WhatsApp" : "Continuar";
   $("btnSendWA").style.display = n === 3 ? "block" : "none";
+
+  if (n === 2) ensureEntregaUI();
 }
 
 function openCart() {
@@ -420,40 +788,6 @@ function openCart() {
   openModal("cartModal");
 }
 
-function computeCashChange() {
-  const total = cartSubtotal() + Number(CHECKOUT.envio_costo || 0);
-  const con = Number(CHECKOUT.efectivo_con || 0);
-  CHECKOUT.cambio = con > 0 ? Math.max(0, con - total) : 0;
-}
-
-/* ---- Paso 2 UI (Entrega) ----
-   Para no romper tu HTML actual, dejamos inputs básicos y usamos el textarea como "referencia".
-   Si quieres, luego hacemos UI completa con selects bonitos.
-*/
-function applyEntregaRules() {
-  const depto = safe(CHECKOUT.departamento);
-  const muni = safe(CHECKOUT.municipio);
-
-  // Comayagua ciudad con zonas: costo viene de zonas_comayagua_ciudad (si existe)
-  if (depto === "Comayagua" && muni === "Comayagua") {
-    CHECKOUT.entrega_tipo = "domicilio_ciudad";
-    // costo depende zona seleccionada
-    // por defecto: 0 hasta que elija zona
-    return;
-  }
-
-  // Municipios con domicilio
-  if (MUNICIPIOS_DOMICILIO.has(muni) && (depto === "Comayagua" || depto === "La Paz")) {
-    CHECKOUT.entrega_tipo = "domicilio_muni";
-    // Si tienes tarifas_entrega_propia en Sheets, luego lo conectamos. Por ahora 0.
-    return;
-  }
-
-  // otros = empresa / bus
-  CHECKOUT.entrega_tipo = "empresa";
-}
-
-/* ---- WhatsApp ---- */
 function sendWhatsApp() {
   if (!CART.length) return alert("Carrito vacío");
 
@@ -462,28 +796,28 @@ function sendWhatsApp() {
   const addr = safe($("custAddr").value);
 
   const total = cartSubtotal() + Number(CHECKOUT.envio_costo || 0);
-  computeCashChange();
+  updateCambio();
 
   const lines = [];
   lines.push("🛒 PEDIDO - SDC", "");
   if (name) lines.push("👤 " + name);
   if (phone) lines.push("📞 " + phone);
 
-  // Entrega/pago resumidos
-  if (CHECKOUT.departamento || CHECKOUT.municipio) {
+  if (CHECKOUT.departamento && CHECKOUT.municipio) {
     lines.push(`📍 ${CHECKOUT.departamento} / ${CHECKOUT.municipio}`);
   }
+
   if (CHECKOUT.entrega_tipo === "domicilio_ciudad") {
-    lines.push(`🚚 Entrega a domicilio (Comayagua ciudad)`);
+    lines.push("🚚 Entrega a domicilio (Comayagua ciudad)");
     if (CHECKOUT.zona) lines.push(`Zona: ${CHECKOUT.zona}`);
     if (CHECKOUT.colonia_barrio) lines.push(`Colonia/Barrio: ${CHECKOUT.colonia_barrio}`);
   } else if (CHECKOUT.entrega_tipo === "domicilio_muni") {
-    lines.push(`🚚 Entrega a domicilio (municipio cercano)`);
+    lines.push("🚚 Entrega a domicilio (municipio cercano)");
   } else if (CHECKOUT.entrega_tipo === "empresa") {
     lines.push(`📦 Envío por empresa: ${CHECKOUT.empresa_envio || "Por definir"}`);
     if (CHECKOUT.modalidad_envio) lines.push(`Modalidad: ${CHECKOUT.modalidad_envio}`);
   } else if (CHECKOUT.entrega_tipo === "bus") {
-    lines.push(`🚌 Envío por bus (costo varía)`);
+    lines.push("🚌 Envío por bus (costo varía 80–150)");
   }
 
   if (addr) lines.push("📌 " + addr);
@@ -505,10 +839,11 @@ function sendWhatsApp() {
     lines.push(`Cambio: ${money(CHECKOUT.cambio || 0)}`);
   }
 
-  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+  const wa = (ajustesMap()?.whatsapp_numero || WA_DEFAULT).replace(/\D/g, "");
+  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
 }
 
-/* ===== Events ===== */
+/* ========================= EVENTS ========================= */
 function wire() {
   $("overlay").onclick = () => { closeModal("productModal"); closeModal("cartModal"); };
   $("closeProduct").onclick = () => closeModal("productModal");
@@ -531,25 +866,21 @@ function wire() {
   $("tab3").onclick = () => setStep(3);
 
   $("btnBack").onclick = () => STEP > 1 && setStep(STEP - 1);
-
   $("btnNext").onclick = () => {
     if (STEP === 1) {
       if (!CART.length) return alert("Tu carrito está vacío.");
-      setStep(2);
-      return;
+      setStep(2); return;
     }
     if (STEP === 2) {
-      // Aquí tomamos datos básicos y luego aplicamos reglas
-      // (Dejamos selección dept/muni para siguiente iteración UI con selects)
       const name = safe($("custName").value);
       const addr = safe($("custAddr").value);
       if (name.length < 3) return alert("Escribe tu nombre");
       if (addr.length < 6) return alert("Escribe tu dirección");
-
-      applyEntregaRules();
-      updateTotals();
-      setStep(3);
-      return;
+      // Validación extra: si es Comayagua ciudad, debe elegir colonia
+      if (CHECKOUT.entrega_tipo === "domicilio_ciudad" && (!CHECKOUT.zona || !CHECKOUT.colonia_barrio)) {
+        return alert("Elige zona y colonia/barrio para calcular el costo.");
+      }
+      setStep(3); return;
     }
     if (STEP === 3) sendWhatsApp();
   };
@@ -561,13 +892,10 @@ function wire() {
   $("themeBtn").onclick = toggleTheme;
   $("cartBtn").onclick = openCart;
 
-  $("searchInput").addEventListener("input", (e) => {
-    QUERY = e.target.value || "";
-    renderProducts();
-  });
+  $("searchInput").addEventListener("input", (e) => { QUERY = e.target.value || ""; renderProducts(); });
 }
 
-/* ===== Init ===== */
+/* ========================= INIT ========================= */
 async function init() {
   applyTheme();
   loadCart();
@@ -604,15 +932,18 @@ async function init() {
     BY_ID = {};
     PRODUCTS.forEach((p) => (BY_ID[p.id] = p));
 
+    applyAjustes();
     renderCategories();
     renderSubcategories();
     renderProducts();
     wire();
+
+    // Exponer para botón inline
+    window.__openProduct = openProduct;
   } catch (err) {
     console.error(err);
-    $("productsGrid").innerHTML = `<div style="grid-column:1/-1;color:var(--muted);padding:12px">Error cargando catálogo: ${String(
-      err.message || err
-    )}</div>`;
+    $("productsGrid").innerHTML =
+      `<div style="grid-column:1/-1;color:var(--muted);padding:12px">Error cargando catálogo: ${String(err.message || err)}</div>`;
   } finally {
     $("loadingMsg").style.display = "none";
   }
