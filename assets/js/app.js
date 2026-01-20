@@ -1,11 +1,14 @@
 (()=>{
+/* ================= CONFIG ================= */
 const API_URL="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-const CART_KEY="sdc_cart_final_today";
-const THEME_KEY="sdc_theme_final_today";
+const CART_KEY="sdc_cart_final_today_v2";
+const THEME_KEY="sdc_theme_final_today_v2";
 const WA_DEFAULT="50431517755";
+
 const EMPRESAS=["C807","Cargo Expreso","Forza"];
 const BUS_ON=true;
 
+// SOLO estos municipios en COMAYAGUA van a domicilio (sin empresas)
 const COMAYAGUA_DOMICILIO=new Set(["Comayagua","Villa de San Antonio","Ajuterique","Lejamaní","Lejamani","Flores"]);
 
 const $=id=>document.getElementById(id);
@@ -17,58 +20,253 @@ const isOut=p=>Number(p.stock||0)<=0;
 let DATA=null,PRODUCTS=[],BY_ID={},CART=[],CURRENT=null;
 let CURRENT_CAT=null,CURRENT_SUB=null,QUERY="",STEP=1;
 
-let C={depto:"",muni:"",entrega:"",zona:"",col:"",ref:"",envio:0,empresa:EMPRESAS[0],modalidad:"normal",pago:"",cash:0,cambio:0};
+/* Checkout */
+let C={
+ depto:"",muni:"",
+ entrega:"", // domicilio_ciudad | domicilio_muni | empresa | bus
+ zona:"",col:"",ref:"",
+ envio:0,
+ empresa:EMPRESAS[0],modalidad:"normal", // normal | pagar_al_recibir
+ canal:"empresa", // empresa | bus
+ pago:"",cash:0,cambio:0
+};
 
+/* ================= THEME ================= */
+function applyTheme(){
+ const t=localStorage.getItem(THEME_KEY)||"dark";
+ document.body.classList.toggle("light",t==="light");
+ $("themeBtn").innerHTML=t==="light"?'<i class="ri-sun-line"></i>':'<i class="ri-moon-line"></i>';
+}
+function toggleTheme(){
+ const l=document.body.classList.contains("light");
+ localStorage.setItem(THEME_KEY,l?"dark":"light");
+ applyTheme();
+}
+
+/* ================= MODALS ================= */
 function openOverlay(){$("overlay").style.display="block"}
 function closeOverlay(){$("overlay").style.display="none"}
 function openModal(id){openOverlay();$(id).style.display="block"}
-function closeModal(id){$(id).style.display="none";if($("productModal").style.display!=="block"&&$("cartModal").style.display!=="block")closeOverlay()}
+function closeModal(id){
+ $(id).style.display="none";
+ if($("productModal").style.display!=="block"&&$("cartModal").style.display!=="block") closeOverlay();
+}
 
-function applyTheme(){const t=localStorage.getItem(THEME_KEY)||"dark";document.body.classList.toggle("light",t==="light");$("themeBtn").innerHTML=t==="light"?'<i class="ri-sun-line"></i>':'<i class="ri-moon-line"></i>'}
-function toggleTheme(){const l=document.body.classList.contains("light");localStorage.setItem(THEME_KEY,l?"dark":"light");applyTheme()}
-
+/* ================= CART ================= */
 function loadCart(){try{CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]")}catch(e){CART=[]}if(!Array.isArray(CART))CART=[];updateBadge()}
 function saveCart(){localStorage.setItem(CART_KEY,JSON.stringify(CART));updateBadge()}
 function updateBadge(){$("cartCount").textContent=String(CART.reduce((a,b)=>a+Number(b.qty||0),0))}
 function sub(){return CART.reduce((s,i)=>{const p=BY_ID[i.id];return p?s+Number(p.precio||0)*Number(i.qty||0):s},0)}
 function total(){return sub()+Number(C.envio||0)}
-function calcCambio(){if(C.pago!=="efectivo"){C.cambio=0;return}const diff=Number(C.cash||0)-total();C.cambio=diff>0?diff:0}
+function calcCambio(){
+ if(C.pago!=="efectivo"){C.cambio=0;return}
+ const diff=Number(C.cash||0)-total();
+ C.cambio=diff>0?diff:0;
+}
 
-async function loadAPI(){const r=await fetch(API_URL,{cache:"no-store"});if(!r.ok)throw new Error("API "+r.status);return await r.json()}
+/* ================= API ================= */
+async function loadAPI(){
+ const r=await fetch(API_URL,{cache:"no-store"});
+ if(!r.ok) throw new Error("API "+r.status);
+ return await r.json();
+}
 
-/* Honduras */
-function deptos(){const rows=Array.isArray(DATA?.municipios_hn)?DATA.municipios_hn:[];const set=new Set(rows.map(r=>safe(r.departamento)).filter(Boolean));return [...set].sort((a,b)=>a.localeCompare(b))}
-function munis(d){const rows=Array.isArray(DATA?.municipios_hn)?DATA.municipios_hn:[];return rows.filter(r=>safe(r.departamento)===d).map(r=>safe(r.municipio)).filter(Boolean).sort((a,b)=>a.localeCompare(b))}
+/* ================= HN deptos/munis ================= */
+function deptos(){
+ const rows=Array.isArray(DATA?.municipios_hn)?DATA.municipios_hn:[];
+ const set=new Set(rows.map(r=>safe(r.departamento)).filter(Boolean));
+ return [...set].sort((a,b)=>a.localeCompare(b));
+}
+function munis(d){
+ const rows=Array.isArray(DATA?.municipios_hn)?DATA.municipios_hn:[];
+ return rows.filter(r=>safe(r.departamento)===d).map(r=>safe(r.municipio)).filter(Boolean).sort((a,b)=>a.localeCompare(b));
+}
 
-/* Zonas */
+/* ================= ZONAS COMAYAGUA CIUDAD ================= */
 function zRows(){return Array.isArray(DATA?.zonas_comayagua_ciudad)?DATA.zonas_comayagua_ciudad:[]}
-function zList(){const set=new Set(zRows().map(r=>safe(r.zona)).filter(Boolean));return [...set]}
-function cols(z){return zRows().filter(r=>safe(r.zona)===z).map(r=>({col:safe(r.colonia_barrio),c:Number(r.costo||0),ref:safe(r.referencia)})).filter(x=>x.col)}
+function zList(){
+ const set=new Set(zRows().map(r=>safe(r.zona)).filter(Boolean));
+ const arr=[...set];
+ const order=["centrica","céntrica","alejada","fuera"];
+ arr.sort((a,b)=>{
+  const ai=order.indexOf(a.toLowerCase()),bi=order.indexOf(b.toLowerCase());
+  return (ai===-1?99:ai)-(bi===-1?99:bi);
+ });
+ return arr;
+}
+function cols(z){
+ return zRows().filter(r=>safe(r.zona)===z).map(r=>({col:safe(r.colonia_barrio),c:Number(r.costo||0),ref:safe(r.referencia)})).filter(x=>x.col);
+}
 
-/* Categorías simples */
-function cats(){const set=new Set(PRODUCTS.map(p=>p.categoria).filter(Boolean));const arr=[...set].sort((a,b)=>a.localeCompare(b));if(PRODUCTS.some(isOffer))arr.unshift("OFERTAS");return arr}
-function subs(cat){if(!cat||cat==="OFERTAS")return[];return [...new Set(PRODUCTS.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b))}
-function renderCats(){const bar=$("categoryBar");bar.innerHTML="";const all=document.createElement("button");all.className="pill"+(!CURRENT_CAT?" active":"");all.textContent="VER TODO";all.onclick=()=>{CURRENT_CAT=null;CURRENT_SUB=null;renderCats();renderSubs();renderProducts()};bar.appendChild(all);cats().forEach(c=>{if(c==="OFERTAS"||c){const b=document.createElement("button");b.className="pill"+(CURRENT_CAT===c?" active":"");b.textContent=c;b.onclick=()=>{CURRENT_CAT=c;CURRENT_SUB=null;renderCats();renderSubs();renderProducts()};bar.appendChild(b)}})}
-function renderSubs(){const bar=$("subcategories");bar.innerHTML="";const list=subs(CURRENT_CAT);if(!CURRENT_CAT||CURRENT_CAT==="OFERTAS"||!list.length){bar.style.display="none";return}bar.style.display="flex";const all=document.createElement("button");all.className="pill"+(!CURRENT_SUB?" active":"");all.textContent="Todas";all.onclick=()=>{CURRENT_SUB=null;renderSubs();renderProducts()};bar.appendChild(all);list.forEach(s=>{const b=document.createElement("button");b.className="pill"+(CURRENT_SUB===s?" active":"");b.textContent=s;b.onclick=()=>{CURRENT_SUB=s;renderSubs();renderProducts()};bar.appendChild(b)})}
+/* ================= ENVIOS DESDE SHEETS ================= */
+function enviosRows(){return Array.isArray(DATA?.envios)?DATA.envios:[]}
 
-function filtered(){let list=[...PRODUCTS];if(CURRENT_CAT)list=(CURRENT_CAT==="OFERTAS")?list.filter(isOffer):list.filter(p=>p.categoria===CURRENT_CAT);if(CURRENT_SUB)list=list.filter(p=>p.subcategoria===CURRENT_SUB);const q=(QUERY||"").toLowerCase().trim();if(q)list=list.filter(p=>(p.nombre||"").toLowerCase().includes(q)||(p.descripcion||"").toLowerCase().includes(q));list.sort((a,b)=>{const av=a.stock>0?0:1,bv=b.stock>0?0:1;if(av!==bv)return av-bv;return (a.nombre||"").localeCompare(b.nombre||"")});return list}
+/* Buscar costo empresa */
+function costoEmpresa(empresa,modalidad){
+ const rows=enviosRows();
+ const r=rows.find(x=>safe(x.tipo)==="empresa" && safe(x.empresa)===empresa && safe(x.modalidad)===modalidad);
+ return r ? Number(r.costo||0) : (modalidad==="pagar_al_recibir"?170:110);
+}
+/* Buscar rango bus */
+function rangoBus(){
+ const rows=enviosRows();
+ const r=rows.find(x=>safe(x.tipo)==="bus" && safe(x.empresa)==="Bus local");
+ return {
+  min: Number(r?.costo_min||80),
+  max: Number(r?.costo_max||150),
+  nota: safe(r?.nota||"El costo varía según transporte y destino")
+ };
+}
+/* Costo domicilio municipio (opcional) */
+function costoDomicilioMuni(depto,muni){
+ const rows=enviosRows();
+ const r=rows.find(x=>safe(x.tipo)==="domicilio_muni" && safe(x.departamento)===depto && safe(x.municipio)===muni);
+ return r ? Number(r.costo||0) : 0;
+}
 
-function renderProducts(){const g=$("productsGrid");const list=filtered();g.innerHTML="";$("productsTitle").textContent=`Productos (${list.length})`;if(!list.length){g.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">No hay productos.</div>`;return}list.forEach(p=>{const out=isOut(p),offer=isOffer(p);const card=document.createElement("article");card.className="card";const btn=out?`<button class="btnDisabled" disabled>Agotado</button>`:`<button class="bp" type="button" onclick="window.__openProduct('${p.id}')">Ver detalles</button>`;card.innerHTML=`${offer?`<div class="tagOffer">OFERTA</div>`:""}<img src="${p.imagen||""}" alt=""><div class="cardBody"><div class="cardTitle">${p.nombre}</div><div class="cardDesc">${p.descripcion||p.subcategoria||""}</div><div class="pr"><div class="p">${money(p.precio)}</div>${offer?`<div class="o">${money(p.precio_anterior)}</div>`:""}</div>${btn}</div>${out?`<div class="tagOut">AGOTADO</div>`:""}`;if(!out)card.addEventListener("click",e=>{if(e.target.closest("button"))return;openProduct(p.id)});g.appendChild(card)})}
+/* ================= CATEGORÍAS (simple) ================= */
+function cats(){
+ const set=new Set(PRODUCTS.map(p=>p.categoria).filter(Boolean));
+ const arr=[...set].sort((a,b)=>a.localeCompare(b));
+ if(PRODUCTS.some(isOffer)) arr.unshift("OFERTAS");
+ return arr;
+}
+function subs(cat){
+ if(!cat||cat==="OFERTAS")return[];
+ return [...new Set(PRODUCTS.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+}
+function renderCats(){
+ const bar=$("categoryBar");bar.innerHTML="";
+ const all=document.createElement("button");
+ all.className="pill"+(!CURRENT_CAT?" active":"");all.textContent="VER TODO";
+ all.onclick=()=>{CURRENT_CAT=null;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();};
+ bar.appendChild(all);
+ cats().forEach(c=>{
+  if(!c) return;
+  const b=document.createElement("button");
+  b.className="pill"+(CURRENT_CAT===c?" active":"");
+  b.textContent=c;
+  b.onclick=()=>{CURRENT_CAT=c;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();};
+  bar.appendChild(b);
+ });
+}
+function renderSubs(){
+ const bar=$("subcategories");bar.innerHTML="";
+ const list=subs(CURRENT_CAT);
+ if(!CURRENT_CAT||CURRENT_CAT==="OFERTAS"||!list.length){bar.style.display="none";return;}
+ bar.style.display="flex";
+ const all=document.createElement("button");
+ all.className="pill"+(!CURRENT_SUB?" active":"");all.textContent="Todas";
+ all.onclick=()=>{CURRENT_SUB=null;renderSubs();renderProducts();};
+ bar.appendChild(all);
+ list.forEach(s=>{
+  const b=document.createElement("button");
+  b.className="pill"+(CURRENT_SUB===s?" active":"");
+  b.textContent=s;
+  b.onclick=()=>{CURRENT_SUB=s;renderSubs();renderProducts();};
+  bar.appendChild(b);
+ });
+}
 
-function parseGallery(p){const u=[];if(p.imagen)u.push(p.imagen);if(p.galeria)String(p.galeria).split(",").map(x=>x.trim()).filter(Boolean).forEach(x=>u.push(x));return [...new Set(u.filter(Boolean))].slice(0,8)}
-function videoLabel(url){const u=(url||"").toLowerCase();if(u.includes("tiktok.com"))return"Ver en TikTok";if(u.includes("youtube.com")||u.includes("youtu.be"))return"Ver en YouTube";if(u.includes("facebook.com")||u.includes("fb.watch"))return"Ver en Facebook";return"Ver video"}
-function openProduct(id){const p=BY_ID[id];if(!p)return;CURRENT=p;$("modalName").textContent=p.nombre||"Producto";$("modalSub").textContent=`${p.categoria||""}${p.subcategoria?(" · "+p.subcategoria):""}`;$("modalPrice").textContent=money(p.precio||0);$("modalOld").textContent=isOffer(p)?money(p.precio_anterior):"";$("modalDesc").textContent=p.descripcion||"";const g=parseGallery(p);$("modalMainImg").src=g[0]||p.imagen||"";const th=$("modalThumbs");th.innerHTML="";g.length<=1?th.classList.add("hidden"):(th.classList.remove("hidden"),g.forEach((src,idx)=>{const im=document.createElement("img");im.src=src;im.className=idx===0?"active":"";im.onclick=()=>{$("modalMainImg").src=src;[...th.children].forEach(x=>x.classList.remove("active"));im.classList.add("active")};th.appendChild(im)}));$("btnAddCart").disabled=isOut(p);$("btnAddCart").textContent=isOut(p)?"Agotado":"Agregar al carrito";$("modalHint").textContent="";openModal("productModal")}
+/* ================= PRODUCTOS ================= */
+function filtered(){
+ let list=[...PRODUCTS];
+ if(CURRENT_CAT) list=(CURRENT_CAT==="OFERTAS")?list.filter(isOffer):list.filter(p=>p.categoria===CURRENT_CAT);
+ if(CURRENT_SUB) list=list.filter(p=>p.subcategoria===CURRENT_SUB);
+ const q=(QUERY||"").toLowerCase().trim();
+ if(q) list=list.filter(p=>(p.nombre||"").toLowerCase().includes(q)||(p.descripcion||"").toLowerCase().includes(q));
+ list.sort((a,b)=>{const av=a.stock>0?0:1,bv=b.stock>0?0:1;if(av!==bv)return av-bv;return (a.nombre||"").localeCompare(b.nombre||"")});
+ return list;
+}
+function renderProducts(){
+ const g=$("productsGrid");const list=filtered();
+ g.innerHTML="";$("productsTitle").textContent=`Productos (${list.length})`;
+ if(!list.length){g.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">No hay productos.</div>`;return;}
+ list.forEach(p=>{
+  const out=isOut(p),offer=isOffer(p);
+  const card=document.createElement("article");
+  card.className="card";
+  const btn=out?`<button class="btnDisabled" disabled>Agotado</button>`:`<button class="bp" type="button" onclick="window.__openProduct('${p.id}')">Ver detalles</button>`;
+  card.innerHTML=`${offer?`<div class="tagOffer">OFERTA</div>`:""}<img src="${p.imagen||""}" alt=""><div class="cardBody"><div class="cardTitle">${p.nombre}</div><div class="cardDesc">${p.descripcion||p.subcategoria||""}</div><div class="pr"><div class="p">${money(p.precio)}</div>${offer?`<div class="o">${money(p.precio_anterior)}</div>`:""}</div>${btn}</div>${out?`<div class="tagOut">AGOTADO</div>`:""}`;
+  if(!out) card.addEventListener("click",e=>{if(e.target.closest("button"))return;openProduct(p.id);});
+  g.appendChild(card);
+ });
+}
+
+/* ================= MODAL PRODUCTO ================= */
+function parseGallery(p){
+ const u=[];if(p.imagen)u.push(p.imagen);
+ if(p.galeria)String(p.galeria).split(",").map(x=>x.trim()).filter(Boolean).forEach(x=>u.push(x));
+ return [...new Set(u.filter(Boolean))].slice(0,8);
+}
+function videoLabel(url){
+ const u=(url||"").toLowerCase();
+ if(u.includes("tiktok.com"))return"Ver en TikTok";
+ if(u.includes("youtube.com")||u.includes("youtu.be"))return"Ver en YouTube";
+ if(u.includes("facebook.com")||u.includes("fb.watch"))return"Ver en Facebook";
+ return"Ver video";
+}
+function openProduct(id){
+ const p=BY_ID[id];if(!p)return;CURRENT=p;
+ $("modalName").textContent=p.nombre||"Producto";
+ $("modalSub").textContent=`${p.categoria||""}${p.subcategoria?(" · "+p.subcategoria):""}`;
+ $("modalPrice").textContent=money(p.precio||0);
+ $("modalOld").textContent=isOffer(p)?money(p.precio_anterior):"";
+ $("modalDesc").textContent=p.descripcion||"";
+ const g=parseGallery(p);
+ $("modalMainImg").src=g[0]||p.imagen||"";
+ const th=$("modalThumbs");th.innerHTML="";
+ g.length<=1?th.classList.add("hidden"):(th.classList.remove("hidden"),g.forEach((src,idx)=>{const im=document.createElement("img");im.src=src;im.className=idx===0?"active":"";im.onclick=()=>{$("modalMainImg").src=src;[...th.children].forEach(x=>x.classList.remove("active"));im.classList.add("active")};th.appendChild(im)}));
+ const vwrap=$("modalVideo");vwrap.innerHTML="";
+ const v=safe(p.video||p.video_url||"");
+ if(v){vwrap.classList.remove("hidden");const a=document.createElement("a");a.href=v;a.target="_blank";a.rel="noopener";a.className="videoBtn";a.textContent=videoLabel(v);vwrap.appendChild(a)}else vwrap.classList.add("hidden");
+ $("btnAddCart").disabled=isOut(p);
+ $("btnAddCart").textContent=isOut(p)?"Agotado":"Agregar al carrito";
+ $("modalHint").textContent="";
+ openModal("productModal");
+}
 window.__openProduct=openProduct;
 
-function renderCart(){const wrap=$("cartItems");wrap.innerHTML="";$("cartEmpty").style.display=CART.length?"none":"block";CART.forEach((it,idx)=>{const p=BY_ID[it.id];if(!p)return;const row=document.createElement("div");row.className="cartItem";row.innerHTML=`<img src="${p.imagen||""}" alt=""><div><div class="cartName">${p.nombre}</div><div class="cartMeta">${money(p.precio)}</div><div class="qtyRow"><button class="minus">-</button><span class="qtyNum">${it.qty}</span><button class="plus">+</button><button class="trash">🗑</button></div></div>`;row.querySelector(".minus").onclick=()=>{it.qty=Math.max(1,it.qty-1);saveCart();renderCart();updateTotalsUI()};row.querySelector(".plus").onclick=()=>{it.qty++;saveCart();renderCart();updateTotalsUI()};row.querySelector(".trash").onclick=()=>{CART.splice(idx,1);saveCart();renderCart();updateTotalsUI()};wrap.appendChild(row)});updateTotalsUI()}
-function updateTotalsUI(){$("subTotal").textContent=money(sub());$("shipTotal").textContent=money(C.envio||0);$("grandTotal").textContent=money(total())}
+/* ================= CARRITO UI ================= */
+function renderCart(){
+ const wrap=$("cartItems");wrap.innerHTML="";
+ $("cartEmpty").style.display=CART.length?"none":"block";
+ CART.forEach((it,idx)=>{
+  const p=BY_ID[it.id];if(!p)return;
+  const row=document.createElement("div");row.className="cartItem";
+  row.innerHTML=`<img src="${p.imagen||""}" alt=""><div><div class="cartName">${p.nombre}</div><div class="cartMeta">${money(p.precio)}</div><div class="qtyRow"><button class="minus">-</button><span class="qtyNum">${it.qty}</span><button class="plus">+</button><button class="trash">🗑</button></div></div>`;
+  row.querySelector(".minus").onclick=()=>{it.qty=Math.max(1,it.qty-1);saveCart();renderCart();updateTotalsUI()}
+  row.querySelector(".plus").onclick=()=>{it.qty++;saveCart();renderCart();updateTotalsUI()}
+  row.querySelector(".trash").onclick=()=>{CART.splice(idx,1);saveCart();renderCart();updateTotalsUI()}
+  wrap.appendChild(row);
+ });
+ updateTotalsUI();
+}
+function updateTotalsUI(){
+ $("subTotal").textContent=money(sub());
+ $("shipTotal").textContent=money(C.envio||0);
+ $("grandTotal").textContent=money(total());
+}
 
-function setStep(n){STEP=n;$("step1").classList.toggle("hidden",n!==1);$("step2").classList.toggle("hidden",n!==2);$("step3").classList.toggle("hidden",n!==3);$("tab1").classList.toggle("active",n===1);$("tab2").classList.toggle("active",n===2);$("tab3").classList.toggle("active",n===3);$("btnBack").style.display=n===1?"none":"inline-block";$("btnNext").textContent=n===3?"Enviar por WhatsApp":"Continuar";$("btnSendWA").style.display=n===3?"block":"none";if(n===2)buildCheckoutUI()}
+/* ================= STEPS ================= */
+function setStep(n){
+ STEP=n;
+ $("step1").classList.toggle("hidden",n!==1);
+ $("step2").classList.toggle("hidden",n!==2);
+ $("step3").classList.toggle("hidden",n!==3);
+ $("tab1").classList.toggle("active",n===1);
+ $("tab2").classList.toggle("active",n===2);
+ $("tab3").classList.toggle("active",n===3);
+ $("btnBack").style.display=n===1?"none":"inline-block";
+ $("btnNext").textContent=n===3?"Enviar por WhatsApp":"Continuar";
+ $("btnSendWA").style.display=n===3?"block":"none";
+ if(n===2) buildCheckoutUI();
+}
 function openCart(){setStep(1);renderCart();openModal("cartModal")}
 
+/* ================= CHECKOUT UI ================= */
 function buildCheckoutUI(){
- const s2=$("step2");
- if($("deptoSel")) return;
+ const s2=$("step2"); if($("deptoSel")) return;
  s2.innerHTML=`
  <div class="ckbox">
   <div class="tx"><b>Ubicación (Honduras)</b></div>
@@ -79,7 +277,7 @@ function buildCheckoutUI(){
 
   <div id="domBlock" class="hidden">
    <div class="hr"></div>
-   <div class="tx"><b>Domicilio</b></div>
+   <div class="tx"><b>Servicio a domicilio</b></div>
    <div id="comCityBlock" class="hidden">
     <div class="tx">Comayagua ciudad: zona y colonia/barrio</div>
     <div class="grid2sel">
@@ -93,13 +291,13 @@ function buildCheckoutUI(){
 
   <div id="empBlock" class="hidden">
    <div class="hr"></div>
-   <div class="tx"><b>Empresa de envío</b></div>
+   <div class="tx"><b>Envío por empresa</b></div>
    <div class="grid2sel">
     <select id="empSel"></select>
     <select id="modSel"><option value="normal">Servicio normal</option><option value="pagar_al_recibir">Pagar al recibir</option></select>
    </div>
    <div class="note" id="empInfo"></div>
-   ${BUS_ON?`<div class="note">🚌 Bus/encomienda: 80–150 (varía, se confirma).</div>`:""}
+   ${BUS_ON?`<div class="note" id="busInfo"></div>`:""}
   </div>
 
   <div class="hr"></div>
@@ -118,20 +316,23 @@ function buildCheckoutUI(){
   </div>
 
   <div class="hr"></div>
-  <div class="note"><b>Envío:</b> <span id="envioPreview">${money(0)}</span> · <b>Total:</b> <span id="totalPreview">${money(total())}</span></div>
+  <div class="note"><b>Envío:</b> <span id="envioPreview">${money(C.envio||0)}</span> · <b>Total:</b> <span id="totalPreview">${money(total())}</span></div>
  </div>`;
 
  // deptos
- const ds=$("deptoSel"); deptos().forEach(d=>{const o=document.createElement("option");o.value=d;o.textContent=d;ds.appendChild(o)});
+ const ds=$("deptoSel");deptos().forEach(d=>{const o=document.createElement("option");o.value=d;o.textContent=d;ds.appendChild(o)});
  // empresas
- const es=$("empSel"); EMPRESAS.forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=x;es.appendChild(o)});
+ const es=$("empSel");EMPRESAS.forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=x;es.appendChild(o)});
 
  ds.onchange=()=>{C.depto=ds.value;fillMunisUI();applyRules();}
  $("muniSel").onchange=()=>{C.muni=$("muniSel").value;applyRules();}
+
  $("zonaSel").onchange=()=>{C.zona=$("zonaSel").value;fillColsUI();applyRules();}
  $("colSel").onchange=()=>{const opt=$("colSel").selectedOptions[0];C.col=opt?.value||"";C.envio=Number(opt?.dataset.costo||0);C.ref=opt?.dataset.ref||"";$("zonaInfo").textContent=C.col?`Costo: ${money(C.envio)}${C.ref?(" · "+C.ref):""}`:"";refreshPreview();}
+
  es.onchange=()=>{C.empresa=es.value;applyRules();}
  $("modSel").onchange=()=>{C.modalidad=$("modSel").value;applyRules();}
+
  $("paySel").onchange=()=>{C.pago=$("paySel").value;updatePayUI();refreshPreview();}
  $("cashWith").oninput=()=>{C.cash=Number(String($("cashWith").value||"").replace(/[^\d]/g,"")||0);refreshPreview();}
 
@@ -166,12 +367,12 @@ function fillColsUI(){
  cols(z).forEach(c=>{
   const o=document.createElement("option");
   o.value=c.col;o.textContent=`${c.col} (${money(c.c)})`;
-  o.dataset.costo=String(c.c||0);
-  o.dataset.ref=c.ref||"";
+  o.dataset.costo=String(c.c||0);o.dataset.ref=c.ref||"";
   cs.appendChild(o);
  });
 }
 
+/* ================= REGLAS (COSTOS DESDE SHEETS) ================= */
 function applyRules(){
  const dept=safe(C.depto),mun=safe(C.muni);
 
@@ -181,14 +382,14 @@ function applyRules(){
  $("domInfo").classList.add("hidden");
  $("empBlock").classList.add("hidden");
 
+ // reset costos/pago
  C.entrega="";C.envio=0;C.zona="";C.col="";C.ref="";C.pago="";C.cash=0;C.cambio=0;
 
  if(!dept||!mun){fillPayOptions();refreshPreview();return;}
 
- // ✅ Comayagua + municipios domicilio
+ // ✅ Comayagua + domicilio
  if(dept==="Comayagua" && COMAYAGUA_DOMICILIO.has(mun)){
   $("domBlock").classList.remove("hidden");
-  // ciudad con zonas
   if(mun==="Comayagua"){
    C.entrega="domicilio_ciudad";
    $("comCityBlock").classList.remove("hidden");
@@ -198,22 +399,26 @@ function applyRules(){
   }else{
    C.entrega="domicilio_muni";
    $("domInfo").classList.remove("hidden");
-   $("domInfo").textContent=`Servicio a domicilio disponible en ${mun}. (Costo se confirma por WhatsApp).`;
-   C.envio=0;
+   const costo = costoDomicilioMuni(dept,mun);
+   if(costo>0){C.envio=costo;$("domInfo").textContent=`Domicilio en ${mun}: ${money(costo)}.`;}
+   else{$("domInfo").textContent=`Domicilio en ${mun}. (Costo se confirma por WhatsApp).`;C.envio=0;}
   }
   fillPayOptions();
   refreshPreview();
   return;
  }
 
- // ✅ Otros municipios de Comayagua (La Libertad, Ojos de Agua, etc.) => empresas/bus
- // ✅ Cualquier otro depto => empresas/bus
+ // ✅ Otros municipios de Comayagua y cualquier otro depto => empresa/bus
  C.entrega="empresa";
  $("empBlock").classList.remove("hidden");
  C.empresa=$("empSel").value||EMPRESAS[0];
  C.modalidad=$("modSel").value||"normal";
- C.envio=(C.modalidad==="pagar_al_recibir")?170:110;
+ C.envio=costoEmpresa(C.empresa,C.modalidad);
  $("empInfo").textContent=`Empresa: ${C.empresa} · ${C.modalidad==="normal"?"Servicio normal":"Pagar al recibir"} · Costo: ${money(C.envio)}`;
+ if(BUS_ON){
+  const rb=rangoBus();
+  $("busInfo").textContent=`🚌 Bus/encomienda: ${money(rb.min)}–${money(rb.max)}. ${rb.nota}`;
+ }
  fillPayOptions();
  refreshPreview();
 }
@@ -258,33 +463,31 @@ function refreshPreview(){
  updateTotalsUI();
 }
 
-function calcCambio(){
- if(C.pago!=="efectivo"){C.cambio=0;return}
- const diff=Number(C.cash||0)-total();
- C.cambio=diff>0?diff:0;
-}
-
+/* WHATSAPP */
 function sendWhatsApp(){
  if(!CART.length) return alert("Carrito vacío");
- const name=safe($("custName").value);
- const phone=safe($("custPhone").value);
- const addr=safe($("custAddr").value);
+ const name=safe($("custName").value||"");
+ const phone=safe($("custPhone").value||"");
+ const addr=safe($("custAddr").value||"");
 
  const lines=[];
  lines.push("🛒 PEDIDO - SDComayagua","");
  if(name) lines.push("👤 "+name);
  if(phone) lines.push("📞 "+phone);
- if(C.depto && C.muni) lines.push(`📍 ${C.depto} / ${C.muni}`);
+ if(C.depto&&C.muni) lines.push(`📍 ${C.depto} / ${C.muni}`);
 
  if(C.entrega==="domicilio_ciudad"){
   lines.push("🚚 Domicilio (Comayagua ciudad)");
   if(C.zona) lines.push("Zona: "+C.zona);
   if(C.col) lines.push("Colonia/Barrio: "+C.col);
  }else if(C.entrega==="domicilio_muni"){
-  lines.push("🚚 Domicilio (municipio en Comayagua)");
+  lines.push("🚚 Domicilio (Comayagua)");
  }else{
   lines.push(`📦 Empresa: ${C.empresa} · ${C.modalidad==="normal"?"Normal":"Pagar al recibir"}`);
-  if(BUS_ON) lines.push("🚌 Bus/encomienda 80–150 (varía, se confirma).");
+  if(BUS_ON){
+   const rb=rangoBus();
+   lines.push(`🚌 Bus/encomienda: ${money(rb.min)}–${money(rb.max)} (varía).`);
+  }
  }
 
  if(addr) lines.push("📌 "+addr);
@@ -354,6 +557,7 @@ async function init(){
    descripcion:safe(p.descripcion||""),imagen:safe(p.imagen||""),video:safe(p.video||p.video_url||""),galeria:safe(p.galeria||"")
   })).filter(p=>p.id&&p.nombre);
   BY_ID={};PRODUCTS.forEach(p=>BY_ID[p.id]=p);
+
   renderCats();renderSubs();renderProducts();
   wire();
  }catch(e){
@@ -361,10 +565,6 @@ async function init(){
   $("productsGrid").innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">Error cargando catálogo.</div>`;
  }finally{$("loadingMsg").style.display="none";}
 }
-document.addEventListener("DOMContentLoaded",()=>{init();});
-
-/* Render cats/subs (wrappers) */
-function renderCats(){renderCats=()=>{};renderCategories&&renderCategories();}
-function renderSubs(){renderSubs=()=>{};renderSubcategories&&renderSubcategories();}
+document.addEventListener("DOMContentLoaded",init);
 
 })();
