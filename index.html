@@ -57,7 +57,7 @@
 
 <div id="overlay"></div>
 
-<!-- MODAL PRODUCTO -->
+<!-- MODAL PRODUCTO (con footer fijo) -->
 <div class="m" id="productModal">
   <div class="mh">
     <div>
@@ -67,7 +67,7 @@
     <button class="mc" id="closeProduct">✕</button>
   </div>
 
-  <div class="mb">
+  <div class="mb" id="prodBody">
     <div class="g2">
       <div>
         <img id="modalMainImg" class="mi" src="" alt="">
@@ -82,16 +82,19 @@
 
         <div class="tx" id="modalDesc"></div>
         <div id="modalVideo" class="vb hidden"></div>
-
         <div class="tx" id="modalHint"></div>
 
-        <div class="rb">
-          <button class="bp" id="btnAddCart">Agregar al carrito</button>
-          <button class="bs" id="btnKeepBuying">Seguir comprando</button>
-          <button class="bs" id="btnGoPay">Ir a pagar</button>
-        </div>
+        <!-- info extra -->
+        <div class="note" id="modalExtra"></div>
       </div>
     </div>
+  </div>
+
+  <!-- Footer fijo SIEMPRE visible en móvil -->
+  <div class="mf">
+    <button class="bp" id="btnAddCart">Agregar al carrito</button>
+    <button class="bs" id="btnKeepBuying">Seguir comprando</button>
+    <button class="bs" id="btnGoPay">Ir a pagar</button>
   </div>
 </div>
 
