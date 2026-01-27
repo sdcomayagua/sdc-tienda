@@ -1,5 +1,5 @@
 // assets/js/api.js (simple y estable)
-const API_URL = "https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
+const API_URL = "API_URL="https://script.google.com/macros/s/AKfycbzv-T26o_oV9NwtiW8Lpk8HRYlBZqWz-9KIyD_FxzOnboccj8SIFUx-L0z22q-JCawqgQ/exec";";
 
 async function apiGetAll() {
   const res = await fetch(API_URL, { cache: "no-store" });
