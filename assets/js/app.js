@@ -237,11 +237,13 @@ function renderProducts(){
  list.forEach(p=>{
   const out=isOut(p), offer=isOffer(p);
   const card=document.createElement("article");
-  card.className="card";
+  card.className="card"+(out?" out":"");
   const img=p.imagen||"";
+  // IMPORTANT: no usar onclick inline con id, porque si el id contiene comillas o caracteres raros,
+  // puede abrir el producto incorrecto. Usamos dataset + listeners.
   const btnHtml = out
     ? `<button class="btnDisabled" disabled>Agotado</button>`
-    : `<button class="bp" onclick="window.__openProduct('${p.id}')">Ver detalles</button>`;
+    : `<button class="bp" data-open-id="${escapeHtml(p.id)}">Ver detalles</button>`;
   card.innerHTML = `
     ${offer?`<div class="tagOffer">OFERTA</div>`:""}
     <img class="cardImg" src="${img}" alt="${escapeHtml(p.nombre||"Producto")}" loading="lazy"
@@ -260,9 +262,16 @@ function renderProducts(){
     </div>
     ${out?`<div class="tagOut">AGOTADO</div>`:""}
   `;
+  // Click en tarjeta o botón -> abre producto correcto
   if(!out){
     card.addEventListener("click",e=>{
-      if(e.target.closest("button")) return;
+      const b=e.target.closest("button[data-open-id]");
+      if(b){
+        const pid=b.dataset.openId;
+        if(pid) openProduct(pid);
+        return;
+      }
+      // click en cualquier otra parte de la tarjeta
       openProduct(p.id);
     });
   }
@@ -303,8 +312,18 @@ function openProduct(id){
  const vwrap=$("modalVideo");vwrap.innerHTML="";
  const v=safe(p.video||p.video_url||"");
  if(v){vwrap.classList.remove("hidden");const a=document.createElement("a");a.href=v;a.target="_blank";a.rel="noopener";a.className="videoBtn";a.textContent=videoLabel(v);vwrap.appendChild(a)}else vwrap.classList.add("hidden");
- $("btnAddCart").disabled=isOut(p);
- $("btnAddCart").textContent=isOut(p)?"Agotado":"Agregar al carrito";
+ const out=isOut(p);
+ // Botones del modal: si está agotado, no permitir pedir/añadir.
+ $("btnAddCart").disabled=out;
+ $("btnAddCart").textContent=out?"Agotado":"Añadir al carrito";
+ const go=$("btnGoPay");
+ if(go){
+  go.disabled=out;
+  go.innerHTML = out
+    ? '<i class="ri-time-line"></i> Muy pronto disponible'
+    : '<i class="ri-whatsapp-line"></i> Pedir ahora';
+  go.classList.toggle("disabled", out);
+ }
  $("modalHint").textContent="";
  openModal("productModal");
 }
