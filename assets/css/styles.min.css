@@ -60,3 +60,137 @@ body.light #subcategories .pill{background:rgba(30,107,255,.08);border-color:rgb
 /* --- Checkout: input manual colonia/barrio --- */
 #colFree{margin-top:10px;width:100%;padding:14px 16px;border-radius:18px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none}
 #colRefBlock input{width:100%;padding:14px 16px;border-radius:18px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none}
+
+
+/* ===== Modern UI overrides (2026-01) ===== */
+:root{
+  --radius:18px;
+  --radius-lg:22px;
+}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.card{
+  border-radius:var(--radius-lg)!important;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.06)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.10)!important;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.card:active{transform:scale(.99)}
+.cardImg{
+  aspect-ratio:1/1;
+  width:100%;
+  height:auto;
+  object-fit:cover;
+  background:linear-gradient(135deg,rgba(0,0,0,.06),rgba(0,0,0,.02));
+}
+.cardBody{padding:12px 12px 14px!important}
+.cardTitle{font-size:14px!important;line-height:1.2!important}
+.priceRow{display:flex;align-items:baseline;gap:8px;justify-content:space-between;margin-top:6px}
+.p{font-size:15px!important}
+.o{font-size:12px!important;opacity:.75}
+.tagOffer{
+  position:absolute;top:10px;left:10px;
+  background:rgba(11,87,255,.95);
+  color:#fff;font-weight:900;
+  padding:6px 10px;border-radius:999px;
+  letter-spacing:.4px;
+  box-shadow:0 10px 20px rgba(11,87,255,.28);
+}
+.tagOut{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.42);
+  color:#fff;font-weight:900;font-size:22px;
+  letter-spacing:2px;
+  transform:rotate(-12deg);
+  pointer-events:none;
+}
+.btnDisabled,.bp{
+  border-radius:14px!important;
+  font-weight:900!important;
+}
+.btnDisabled{
+  background:rgba(0,0,0,.10)!important;
+  color:rgba(0,0,0,.55)!important;
+}
+
+/* ===== Product modal: bottom sheet on mobile ===== */
+#overlay{backdrop-filter:saturate(1.2) blur(6px)}
+.m{
+  border-radius:22px!important;
+}
+.mh{
+  position:sticky;top:0;z-index:2;
+  backdrop-filter:saturate(1.1) blur(8px);
+}
+.mc{
+  width:42px;height:42px;border-radius:14px!important;
+  display:grid;place-items:center;
+  background:rgba(0,0,0,.06)!important;
+}
+.mi{
+  border-radius:18px!important;
+  aspect-ratio:1/1;
+  width:100%;
+  object-fit:cover;
+  background:linear-gradient(135deg,rgba(0,0,0,.06),rgba(0,0,0,.02));
+}
+.th{display:flex;gap:10px;margin-top:10px;flex-wrap:nowrap;overflow:auto;padding-bottom:4px}
+.th button{
+  width:64px;height:64px;border-radius:16px;
+  border:2px solid rgba(0,0,0,.08);
+  overflow:hidden;background:transparent;padding:0;flex:0 0 auto;
+}
+.th button.active{border-color:rgba(11,87,255,.85)}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.pr{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.stock{font-weight:800;font-size:13px;color:#15a34a;white-space:nowrap}
+.stock.out{color:#ef4444}
+.vb a{border-radius:14px!important}
+
+/* Footer buttons */
+.mf{
+  position:sticky;bottom:0;z-index:2;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:saturate(1.2) blur(10px);
+  border-top:1px solid rgba(0,0,0,.06);
+  padding:12px!important;
+}
+.mfRow{display:flex;gap:10px}
+.mfRow .bp{margin:0!important}
+.bp{display:flex;align-items:center;justify-content:center;gap:8px}
+.bp.alt{
+  background:#111827!important;
+  color:#fff!important;
+}
+.link{
+  width:100%;
+  margin-top:10px;
+  background:transparent;
+  border:none;
+  padding:10px 12px;
+  font-weight:900;
+  color:rgba(0,0,0,.65);
+}
+
+/* Mobile: true bottom sheet */
+@media (max-width:720px){
+  .m{
+    left:0!important;transform:none!important;
+    top:auto!important;bottom:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:92vh!important;
+    border-radius:22px 22px 0 0!important;
+  }
+  .mb{padding:14px!important}
+}
+
+/* Light mode polish */
+.light body{background:#fff!important}
+.light .card{border-color:rgba(0,0,0,.08)!important}
+.light .mf{background:rgba(255,255,255,.96)}
+
+
+.miniStock{font-weight:900;font-size:12px;color:rgba(0,0,0,.55);white-space:nowrap}
+.light .miniStock{color:rgba(0,0,0,.55)}
