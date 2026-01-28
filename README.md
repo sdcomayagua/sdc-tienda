@@ -53,4 +53,3 @@ El workflow:
 - `index.html` + `assets/js/app.js`
 - Carga `catalog.json` (rápido) y si no existe / falla, usa Apps Script.
 
-
