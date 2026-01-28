@@ -281,8 +281,41 @@ function renderProducts(){
 
 /* ================= MODAL PRODUCTO ================= */
 function parseGallery(p){
- const u=[];if(p.imagen)u.push(p.imagen);
- if(p.galeria)String(p.galeria).split(",").map(x=>x.trim()).filter(Boolean).forEach(x=>u.push(x));
+ // Soporta múltiples formatos desde Google Sheets:
+ // - columna "galeria" (lista separada por comas)
+ // - columnas "GALERIA_1".."GALERIA_8" (o galeria_1..galeria_8, galeria1..galeria8)
+ const u=[];
+ if(p.imagen) u.push(p.imagen);
+
+ // 1) Campo único "galeria"
+ if(p.galeria){
+  String(p.galeria)
+   .split(",")
+   .map(x=>x.trim())
+   .filter(Boolean)
+   .forEach(x=>u.push(x));
+ }
+
+ // 2) Campos múltiples tipo GALERIA_1..8 (case-insensitive)
+ for(const k of Object.keys(p||{})){
+  const m = String(k).match(/^galeria[_\s]?(\d+)$/i);
+  if(!m) continue;
+  const n = Number(m[1]||0);
+  if(!n || n<1 || n>8) continue;
+  const v = safe(p[k]);
+  if(v) u.push(v);
+ }
+
+ // 3) Compatibilidad: galeria_1..8 aunque vengan como propiedades directas
+ for(let i=1;i<=8;i++){
+  const a = safe(p[`galeria_${i}`]);
+  const b = safe(p[`GALERIA_${i}`]);
+  const c = safe(p[`galeria${i}`]);
+  if(a) u.push(a);
+  if(b) u.push(b);
+  if(c) u.push(c);
+ }
+
  return [...new Set(u.filter(Boolean))].slice(0,8);
 }
 function videoLabel(url){
