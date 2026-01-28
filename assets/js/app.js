@@ -714,13 +714,47 @@ async function init(){
  $("loadingMsg").style.display="block";
  try{
   DATA=await loadAPI();
-  PRODUCTS=(DATA.productos||[]).map(p=>({
-   id:safe(p.id),nombre:safe(p.nombre),precio:Number(p.precio||0),
-   precio_anterior:Number(p.precio_anterior||0),stock:Number(p.stock||0),
-   categoria:safe(p.categoria||"General"),subcategoria:safe(p.subcategoria||""),
-   descripcion:safe(p.descripcion||""),imagen:safe(p.imagen||""),video:safe(p.video||p.video_url||""),galeria:safe(p.galeria||"")
-  })).filter(p=>p.id&&p.nombre);
-  BY_ID={};PRODUCTS.forEach(p=>BY_ID[p.id]=p);
+  // Normalización robusta:
+  // 1) si el ID viene vacío -> generar uno estable por fila
+  // 2) si el ID viene repetido -> hacerlo único para evitar "abro uno y sale otro"
+  const used=new Map();
+  PRODUCTS=(DATA.productos||[]).map((p,i)=>{
+    const rawId=safe(p.id);
+    const base = rawId || `row_${i+1}`;
+    const n = (used.get(base)||0)+1;
+    used.set(base,n);
+    const finalId = n===1 ? base : `${base}__${n}`;
+    return {
+      id: finalId,
+      sheet_id: rawId, // por si luego quieres auditar
+      nombre:safe(p.nombre),
+      precio:Number(p.precio||0),
+      precio_anterior:Number(p.precio_anterior||0),
+      stock:Number(p.stock||0),
+      categoria:safe(p.categoria||"General"),
+      subcategoria:safe(p.subcategoria||""),
+      descripcion:safe(p.descripcion||""),
+      imagen:safe(p.imagen||""),
+      video:safe(p.video||p.video_url||""),
+      galeria:safe(p.galeria||"")
+    };
+  }).filter(p=>p.nombre);
+
+  BY_ID={};
+  PRODUCTS.forEach(p=>{ BY_ID[p.id]=p; });
+
+  // Compatibilidad con carritos guardados antes de la corrección de IDs.
+  // Si un item del carrito trae un id viejo (de Sheets) que ya no existe,
+  // intentamos encontrar el producto por sheet_id.
+  if(Array.isArray(CART) && CART.length){
+    let changed=false;
+    CART.forEach(it=>{
+      if(BY_ID[it.id]) return;
+      const found=PRODUCTS.find(p=>p.sheet_id && p.sheet_id===it.id);
+      if(found){ it.id=found.id; changed=true; }
+    });
+    if(changed) saveCart();
+  }
 
   renderCats();renderSubs();renderProducts();
   wire();
