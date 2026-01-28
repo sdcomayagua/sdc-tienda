@@ -12,6 +12,7 @@ const BUS_ON=true;
 const COMAYAGUA_DOMICILIO=new Set(["Comayagua","Villa de San Antonio","Ajuterique","Lejamaní","Lejamani","Flores"]);
 
 const $=id=>document.getElementById(id);
+const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const safe=v=>String(v??"").trim();
 const money=n=>`Lps. ${Math.round(Number(n||0)).toLocaleString("es-HN")}`;
 const isOffer=p=>Number(p.precio_anterior||0)>Number(p.precio||0);
@@ -225,16 +226,46 @@ function filtered(){
  return list;
 }
 function renderProducts(){
- const g=$("productsGrid");const list=filtered();
- g.innerHTML="";$("productsTitle").textContent=`Productos (${list.length})`;
- if(!list.length){g.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">No hay productos.</div>`;return;}
+ const g=$("productsGrid");
+ const list=filtered();
+ g.innerHTML="";
+ $("productsTitle").textContent=`Productos (${list.length})`;
+ if(!list.length){
+  g.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">No hay productos.</div>`;
+  return;
+ }
  list.forEach(p=>{
-  const out=isOut(p),offer=isOffer(p);
+  const out=isOut(p), offer=isOffer(p);
   const card=document.createElement("article");
   card.className="card";
-  const btn=out?`<button class="btnDisabled" disabled>Agotado</button>`:`<button class="bp" type="button" onclick="window.__openProduct('${p.id}')">Ver detalles</button>`;
-  card.innerHTML=`${offer?`<div class="tagOffer">OFERTA</div>`:""}<img src="${p.imagen||""}" alt=""><div class="cardBody"><div class="cardTitle">${p.nombre}</div><div class="cardDesc">${p.descripcion||p.subcategoria||""}</div><div class="pr"><div class="p">${money(p.precio)}</div>${offer?`<div class="o">${money(p.precio_anterior)}</div>`:""}</div>${btn}</div>${out?`<div class="tagOut">AGOTADO</div>`:""}`;
-  if(!out) card.addEventListener("click",e=>{if(e.target.closest("button"))return;openProduct(p.id);});
+  const img=p.imagen||"";
+  const btnHtml = out
+    ? `<button class="btnDisabled" disabled>Agotado</button>`
+    : `<button class="bp" onclick="window.__openProduct('${p.id}')">Ver detalles</button>`;
+  card.innerHTML = `
+    ${offer?`<div class="tagOffer">OFERTA</div>`:""}
+    <img class="cardImg" src="${img}" alt="${escapeHtml(p.nombre||"Producto")}" loading="lazy"
+         onerror="this.style.opacity=.35;this.style.filter='grayscale(1)';this.style.objectFit='contain';this.src='assets/img/no-image.png';">
+    <div class="cardBody">
+      <div class="cardTitle">${escapeHtml(p.nombre||"")}</div>
+      <div class="cardDesc">${escapeHtml((p.descripcion||"").slice(0,80))}${(p.descripcion||"").length>80?"…":""}</div>
+      <div class="priceRow">
+        <div>
+          <div class="p">${money(p.precio||0)}</div>
+          ${offer?`<div class="o">${money(p.precio_anterior||0)}</div>`:""}
+        </div>
+        ${Number(p.stock||0)>0?`<div class="miniStock">Stock: ${Number(p.stock||0)}</div>`:""}
+      </div>
+      ${btnHtml}
+    </div>
+    ${out?`<div class="tagOut">AGOTADO</div>`:""}
+  `;
+  if(!out){
+    card.addEventListener("click",e=>{
+      if(e.target.closest("button")) return;
+      openProduct(p.id);
+    });
+  }
   g.appendChild(card);
  });
 }
@@ -258,6 +289,12 @@ function openProduct(id){
  $("modalSub").textContent=`${p.categoria||""}${p.subcategoria?(" · "+p.subcategoria):""}`;
  $("modalPrice").textContent=money(p.precio||0);
  $("modalOld").textContent=isOffer(p)?money(p.precio_anterior):"";
+ const stEl=$("modalStock");
+ if(stEl){
+  const st=Number(p.stock||0);
+  stEl.textContent=`Stock: ${isFinite(st)?st:"—"}`;
+  stEl.className="stock"+(st<=0?" out":"");
+ }
  $("modalDesc").textContent=p.descripcion||"";
  const g=parseGallery(p);
  $("modalMainImg").src=g[0]||p.imagen||"";
