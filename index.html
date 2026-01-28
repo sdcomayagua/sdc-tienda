@@ -10,6 +10,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.min.css">
+
+<!-- Ajustes visuales extra (sin tocar Sheets/API) -->
+<style>
+  /* Badge AGOTADO: rojo, pequeño y limpio (sin diagonal enorme) */
+  .tagOut{
+    position:absolute; top:10px; right:10px;
+    background:#e11d48; color:#fff;
+    padding:6px 10px; border-radius:999px;
+    font-weight:800; font-size:12px; letter-spacing:.4px;
+    box-shadow:0 10px 25px rgba(225,29,72,.25);
+    transform:none !important;
+    opacity:1 !important;
+  }
+  .card.out .cardImg{filter:grayscale(1); opacity:.78}
+  .card.out .cardBody{opacity:.92}
+
+  /* Botón deshabilitado del modal (muy pronto disponible) */
+  .bp.disabled{opacity:.55; filter:saturate(.6); cursor:not-allowed}
+
+  /* Miniaturas del modal un poco más "premium" */
+  .th img{border-radius:14px;}
+  .th img.active{outline:2px solid rgba(11,87,255,.55)}
+</style>
 </head>
 
 <body>
