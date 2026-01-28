@@ -45,6 +45,10 @@
   /* Miniaturas del modal un poco más "premium" */
   .th img{border-radius:14px;}
   .th img.active{outline:2px solid rgba(11,87,255,.55)}
+
+  /* "Seguir comprando" más integrado en el footer del modal */
+  .mf{display:flex;flex-direction:column;gap:10px;padding-top:12px;}
+  .mf .link{margin:0 auto;padding:6px 10px;}
 </style>
 </head>
 
@@ -129,11 +133,11 @@
 
   <!-- Footer fijo SIEMPRE visible en móvil -->
   <div class="mf">
+    <button class="link" id="btnKeepBuying">Seguir comprando</button>
     <div class="mfRow">
       <button class="bp" id="btnAddCart"><i class="ri-shopping-cart-2-line"></i> Añadir al carrito</button>
       <button class="bp alt" id="btnGoPay"><i class="ri-whatsapp-line"></i> Pedir ahora</button>
     </div>
-    <button class="link" id="btnKeepBuying">Seguir comprando</button>
   </div>
 </div>
 
