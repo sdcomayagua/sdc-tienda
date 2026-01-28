@@ -24,7 +24,7 @@ let CURRENT_CAT=null,CURRENT_SUB=null,QUERY="",STEP=1;
 let C={
  depto:"",muni:"",
  entrega:"", // domicilio_ciudad | domicilio_muni | empresa | bus
- zona:"",col:"",ref:"",
+ zona:"",col:"",ref:"",colonia_ref:"",
  envio:0,
  empresa:EMPRESAS[0],modalidad:"normal", // normal | pagar_al_recibir
  canal:"empresa", // empresa | bus
@@ -101,14 +101,53 @@ function cols(z){
 /* ================= ENVIOS DESDE SHEETS ================= */
 function enviosRows(){return Array.isArray(DATA?.envios)?DATA.envios:[]}
 
-/* Buscar costo empresa */
-function costoEmpresa(empresa,modalidad){
- const rows=enviosRows();
- const r=rows.find(x=>safe(x.tipo)==="empresa" && safe(x.empresa)===empresa && safe(x.modalidad)===modalidad);
- return r ? Number(r.costo||0) : (modalidad==="pagar_al_recibir"?170:110);
+/* Buscar costo empresa (prioridad: por municipio -> tabla general) */
+function costoEmpresa(empresa, modalidad, depto, muni){
+ // 1) Si existe tabla por municipio en Sheets: tarifas_empresa_por_municipio
+ const rowsM = Array.isArray(DATA?.tarifas_empresa_por_municipio) ? DATA.tarifas_empresa_por_municipio : [];
+ const rM = rowsM.find(x =>
+   safe(x.departamento)===safe(depto) &&
+   safe(x.municipio)===safe(muni) &&
+   (!safe(x.empresa) || safe(x.empresa)===safe(empresa))
+ );
+ if(rM){
+   const v = (modalidad==="pagar_al_recibir")
+     ? Number(rM.contra_entrega||0)
+     : Number(rM.prepago||0);
+   if(v>0) return v;
+ }
+ // 2) Tabla general por empresa: empresas_envio
+ const rowsE = Array.isArray(DATA?.empresas_envio) ? DATA.empresas_envio : [];
+ const rE = rowsE.find(x => safe(x.empresa)===safe(empresa));
+ if(rE){
+   const v = (modalidad==="pagar_al_recibir")
+     ? Number(rE.envio_empresa_contra||0)
+     : Number(rE.envio_empresa_prepago||0);
+   if(v>0) return v;
+ }
+ // 3) Compatibilidad: estructura antigua DATA.envios
+ const rows = enviosRows();
+ const r = rows.find(x=>safe(x.tipo)==="empresa" && safe(x.empresa)===safe(empresa) && safe(x.modalidad)===safe(modalidad));
+ if(r) return Number(r.costo||0);
+
+ // fallback
+ return (modalidad==="pagar_al_recibir"?170:110);
 }
+
 /* Buscar rango bus */
-function rangoBus(){
+function rangoBus(depto, muni){
+ // tabla dedicada en Sheets (bus_local_tarifas) es sugerida, no obligatoria
+ const rowsB = Array.isArray(DATA?.bus_local_tarifas) ? DATA.bus_local_tarifas : [];
+ // Puedes poner municipio "(otros municipios)" para default de Comayagua, etc.
+ const rB = rowsB.find(x => safe(x.departamento)===safe(depto) && safe(x.municipio)===safe(muni))
+          || rowsB.find(x => safe(x.departamento)===safe(depto) && safe(x.municipio).includes("otros"))
+          || rowsB.find(x => safe(x.municipio).includes("otros"));
+ if(rB && Number(rB.costo_sugerido||0)>0){
+  const v=Number(rB.costo_sugerido||0);
+  return { min:v, max:v, nota: safe(rB.nota||"Costo sugerido de bus/encomienda") };
+ }
+
+ // compatibilidad: estructura antigua envios (rango)
  const rows=enviosRows();
  const r=rows.find(x=>safe(x.tipo)==="bus" && safe(x.empresa)==="Bus local");
  return {
@@ -117,6 +156,7 @@ function rangoBus(){
   nota: safe(r?.nota||"El costo varía según transporte y destino")
  };
 }
+
 /* Costo domicilio municipio (opcional) */
 function costoDomicilioMuni(depto,muni){
  const rows=enviosRows();
@@ -155,6 +195,12 @@ function renderSubs(){
  const list=subs(CURRENT_CAT);
  if(!CURRENT_CAT||CURRENT_CAT==="OFERTAS"||!list.length){bar.style.display="none";return;}
  bar.style.display="flex";
+
+ // Etiqueta visual para que Subcategorías se distingan de Categorías
+ const lab=document.createElement("div");
+ lab.className="subLabel";
+ lab.textContent="Subcategorías:";
+ bar.appendChild(lab);
  const all=document.createElement("button");
  all.className="pill"+(!CURRENT_SUB?" active":"");all.textContent="Todas";
  all.onclick=()=>{CURRENT_SUB=null;renderSubs();renderProducts();};
@@ -275,6 +321,11 @@ function buildCheckoutUI(){
    <div><div class="tx">Municipio</div><select id="muniSel" disabled><option value="">Selecciona</option></select></div>
   </div>
 
+  <div id="colRefBlock" class="hidden">
+    <div class="note" style="margin-top:10px"><b>Colonia/Barrio (referencia):</b></div>
+    <input id="colRefInput" placeholder="Ej: La Sabana, La Caridad, Barrio Arriba… (opcional)">
+  </div>
+
   <div id="domBlock" class="hidden">
    <div class="hr"></div>
    <div class="tx"><b>Servicio a domicilio</b></div>
@@ -284,6 +335,7 @@ function buildCheckoutUI(){
      <select id="zonaSel"><option value="">Zona</option></select>
      <select id="colSel"><option value="">Colonia/Barrio</option></select>
     </div>
+    <input id="colFree" class="hidden" placeholder="Escribe tu colonia/barrio (ej: La Sabana)">
     <div class="note" id="zonaInfo"></div>
    </div>
    <div id="domInfo" class="note hidden"></div>
@@ -327,8 +379,49 @@ function buildCheckoutUI(){
  ds.onchange=()=>{C.depto=ds.value;fillMunisUI();applyRules();}
  $("muniSel").onchange=()=>{C.muni=$("muniSel").value;applyRules();}
 
- $("zonaSel").onchange=()=>{C.zona=$("zonaSel").value;fillColsUI();applyRules();}
- $("colSel").onchange=()=>{const opt=$("colSel").selectedOptions[0];C.col=opt?.value||"";C.envio=Number(opt?.dataset.costo||0);C.ref=opt?.dataset.ref||"";$("zonaInfo").textContent=C.col?`Costo: ${money(C.envio)}${C.ref?(" · "+C.ref):""}`:"";refreshPreview();}
+ $("colRefInput").oninput=()=>{C.colonia_ref=safe($("colRefInput").value||"");}
+
+ $("zonaSel").onchange=()=>{
+  C.zona=$("zonaSel").value;
+  // reset colonia al cambiar zona
+  C.col="";C.ref="";C.envio=0;
+  $("colFree").classList.add("hidden");
+  $("colFree").value="";
+  fillColsUI();
+  applyRules();
+ }
+
+ $("colSel").onchange=()=>{
+  const v=$("colSel").value||"";
+  // opción manual
+  if(v==="__manual__"){
+   $("colFree").classList.remove("hidden");
+   C.col=safe($("colFree").value||"");
+   C.envio=0;C.ref="Costo por confirmar";
+   $("zonaInfo").textContent="Escribe tu colonia/barrio. El costo se confirma por WhatsApp.";
+   refreshPreview();
+   return;
+  }
+
+  $("colFree").classList.add("hidden");
+  $("colFree").value="";
+  const opt=$("colSel").selectedOptions[0];
+  C.col=opt?.value||"";
+  C.envio=Number(opt?.dataset.costo||0);
+  C.ref=opt?.dataset.ref||"";
+  // Auto-llenar referencia de colonia/barrio
+  if($("colRefInput")) $("colRefInput").value=C.col||$("colRefInput").value||"";
+  C.colonia_ref=safe($("colRefInput").value||"");
+  $("zonaInfo").textContent=C.col?`Costo: ${money(C.envio)}${C.ref?(" · "+C.ref):""}`:"";
+  refreshPreview();
+ }
+
+ $("colFree").oninput=()=>{
+  if($("colSel").value!=="__manual__") return;
+  C.col=safe($("colFree").value||"");
+  $("zonaInfo").textContent=C.col?"Escrito: "+C.col+" · Costo por confirmar":"Escribe tu colonia/barrio.";
+  refreshPreview();
+ }
 
  es.onchange=()=>{C.empresa=es.value;applyRules();}
  $("modSel").onchange=()=>{C.modalidad=$("modSel").value;applyRules();}
@@ -370,11 +463,25 @@ function fillColsUI(){
   o.dataset.costo=String(c.c||0);o.dataset.ref=c.ref||"";
   cs.appendChild(o);
  });
+
+ // Permitir escribir colonia/barrio manualmente
+ const om=document.createElement("option");
+ om.value="__manual__";
+ om.textContent="Otra / Escribir (costo por confirmar)";
+ cs.appendChild(om);
 }
 
 /* ================= REGLAS (COSTOS DESDE SHEETS) ================= */
 function applyRules(){
  const dept=safe(C.depto),mun=safe(C.muni);
+
+ // Mostrar input de referencia de colonia/barrio solo en Comayagua y La Paz
+ const showColRef=!!dept && !!mun && (dept==="Comayagua" || dept==="La Paz");
+ if($("colRefBlock")) $("colRefBlock").classList.toggle("hidden", !showColRef);
+ if(!showColRef){
+  C.colonia_ref="";
+  if($("colRefInput")) $("colRefInput").value="";
+ }
 
  // reset UI
  $("domBlock").classList.add("hidden");
@@ -413,10 +520,10 @@ function applyRules(){
  $("empBlock").classList.remove("hidden");
  C.empresa=$("empSel").value||EMPRESAS[0];
  C.modalidad=$("modSel").value||"normal";
- C.envio=costoEmpresa(C.empresa,C.modalidad);
+ C.envio=costoEmpresa(C.empresa,C.modalidad,dept,mun);
  $("empInfo").textContent=`Empresa: ${C.empresa} · ${C.modalidad==="normal"?"Servicio normal":"Pagar al recibir"} · Costo: ${money(C.envio)}`;
  if(BUS_ON){
-  const rb=rangoBus();
+  const rb=rangoBus(dept,mun);
   $("busInfo").textContent=`🚌 Bus/encomienda: ${money(rb.min)}–${money(rb.max)}. ${rb.nota}`;
  }
  fillPayOptions();
@@ -475,6 +582,7 @@ function sendWhatsApp(){
  if(name) lines.push("👤 "+name);
  if(phone) lines.push("📞 "+phone);
  if(C.depto&&C.muni) lines.push(`📍 ${C.depto} / ${C.muni}`);
+ if(C.colonia_ref) lines.push(`🏘️ ${C.colonia_ref}`);
 
  if(C.entrega==="domicilio_ciudad"){
   lines.push("🚚 Domicilio (Comayagua ciudad)");
@@ -485,7 +593,7 @@ function sendWhatsApp(){
  }else{
   lines.push(`📦 Empresa: ${C.empresa} · ${C.modalidad==="normal"?"Normal":"Pagar al recibir"}`);
   if(BUS_ON){
-   const rb=rangoBus();
+   const rb=rangoBus(dept,mun);
    lines.push(`🚌 Bus/encomienda: ${money(rb.min)}–${money(rb.max)} (varía).`);
   }
  }
