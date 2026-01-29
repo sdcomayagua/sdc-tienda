@@ -80,6 +80,22 @@ function closeModal(id){
  if($("productModal").style.display!=="block"&&$("cartModal").style.display!=="block") closeOverlay();
 }
 
+/* ================= TOAST (Añadido al carrito) ================= */
+let __toastTimer=null;
+function showAddToast(){
+  const t=$("addToast");
+  if(!t) return;
+  t.classList.add("show");
+  // Auto-ocultar suave
+  clearTimeout(__toastTimer);
+  __toastTimer=setTimeout(()=>hideAddToast(),4500);
+}
+function hideAddToast(){
+  const t=$("addToast");
+  if(!t) return;
+  t.classList.remove("show");
+}
+
 /* ================= CART ================= */
 function loadCart(){try{CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]")}catch(e){CART=[]}if(!Array.isArray(CART))CART=[];updateBadge()}
 function saveCart(){localStorage.setItem(CART_KEY,JSON.stringify(CART));updateBadge()}
@@ -280,8 +296,10 @@ function renderFeaturedSection(){
   row.querySelectorAll(".fCard").forEach(card=>{
     card.addEventListener("click", ()=>{
       const id = card.getAttribute("data-id");
+      // IMPORTANTE: abrir el producto (no el modal genérico)
+      // Antes se llamaba openModal(p) (bug) y en móvil quedaba pantalla oscura sin modal.
       const p = PRODUCTS.find(x=>safe(x.id)===safe(id));
-      if(p) openModal(p);
+      if(p) openProduct(p.id);
       else location.hash = "#productsGrid";
     });
   });
@@ -610,7 +628,7 @@ function buildCheckoutUI(){
    <div class="hr"></div>
    <div class="tx"><b>Servicio a domicilio</b></div>
    <div id="comCityBlock" class="hidden">
-    <div class="tx">Comayagua ciudad: zona y colonia/barrio</div>
+    <div class="tx">Comayagua ciudad: elegí tu zona</div>
     <div class="grid2sel">
      <select id="zonaSel"><option value="">Zona</option></select>
      <select id="colSel"><option value="">Colonia/Barrio</option></select>
@@ -904,8 +922,15 @@ function wire(){
   const it=CART.find(x=>x.id===CURRENT.id);
   if(it) it.qty++; else CART.push({id:CURRENT.id,qty:1});
   saveCart();
-  $("modalHint").textContent="✅ Agregado. Puedes seguir comprando o ir a pagar.";
+  $("modalHint").textContent="";
+  showAddToast();
  }
+
+ // Toast actions
+ const tk=$("toastKeep");
+ const tp=$("toastPay");
+ if(tk) tk.onclick=()=>{ hideAddToast(); /* seguir comprando */ };
+ if(tp) tp.onclick=()=>{ hideAddToast(); closeModal("productModal"); openCart(); setStep(2); };
  $("tab1").onclick=()=>setStep(1)
  $("tab2").onclick=()=>setStep(2)
  $("tab3").onclick=()=>setStep(3)
@@ -938,6 +963,8 @@ function wire(){
  $("searchBtn").onclick=()=>$("searchInput").focus()
  $("themeBtn").onclick=toggleTheme
  $("cartBtn").onclick=openCart
+ const hoc=$("heroOpenCart");
+ if(hoc) hoc.onclick=openCart;
  $("searchInput").addEventListener("input",e=>{QUERY=e.target.value||"";renderProducts()})
 
  // Quick filters
@@ -953,7 +980,14 @@ async function init(){
  loadCart();
  loadFilters();
  syncFilterUI();
- $("loadingMsg").style.display="block";
+ // Loader fullscreen (mejor UX en móvil)
+ try{
+   document.body.classList.add("page-loading");
+   const pl=$("pageLoader");
+   if(pl) pl.style.display="flex";
+ }catch(e){}
+ // Evita mostrar UI a medias mientras carga
+ $("loadingMsg").style.display="none";
  try{
   DATA=await loadAPI();
   applyConfigUI();
@@ -1010,7 +1044,15 @@ async function init(){
  }catch(e){
   console.error(e);
   $("productsGrid").innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">Error cargando catálogo.</div>`;
- }finally{$("loadingMsg").style.display="none";}
+ }finally{
+   // Ocultar loader y mostrar página
+   try{
+     const pl=$("pageLoader");
+     if(pl) pl.style.display="none";
+     document.body.classList.remove("page-loading");
+   }catch(e){}
+   $("loadingMsg").style.display="none";
+ }
 }
 document.addEventListener("DOMContentLoaded",init);
 

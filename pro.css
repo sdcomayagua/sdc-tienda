@@ -40,8 +40,13 @@ body.light .s input{box-shadow:0 12px 26px rgba(0,0,0,.08)}
   .card:hover img{transform:scale(1.03)}
 }
 .card img{transition:transform .18s ease}
-.cardTitle{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
-.cardDesc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cardBody{display:flex;flex-direction:column;gap:8px}
+/* Alinear alturas: títulos a 2 líneas siempre ocupan el mismo espacio */
+.cardTitle{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.2;min-height:2.4em}
+/* Descripción con altura estable para que botones queden alineados */
+.cardDesc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35;min-height:2.7em}
+.cardBody .bp,
+.cardBody .btnDisabled{margin-top:auto}
 
 /* 8) Etiquetas de oferta / agotado más finas */
 .tagOffer{background:rgba(11,87,255,.92) !important;color:#fff !important;box-shadow:0 12px 24px rgba(11,87,255,.22) !important}
@@ -53,6 +58,65 @@ body.light .s input{box-shadow:0 12px 26px rgba(0,0,0,.08)}
   .mf{position:sticky !important;bottom:0 !important}
   .mb{max-height:calc(92vh - 168px) !important}
 }
+
+/* ==========================================================
+   FULLSCREEN LOADER
+   ========================================================== */
+body.page-loading header,
+body.page-loading main{visibility:hidden}
+.pageLoader{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;
+  background:radial-gradient(900px 380px at 15% 10%, rgba(11,87,255,.20), transparent 55%),
+             radial-gradient(900px 380px at 85% 10%, rgba(34,197,94,.12), transparent 55%),
+             rgba(3,7,18,.92);
+  backdrop-filter:blur(8px) saturate(1.1);
+}
+body.light .pageLoader{background:radial-gradient(900px 380px at 15% 10%, rgba(11,87,255,.12), transparent 55%),
+             radial-gradient(900px 380px at 85% 10%, rgba(34,197,94,.08), transparent 55%),
+             rgba(255,255,255,.94)}
+.plCard{width:min(520px,100%);border-radius:24px;padding:18px 18px 16px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);box-shadow:0 28px 70px rgba(0,0,0,.35)}
+body.light .plCard{border:1px solid rgba(2,6,23,.10);background:rgba(255,255,255,.92);box-shadow:0 28px 70px rgba(2,6,23,.10)}
+.plLogo{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-weight:900;letter-spacing:.02em;background:rgba(11,87,255,.95);color:#fff;box-shadow:0 18px 40px rgba(11,87,255,.25)}
+.plTitle{margin:10px 0 4px;font-weight:900;font-size:18px;color:rgba(255,255,255,.95)}
+body.light .plTitle{color:rgba(2,6,23,.90)}
+.plSub{color:rgba(255,255,255,.75);font-size:13px}
+body.light .plSub{color:rgba(2,6,23,.65)}
+.plBar{margin:12px 0 10px;height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.10)}
+body.light .plBar{background:rgba(2,6,23,.08)}
+.plBar span{display:block;height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg, rgba(11,87,255,.95), rgba(34,197,94,.90));
+  animation:plMove 1.05s ease-in-out infinite alternate}
+@keyframes plMove{from{transform:translateX(-10%)}to{transform:translateX(170%)}}
+.plTip{color:rgba(255,255,255,.75);font-size:12px}
+body.light .plTip{color:rgba(2,6,23,.60)}
+
+/* ==========================================================
+   TOAST (Añadido al carrito)
+   ========================================================== */
+.addToast{position:fixed;left:0;right:0;bottom:14px;z-index:9998;display:flex;justify-content:center;pointer-events:none;opacity:0;transform:translateY(12px);transition:opacity .16s ease, transform .16s ease}
+.addToast.show{opacity:1;transform:translateY(0)}
+.addToastCard{pointer-events:auto;width:min(560px,calc(100% - 28px));border-radius:20px;padding:14px 14px 12px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(15,23,42,.90);backdrop-filter:blur(10px) saturate(1.1);
+  box-shadow:0 22px 60px rgba(0,0,0,.35)}
+body.light .addToastCard{border:1px solid rgba(2,6,23,.10);background:rgba(255,255,255,.94);box-shadow:0 22px 60px rgba(2,6,23,.12)}
+.addToastTitle{font-weight:900;font-size:14px;margin:0 0 2px;color:rgba(255,255,255,.96)}
+body.light .addToastTitle{color:rgba(2,6,23,.92)}
+.addToastText{font-size:13px;color:rgba(255,255,255,.74)}
+body.light .addToastText{color:rgba(2,6,23,.65)}
+.addToastActions{display:flex;gap:10px;margin-top:10px}
+.addToastActions .bs,.addToastActions .bp{flex:1}
+
+/* ==========================================================
+   CARRITO: más bonito y claro (sin tocar lógica)
+   ========================================================== */
+#cartModal .mh{padding:16px 16px 10px}
+#cartModal .tabs{position:sticky;top:0;z-index:2;background:linear-gradient(to bottom, rgba(0,0,0,.10), transparent);padding:0 12px 10px}
+body.light #cartModal .tabs{background:linear-gradient(to bottom, rgba(255,255,255,.92), transparent)}
+#cartModal .tab{border-radius:999px}
+#cartModal .mb{padding:10px 16px 14px}
+#cartModal .tot{border-radius:18px}
+#cartModal .mf{padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,.10)}
+body.light #cartModal .mf{border-top:1px solid rgba(2,6,23,.08)}
 
 /* 10) Botones más consistentes + estados */
 .bp{letter-spacing:.2px}
@@ -146,6 +210,31 @@ body.light .heroNote{
   border:1px solid rgba(2,6,23,.08);
   color:rgba(2,6,23,.72);
 }
+
+.heroCtas{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ctaPrimary{
+  flex:1;
+  min-width:160px;
+  text-align:center;
+  padding:12px 14px;
+  border-radius:16px;
+  font-weight:900;
+  background:linear-gradient(135deg, rgba(11,87,255,1), rgba(34,197,94,.92));
+  color:#fff;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 16px 40px rgba(11,87,255,.22);
+}
+.ctaGhost{
+  flex:1;
+  min-width:160px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 14px;
+  border-radius:16px;
+  font-weight:900;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+}
+body.light .ctaGhost{background:rgba(2,6,23,.04);border:1px solid rgba(2,6,23,.10)}
 
 @media(min-width:720px){
   .hero{margin:18px 0 18px}
@@ -441,4 +530,113 @@ body.light .g .p{ box-shadow: 0 18px 46px rgba(0,0,0,.10); }
   border-radius: 999px;
   font-weight: 800;
 }
+
+/* ==========================================================
+   FULLSCREEN LOADER (pantalla completa)
+   ========================================================== */
+body.page-loading{
+  overflow:hidden;
+}
+body.page-loading header,
+body.page-loading main,
+body.page-loading .wrap{
+  visibility:hidden;
+}
+.pageLoader{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:
+    radial-gradient(900px 420px at 15% 0%, rgba(11,87,255,.22), transparent 55%),
+    radial-gradient(900px 420px at 85% 10%, rgba(34,197,94,.14), transparent 55%),
+    rgba(2,6,23,.92);
+  backdrop-filter: blur(10px);
+}
+body.light .pageLoader{
+  background:
+    radial-gradient(900px 420px at 15% 0%, rgba(11,87,255,.12), transparent 55%),
+    radial-gradient(900px 420px at 85% 10%, rgba(34,197,94,.10), transparent 55%),
+    rgba(255,255,255,.92);
+}
+.plCard{
+  width:min(520px, 100%);
+  border-radius:26px;
+  padding:18px 16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  box-shadow:0 26px 80px rgba(0,0,0,.45);
+  text-align:center;
+}
+body.light .plCard{
+  border:1px solid rgba(2,6,23,.10);
+  background:rgba(255,255,255,.96);
+  box-shadow:0 26px 80px rgba(2,6,23,.12);
+}
+.plLogo{
+  width:54px;height:54px;
+  margin:0 auto 10px;
+  border-radius:16px;
+  display:grid;place-items:center;
+  font-weight:900;
+  letter-spacing:.02em;
+  color:#fff;
+  background:linear-gradient(135deg, rgba(11,87,255,1), rgba(34,197,94,.85));
+}
+.plTitle{font-size:18px;font-weight:900;color:rgba(255,255,255,.94)}
+body.light .plTitle{color:rgba(2,6,23,.90)}
+.plSub{margin-top:6px;color:rgba(255,255,255,.78)}
+body.light .plSub{color:rgba(2,6,23,.66)}
+.plBar{margin:14px auto 10px;width:100%;max-width:420px;height:10px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden}
+body.light .plBar{background:rgba(2,6,23,.08)}
+.plBar span{display:block;height:100%;width:40%;border-radius:999px;background:linear-gradient(90deg, rgba(11,87,255,1), rgba(34,197,94,.95));animation:plMove 1.1s ease-in-out infinite}
+@keyframes plMove{0%{transform:translateX(-60%)}100%{transform:translateX(220%)} }
+.plTip{margin-top:8px;font-weight:600;color:rgba(255,255,255,.72)}
+body.light .plTip{color:rgba(2,6,23,.58)}
+
+/* ==========================================================
+   TOAST: Añadido al carrito
+   ========================================================== */
+.addToast{
+  position:fixed;
+  left:0;right:0;
+  bottom:16px;
+  z-index:9998;
+  display:flex;
+  justify-content:center;
+  padding:0 12px;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(16px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.addToast.show{opacity:1;transform:translateY(0);pointer-events:auto}
+.addToastCard{
+  width:min(560px,100%);
+  border-radius:22px;
+  padding:14px 14px;
+  background:rgba(17,24,39,.92);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 20px 55px rgba(0,0,0,.45);
+}
+body.light .addToastCard{background:rgba(255,255,255,.95);border:1px solid rgba(2,6,23,.10);box-shadow:0 20px 55px rgba(2,6,23,.12)}
+.addToastTitle{font-weight:900;margin-bottom:4px}
+.addToastText{color:rgba(148,163,184,.95);margin-bottom:10px}
+body.light .addToastText{color:rgba(2,6,23,.62)}
+.addToastActions{display:flex;gap:10px}
+.addToastActions .bs,.addToastActions .bp{flex:1}
+
+/* ==========================================================
+   MODAL CARRITO: más limpio y tipo app
+   ========================================================== */
+#cartModal .mh{padding:14px 14px;border-bottom:1px solid rgba(255,255,255,.10)}
+body.light #cartModal .mh{border-bottom:1px solid rgba(2,6,23,.08)}
+#cartModal .tabs{position:sticky;top:0;z-index:2;background:transparent;gap:10px;padding:10px 12px}
+#cartModal .tab{border-radius:999px;font-weight:900}
+#cartModal .mb{padding:12px 14px}
+#cartModal .tot{border-radius:18px;overflow:hidden}
+#cartModal .ci .cartItem{border-radius:18px}
 

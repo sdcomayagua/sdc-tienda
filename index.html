@@ -54,7 +54,18 @@
 </style>
 </head>
 
-<body>
+<body class="page-loading">
+
+<!-- FULLSCREEN LOADER (mejor UX al cargar) -->
+<div class="pageLoader" id="pageLoader" aria-label="Cargando" role="status">
+  <div class="plCard">
+    <div class="plLogo">SDC</div>
+    <div class="plTitle">Cargando catálogo…</div>
+    <div class="plSub">Preparando productos, precios e imágenes.</div>
+    <div class="plBar"><span></span></div>
+    <div class="plTip">Tip: podés buscar por nombre, modelo o marca.</div>
+  </div>
+</div>
 <header class="h">
   <div class="t">
     <div class="b" id="goTop" title="Inicio">
@@ -91,6 +102,12 @@
     </div>
 
     <div class="heroNote"><span id="heroNote">Tip: Usá el buscador para encontrar productos por nombre, modelo o marca.</span></div>
+
+    <!-- CTA (solo UX) -->
+    <div class="heroCtas">
+      <a class="ctaPrimary" href="#productsGrid">Ver catálogo</a>
+      <button class="ctaGhost" type="button" id="heroOpenCart"><i class="ri-shopping-cart-2-line"></i> Ir al carrito</button>
+    </div>
   </div>
 </section>
 <!-- PROMO BAR (editable desde Sheets -> hoja config) -->
@@ -193,6 +210,18 @@
   document.getElementById('yearNow').textContent = new Date().getFullYear();
 </script>
 </main>
+
+<!-- Toast / confirmación al añadir al carrito -->
+<div class="addToast" id="addToast" aria-live="polite" aria-atomic="true">
+  <div class="addToastCard">
+    <div class="addToastTitle">✅ Añadido al carrito</div>
+    <div class="addToastText">¿Deseas seguir comprando o ir a pagar?</div>
+    <div class="addToastActions">
+      <button class="bs" id="toastKeep" type="button">Seguir comprando</button>
+      <button class="bp" id="toastPay" type="button">Ir a pagar</button>
+    </div>
+  </div>
+</div>
 
 
 <div id="overlay"></div>
