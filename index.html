@@ -93,6 +93,24 @@
     <div class="heroNote"><span id="heroNote">Tip: Usá el buscador para encontrar productos por nombre, modelo o marca.</span></div>
   </div>
 </section>
+<!-- PROMO BAR (editable desde Sheets -> hoja config) -->
+<div class="promoBar" id="promoBar" style="display:none" aria-label="Promoción">
+  <a class="promoLink" id="promoLink" href="#" target="_blank" rel="noopener">
+    <span class="promoPill" id="promoPill">PROMO</span>
+    <span class="promoText" id="promoText">Promo</span>
+    <span class="promoCta" id="promoCta">Ver</span>
+  </a>
+  <button class="promoClose" id="promoClose" type="button" aria-label="Cerrar promoción">×</button>
+</div>
+
+<!-- DESTACADOS (editable desde Sheets -> hoja config) -->
+<section class="featured" id="featuredSection" style="display:none" aria-label="Destacados">
+  <div class="featuredHead">
+    <h2 class="featuredTitle" id="featuredTitle">Destacados</h2>
+    <a class="featuredAll" href="#productsGrid" id="featuredAll">Ver catálogo</a>
+  </div>
+  <div class="featuredRow" id="featuredRow" role="list"></div>
+</section>
 
 <div class="s">
   <input id="searchInput" type="text" placeholder="Buscar producto...">

@@ -14,6 +14,7 @@ const COMAYAGUA_DOMICILIO=new Set(["Comayagua","Villa de San Antonio","Ajuteriqu
 const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const safe=v=>String(v??"").trim();
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 const money=n=>`Lps. ${Math.round(Number(n||0)).toLocaleString("es-HN")}`;
 const isOffer=p=>Number(p.precio_anterior||0)>Number(p.precio||0);
 const isOut=p=>Number(p.stock||0)<=0;
@@ -115,50 +116,150 @@ function cfgVal(k, fallback=""){
   return fallback;
 }
 function applyConfigUI(){
+  // cache config in un objeto simple
+  const rows = Array.isArray(DATA?.config) ? DATA.config : [];
+  window.__CFG = window.__CFG || {};
+  for(const r of rows){
+    const k = safe(r.clave||r.key||r.clave_||"").toLowerCase();
+    if(!k) continue;
+    window.__CFG[k] = (r.valor!==undefined && r.valor!==null) ? String(r.valor) : String(r.value??"");
+  }
+  const cfg = (k,f="") => (window.__CFG?.[String(k).toLowerCase()] ?? f).toString().trim();
+
   // HERO
   const heroTitle = $("heroTitle");
   const heroDesc  = $("heroDesc");
-  const heroKick  = $("heroKickerText");
-  const heroNote  = $("heroNote");
   const heroBadge = $("heroBadge");
+  const heroNote  = $("heroNote");
+  const kicker    = $("heroKickerText");
 
-  const t = cfgVal("hero_titulo","");
-  const st= cfgVal("hero_subtitulo","");
-  const bd= cfgVal("hero_badge","");
-  const note = cfgVal("hero_aviso","");
+  const t  = cfg("hero_titulo","");
+  const st = cfg("hero_subtitulo","");
+  const bd = cfg("hero_badge","");
+  const note = cfg("hero_aviso","");
+  const kick = cfg("hero_kicker","");
 
+  if(kicker && kick) kicker.textContent = kick;
   if(heroTitle && t) heroTitle.textContent = t;
-  if(heroDesc && st)  heroDesc.textContent = st;
-  if(heroKick){
-    const promo = cfgVal("promo_texto","");
-    heroKick.textContent = promo || (st ? st : heroKick.textContent);
-  }
+  if(heroDesc && st) heroDesc.textContent = st;
   if(heroBadge && bd) heroBadge.textContent = bd;
   if(heroNote && note) heroNote.textContent = note;
 
-  // FOOTER
-  const fHorario = $("footerHorario");
-  const fUbic = $("footerUbicacion");
-  const fEnvios = $("footerEnvios");
-  const fConf = $("footerConfianza");
+  // Promo bar (editable)
+  const promoBar = $("promoBar");
+  const promoLink= $("promoLink");
+  const promoText= $("promoText");
+  const promoCta = $("promoCta");
+  const promoPill= $("promoPill");
+  const promoClose=$("promoClose");
 
-  const fh = cfgVal("footer_horario","");
-  const fu = cfgVal("footer_ubicacion","");
-  const fe = cfgVal("footer_envios","");
-  const fc = cfgVal("footer_confianza","");
+  const pe = cfg("promo_enabled","").toLowerCase();
+  const enabled = ["1","si","sí","true","on","yes"].includes(pe);
+  const ptext = cfg("promo_texto", cfg("promo_text",""));
+  const plink = cfg("promo_link","");
+  const pcta  = cfg("promo_cta","Ver");
+  const ppill = cfg("promo_pill","PROMO");
+  const pver  = cfg("promo_version", ptext); // para recordar si ya la cerraron
 
-  if(fHorario && fh) fHorario.textContent = fh;
-  if(fUbic && fu) fUbic.textContent = fu;
-  if(fEnvios && fe) fEnvios.textContent = fe;
-  if(fConf && fc) fConf.textContent = fc;
+  const dismissedKey = "sdc_promo_dismissed";
+  const dismissedVer = localStorage.getItem(dismissedKey);
 
-  // SEO (meta description)
-  const md = cfgVal("seo_descripcion","");
+  if(promoBar && enabled && ptext && dismissedVer !== pver){
+    promoBar.style.display = "";
+    if(promoText) promoText.textContent = ptext;
+    if(promoCta) promoCta.textContent = pcta || "Ver";
+    if(promoPill) promoPill.textContent = ppill || "PROMO";
+    if(promoLink){
+      promoLink.href = (plink && plink !== "#") ? plink : "#productsGrid";
+      promoLink.target = (plink && plink !== "#productsGrid") ? "_blank" : "_self";
+    }
+    if(promoClose){
+      promoClose.onclick = ()=>{
+        promoBar.style.display="none";
+        try{ localStorage.setItem(dismissedKey, pver); }catch(_){}
+      };
+    }
+  }else if(promoBar){
+    promoBar.style.display="none";
+  }
+
+  // Footer
+  const fh = cfg("footer_horario","");
+  const fu = cfg("footer_ubicacion","");
+  const fe = cfg("footer_envios","");
+  const fc = cfg("footer_confianza","");
+  if($("footerHorario") && fh) $("footerHorario").textContent = fh;
+  if($("footerUbicacion") && fu) $("footerUbicacion").textContent = fu;
+  if($("footerEnvios") && fe) $("footerEnvios").textContent = fe;
+  if($("footerConfianza") && fc) $("footerConfianza").textContent = fc;
+
+  // SEO description
+  const md = cfg("seo_descripcion","");
   const meta = document.querySelector('meta[name="description"]');
   if(meta && md) meta.setAttribute("content", md);
   if(md) document.documentElement.setAttribute("data-seo", "1");
 }
 
+
+
+function renderFeaturedSection(){
+  const sec = $("featuredSection");
+  const row = $("featuredRow");
+  const title = $("featuredTitle");
+  if(!sec || !row) return;
+
+  const cfg = (k,f="") => (window.__CFG?.[String(k).toLowerCase()] ?? f).toString().trim();
+  const enabled = ["1","si","sí","true","on","yes"].includes(cfg("destacados_enabled","1").toLowerCase());
+  if(!enabled){ sec.style.display="none"; return; }
+
+  const t = cfg("destacados_titulo","Destacados");
+  if(title) title.textContent = t;
+
+  const max = Number(cfg("destacados_max","10")) || 10;
+  const idsRaw = cfg("destacados_ids","");
+  let items = [];
+  if(idsRaw){
+    const ids = idsRaw.split(",").map(s=>s.trim()).filter(Boolean);
+    items = ids.map(id=>PRODUCTS.find(p=>safe(p.id)===safe(id))).filter(Boolean);
+  }else{
+    // fallback: mostrar OFERTAS si existen, si no: primeros productos
+    const offers = PRODUCTS.filter(isOffer);
+    items = (offers.length?offers:PRODUCTS).slice(0, max);
+  }
+  items = items.slice(0, max);
+
+  if(!items.length){ sec.style.display="none"; return; }
+
+  row.innerHTML = items.map(p=>{
+    const img = safe(p.imagen||p.img||p.foto||p.url||"");
+    const price = money(Number(p.precio||p.price||0));
+    const tag = isOffer(p) ? "OFERTA" : (safe(p.variante)||safe(p.subcategoria)||"");
+    const safeName = esc(safe(p.nombre||p.name||"Producto"));
+    return `
+      <div class="fCard" role="listitem" data-id="${esc(safe(p.id))}">
+        <div class="fImg"><img loading="lazy" src="${esc(img||'no-image.png')}" alt="${safeName}"></div>
+        <div class="fBody">
+          <p class="fName">${safeName}</p>
+          <div class="fMeta">
+            <span class="fPrice">${esc(price)}</span>
+            <span class="fTag">${esc(tag||"")}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  sec.style.display = "";
+  // click -> abrir modal del producto
+  row.querySelectorAll(".fCard").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      const id = card.getAttribute("data-id");
+      const p = PRODUCTS.find(x=>safe(x.id)===safe(id));
+      if(p) openModal(p);
+      else location.hash = "#productsGrid";
+    });
+  });
+}
 
 /* Buscar costo empresa (prioridad: por municipio -> tabla general) */
 function costoEmpresa(empresa, modalidad, depto, muni){
@@ -238,14 +339,16 @@ function renderCats(){
  const bar=$("categoryBar");bar.innerHTML="";
  const all=document.createElement("button");
  all.className="pill"+(!CURRENT_CAT?" active":"");all.textContent="VER TODO";
- all.onclick=()=>{CURRENT_CAT=null;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();};
+ all.onclick=()=>{CURRENT_CAT=null;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();
+  renderFeaturedSection();};
  bar.appendChild(all);
  cats().forEach(c=>{
   if(!c) return;
   const b=document.createElement("button");
   b.className="pill"+(CURRENT_CAT===c?" active":"");
   b.textContent=c;
-  b.onclick=()=>{CURRENT_CAT=c;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();};
+  b.onclick=()=>{CURRENT_CAT=c;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();
+  renderFeaturedSection();};
   bar.appendChild(b);
  });
 }
@@ -849,6 +952,7 @@ async function init(){
   }
 
   renderCats();renderSubs();renderProducts();
+  renderFeaturedSection();
   wire();
  }catch(e){
   console.error(e);
