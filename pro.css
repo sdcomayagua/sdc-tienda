@@ -640,3 +640,192 @@ body.light #cartModal .mh{border-bottom:1px solid rgba(2,6,23,.08)}
 #cartModal .tot{border-radius:18px;overflow:hidden}
 #cartModal .ci .cartItem{border-radius:18px}
 
+
+
+/* ================================
+   ULTRA PLUS 4: UX fixes (Gallery, FAB cart, Cart modal)
+   ================================ */
+:root{ --fab-gap: 18px; }
+
+.fabCart{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:1200;
+  width:56px;height:56px;
+  border-radius:18px;
+  border:1px solid rgba(0,0,0,.06);
+  background:var(--pri);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 16px 34px rgba(0,0,0,.18);
+}
+.fabCart i{font-size:22px;line-height:1}
+.fabCart .fabBadge{
+  position:absolute;top:-8px;right:-8px;
+  min-width:24px;height:24px;
+  padding:0 6px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:999px;
+  background:#ff3b30;color:#fff;
+  font-weight:900;font-size:12px;
+  border:3px solid var(--bg);
+}
+@media (min-width: 980px){
+  /* En PC ya está el carrito arriba: ocultamos el FAB */
+  .fabCart{display:none}
+}
+
+/* Thumbnails del modal (antes se veían como fotos grandes) */
+.th{
+  display:flex;
+  gap:10px;
+  overflow:auto;
+  padding:10px 0 6px;
+  scrollbar-width:none;
+}
+.th::-webkit-scrollbar{display:none}
+.th .thumb{
+  width:64px;height:64px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  object-fit:cover;
+  flex:0 0 auto;
+  opacity:.85;
+  cursor:pointer;
+  background:rgba(0,0,0,.06);
+}
+.th .thumb.active{
+  opacity:1;
+  outline:2px solid rgba(11,87,255,.35);
+  outline-offset:2px;
+}
+
+/* Dots + hint para indicar que hay más fotos */
+.dots{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:8px}
+.dots .dot{width:6px;height:6px;border-radius:999px;background:rgba(120,120,120,.35)}
+.dots .dot.active{background:var(--pri);width:16px}
+.swipeHint{
+  margin-top:6px;
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+}
+
+/* Cart modal: más pro + botones fáciles de tocar */
+#cartModal .mb{padding-bottom:110px}
+#cartModal .mf{position:sticky;bottom:0;background:linear-gradient(to top, var(--card) 60%, rgba(255,255,255,0));backdrop-filter:saturate(120%) blur(10px)}
+.qtyRow button{touch-action:manipulation}
+
+
+
+/* ================================
+   ULTRA PLUS 5: MercadoLibre chips + category hierarchy + premium out-of-stock
+   ================================ */
+
+/* 1) Filtros rápidos (chips estilo MercadoLibre) */
+.qf{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 8px}
+.qf .pill{
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:800;
+  letter-spacing:.1px;
+  border:1px solid rgba(0,0,0,.10);
+  background:rgba(255,255,255,.92);
+  box-shadow:0 10px 22px rgba(0,0,0,.06);
+}
+body.dark .qf .pill{
+  background:rgba(18,18,22,.72);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 12px 26px rgba(0,0,0,.26);
+}
+.qf .pill i{opacity:.9}
+.qf .pill.active{
+  background:rgba(11,87,255,.12);
+  border-color:rgba(11,87,255,.45);
+  box-shadow:0 0 0 3px rgba(11,87,255,.12), 0 16px 34px rgba(0,0,0,.08);
+}
+body.dark .qf .pill.active{
+  background:rgba(11,87,255,.18);
+  border-color:rgba(11,87,255,.55);
+}
+
+/* 2) Categorías vs Subcategorías (jerarquía visual) */
+#categoryBar{margin-top:10px}
+#categoryBar .pill{
+  padding:10px 14px;
+  font-weight:900;
+  border-radius:999px;
+}
+#subcategories{
+  margin-top:8px;
+  padding-left:12px;
+  border-left:3px solid rgba(11,87,255,.18);
+}
+body.dark #subcategories{border-left-color:rgba(255,255,255,.10)}
+#subcategories .pill{
+  padding:8px 12px;
+  font-weight:800;
+  font-size:13px;
+  border-radius:14px;
+  background:rgba(255,255,255,.72);
+  border:1px dashed rgba(0,0,0,.14);
+}
+body.dark #subcategories .pill{
+  background:rgba(18,18,22,.62);
+  border:1px dashed rgba(255,255,255,.18);
+}
+#subcategories .pill.active{
+  border-style:solid;
+  background:rgba(11,87,255,.14);
+  border-color:rgba(11,87,255,.40);
+}
+
+/* 3) Agotado (premium, claro y sin ofender) */
+.card.out{
+  filter:none !important;
+  opacity:1 !important;
+  border:1px solid rgba(0,0,0,.08);
+  background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,246,250,.92));
+}
+body.dark .card.out{
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(180deg, rgba(18,18,22,.92), rgba(12,12,14,.92));
+}
+.card.out::after{
+  content:"SIN STOCK";
+  position:absolute;
+  top:12px; right:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:1000;
+  font-size:12px;
+  letter-spacing:.6px;
+  background:rgba(0,0,0,.06);
+  border:1px solid rgba(0,0,0,.10);
+  color:rgba(0,0,0,.62);
+}
+body.dark .card.out::after{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.70);
+}
+.btnDisabled{
+  width:100%;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.10);
+  background:rgba(0,0,0,.04);
+  color:rgba(0,0,0,.55);
+  font-weight:900;
+  padding:12px 14px;
+  cursor:not-allowed;
+}
+body.dark .btnDisabled{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.70);
+}
+
+/* 4) Carrito flotante: abajo derecha (asegurar) */
+.fabCart{right:16px !important; left:auto !important; bottom:16px !important;}
+@media(min-width:900px){ .fabCart{display:none;} }

@@ -19,6 +19,9 @@ const money=n=>`Lps. ${Math.round(Number(n||0)).toLocaleString("es-HN")}`;
 const isOffer=p=>Number(p.precio_anterior||0)>Number(p.precio||0);
 const isOut=p=>Number(p.stock||0)<=0;
 const NO_IMG='no-image.png';
+let LAST_SCROLL_Y = 0;
+let GALLERY_STATE = { list: [], idx: 0 };
+
 
 function fixImg(el){
   if(!el) return;
@@ -77,6 +80,10 @@ function closeOverlay(){$("overlay").style.display="none"}
 function openModal(id){openOverlay();$(id).style.display="block"}
 function closeModal(id){
  $(id).style.display="none";
+ if(id==="productModal"){
+   // volver a la misma posición del catálogo
+   setTimeout(()=>{ window.scrollTo({top: LAST_SCROLL_Y||0, behavior:"instant"}); }, 0);
+ }
  if($("productModal").style.display!=="block"&&$("cartModal").style.display!=="block") closeOverlay();
 }
 
@@ -106,7 +113,54 @@ function calcCambio(){
  if(C.pago!=="efectivo"){C.cambio=0;return}
  const diff=Number(C.cash||0)-total();
  C.cambio=diff>0?diff:0;
+ updateCartBadge();
 }
+
+function updateCartBadge(){
+
+function showAddPrompt(){
+ // mini confirm (seguir / ir a pagar)
+ let box = document.getElementById("addPrompt");
+ if(!box){
+   box=document.createElement("div");
+   box.id="addPrompt";
+   box.style.position="fixed";
+   box.style.left="50%";
+   box.style.bottom="96px";
+   box.style.transform="translateX(-50%)";
+   box.style.zIndex="1400";
+   box.style.background="var(--card)";
+   box.style.border="1px solid var(--border)";
+   box.style.borderRadius="18px";
+   box.style.boxShadow="0 22px 60px rgba(0,0,0,.22)";
+   box.style.padding="12px";
+   box.style.width="min(520px, calc(100% - 24px))";
+   box.innerHTML = `
+     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+       <div style="width:34px;height:34px;border-radius:14px;background:rgba(11,87,255,.12);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--pri)">✓</div>
+       <div style="font-weight:900">Añadido al carrito</div>
+       <div style="margin-left:auto;color:var(--muted);font-size:12px">¿Qué deseas hacer?</div>
+     </div>
+     <div style="display:flex;gap:10px">
+       <button id="apKeep" class="bs" style="flex:1">Seguir comprando</button>
+       <button id="apPay" class="bp" style="flex:1">Ir a pagar</button>
+     </div>
+   `;
+   document.body.appendChild(box);
+ }
+ // bind actions each time
+ document.getElementById("apKeep").onclick=()=>{ box.style.display="none"; closeModal("productModal"); };
+ document.getElementById("apPay").onclick=()=>{ box.style.display="none"; closeModal("productModal"); openCart(); setStep(2); };
+ box.style.display="block";
+ clearTimeout(box._t);
+ box._t=setTimeout(()=>{ box.style.display="none"; }, 3800);
+}
+ const n = CART.reduce((a,x)=>a+Number(x.qty||0),0);
+ const b = $("cartBadge"); if(b) b.textContent = String(n);
+ const fb = $("fabCartBadge");
+ if(fb){ fb.textContent = String(n); fb.style.display = n>0 ? "flex":"none"; }
+}
+
 
 /* ================= API ================= */
 async function loadAPI(){
@@ -546,11 +600,84 @@ function openProduct(id){
  }
  $("modalDesc").textContent=p.descripcion||"";
  const g=parseGallery(p);
+ // guardar scroll para volver al mismo punto al cerrar
+ LAST_SCROLL_Y = window.scrollY || 0;
+ GALLERY_STATE.list = (Array.isArray(g) ? g : []).filter(Boolean);
+ if(!GALLERY_STATE.list.length) GALLERY_STATE.list = [p.imagen||NO_IMG];
+ // quitar duplicados exactos
+ GALLERY_STATE.list = Array.from(new Set(GALLERY_STATE.list.map(x=>String(x).trim()).filter(Boolean)));
+ GALLERY_STATE.idx = 0;
+
  const mainImg = $("modalMainImg");
- mainImg.src = g[0] || p.imagen || NO_IMG;
- fixImg(mainImg);
- const th=$("modalThumbs");th.innerHTML="";
- g.length<=1?th.classList.add("hidden"):(th.classList.remove("hidden"),g.forEach((src,idx)=>{const im=document.createElement("img");im.src=src||NO_IMG;fixImg(im);im.className=idx===0?"active":"";im.onclick=()=>{mainImg.src=src||NO_IMG;fixImg(mainImg);[...th.children].forEach(x=>x.classList.remove("active"));im.classList.add("active")};th.appendChild(im)}));
+ const th=$("modalThumbs");
+ const dots=$("modalDots");
+ const hint=$("modalSwipeHint");
+
+ function renderGallery(){
+   const list = GALLERY_STATE.list;
+   const i = Math.max(0, Math.min(GALLERY_STATE.idx, list.length-1));
+   GALLERY_STATE.idx = i;
+   const src = list[i] || p.imagen || NO_IMG;
+   mainImg.src = src;
+   fixImg(mainImg);
+
+   // thumbs
+   th.innerHTML="";
+   if(list.length<=1){
+     th.classList.add("hidden");
+   }else{
+     th.classList.remove("hidden");
+     list.forEach((u,idx)=>{
+       const im=document.createElement("img");
+       im.src=u; im.alt=""; im.loading="lazy";
+       im.className="thumb"+(idx===i?" active":"");
+       im.onclick=()=>{GALLERY_STATE.idx=idx;renderGallery();};
+       fixImg(im);
+       th.appendChild(im);
+     });
+   }
+
+   // dots
+   if(dots){
+     dots.innerHTML="";
+     if(list.length<=1){
+       dots.classList.add("hidden");
+     }else{
+       dots.classList.remove("hidden");
+       list.forEach((_,idx)=>{
+         const d=document.createElement("span");
+         d.className="dot"+(idx===i?" active":"");
+         dots.appendChild(d);
+       });
+     }
+   }
+
+   // hint
+   if(hint){
+     const seen = localStorage.getItem("seen_swipe_hint")==="1";
+     if(list.length>1 && !seen){
+       hint.classList.remove("hidden");
+       setTimeout(()=>{ hint.classList.add("hidden"); localStorage.setItem("seen_swipe_hint","1"); }, 2500);
+     }else{
+       hint.classList.add("hidden");
+     }
+   }
+ }
+
+ renderGallery();
+
+ // swipe sobre la imagen principal
+ let sx=0, sy=0;
+ mainImg.ontouchstart=(e)=>{ const t=e.touches[0]; sx=t.clientX; sy=t.clientY; };
+ mainImg.ontouchend=(e)=>{
+   const t=e.changedTouches[0]; if(!t) return;
+   const dx=t.clientX-sx, dy=t.clientY-sy;
+   if(Math.abs(dx)<40 || Math.abs(dx)<Math.abs(dy)) return;
+   if(dx<0) GALLERY_STATE.idx = Math.min(GALLERY_STATE.list.length-1, GALLERY_STATE.idx+1);
+   else GALLERY_STATE.idx = Math.max(0, GALLERY_STATE.idx-1);
+   renderGallery();
+ };
+
  const vwrap=$("modalVideo");vwrap.innerHTML="";
  const v=safe(p.video||p.video_url||"");
  if(v){vwrap.classList.remove("hidden");const a=document.createElement("a");a.href=v;a.target="_blank";a.rel="noopener";a.className="videoBtn";a.textContent=videoLabel(v);vwrap.appendChild(a)}else vwrap.classList.add("hidden");
@@ -579,12 +706,13 @@ function renderCart(){
   const p=BY_ID[it.id];if(!p)return;
   const row=document.createElement("div");row.className="cartItem";
   row.innerHTML=`<img src="${p.imagen||""}" alt=""><div><div class="cartName">${p.nombre}</div><div class="cartMeta">${money(p.precio)}</div><div class="qtyRow"><button class="minus">-</button><span class="qtyNum">${it.qty}</span><button class="plus">+</button><button class="trash">🗑</button></div></div>`;
-  row.querySelector(".minus").onclick=()=>{it.qty=Math.max(1,it.qty-1);saveCart();renderCart();updateTotalsUI()}
-  row.querySelector(".plus").onclick=()=>{it.qty++;saveCart();renderCart();updateTotalsUI()}
-  row.querySelector(".trash").onclick=()=>{CART.splice(idx,1);saveCart();renderCart();updateTotalsUI()}
+  row.querySelector(".minus").onclick=()=>{it.qty=Math.max(1,it.qty-1);saveCart();renderCart();updateTotalsUI();showAddPrompt()}
+  row.querySelector(".plus").onclick=()=>{it.qty++;saveCart();renderCart();updateTotalsUI();showAddPrompt()}
+  row.querySelector(".trash").onclick=()=>{CART.splice(idx,1);saveCart();renderCart();updateTotalsUI();showAddPrompt()}
   wrap.appendChild(row);
  });
  updateTotalsUI();
+ updateCartBadge();
 }
 function updateTotalsUI(){
  $("subTotal").textContent=money(sub());
@@ -866,6 +994,7 @@ function refreshPreview(){
   else $("cashInfo").textContent=`Cambio estimado: ${money(diff)}.`;
  }
  updateTotalsUI();
+ updateCartBadge();
 }
 
 /* WHATSAPP */
@@ -963,6 +1092,9 @@ function wire(){
  $("searchBtn").onclick=()=>$("searchInput").focus()
  $("themeBtn").onclick=toggleTheme
  $("cartBtn").onclick=openCart
+ const fabCart=$("fabCart");
+ if(fabCart){ fabCart.onclick=openCart; }
+
  const hoc=$("heroOpenCart");
  if(hoc) hoc.onclick=openCart;
  $("searchInput").addEventListener("input",e=>{QUERY=e.target.value||"";renderProducts()})
