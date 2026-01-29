@@ -116,6 +116,12 @@
   <input id="searchInput" type="text" placeholder="Buscar producto...">
 </div>
 
+<!-- QUICK FILTERS (solo UX, no toca Sheets) -->
+<div class="qf" aria-label="Filtros rápidos">
+  <button class="pill" id="filterStock" type="button"><i class="ri-check-line"></i> Solo con stock</button>
+  <button class="pill" id="filterOffers" type="button"><i class="ri-price-tag-3-line"></i> Solo ofertas</button>
+</div>
+
 <div class="bar" id="categoryBar"></div>
 <div class="bar" id="subcategories" style="display:none"></div>
 
@@ -173,13 +179,14 @@
   </div>
 
   <div class="ftrBottom">
-    <span>© <span id="yearNow">
-      <span class="dot">•</span>
-    </span> SDComayagua</span>
+    <span>© <span id="yearNow"></span> SDComayagua</span>
     <span class="dot">•</span>
     <span class="ftrSmall">Diseño optimizado para móvil, tablet y PC</span>
   </div>
 </footer>
+
+<!-- Botón flotante: volver arriba (mobile friendly) -->
+<button class="fabTop" id="fabTop" aria-label="Volver arriba">↑</button>
 
 <script>
   // Solo UI (no toca lógica de compra)

@@ -18,9 +18,17 @@ const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>
 const money=n=>`Lps. ${Math.round(Number(n||0)).toLocaleString("es-HN")}`;
 const isOffer=p=>Number(p.precio_anterior||0)>Number(p.precio||0);
 const isOut=p=>Number(p.stock||0)<=0;
+const NO_IMG='no-image.png';
+
+function fixImg(el){
+  if(!el) return;
+  el.onerror=()=>{ el.onerror=null; el.src=NO_IMG; };
+}
 
 let DATA=null,PRODUCTS=[],BY_ID={},CART=[],CURRENT=null;
 let CURRENT_CAT=null,CURRENT_SUB=null,QUERY="",STEP=1;
+let ONLY_STOCK=false, ONLY_OFFERS=false;
+const FILTER_KEY="sdc_quick_filters_v1";
 
 /* Checkout */
 let C={
@@ -43,6 +51,24 @@ function toggleTheme(){
  const l=document.body.classList.contains("light");
  localStorage.setItem(THEME_KEY,l?"dark":"light");
  applyTheme();
+}
+
+/* ================= QUICK FILTERS (solo UX) ================= */
+function loadFilters(){
+  try{
+    const o=JSON.parse(localStorage.getItem(FILTER_KEY)||"{}");
+    ONLY_STOCK=!!o.only_stock;
+    ONLY_OFFERS=!!o.only_offers;
+  }catch(e){ ONLY_STOCK=false; ONLY_OFFERS=false; }
+}
+function saveFilters(){
+  try{ localStorage.setItem(FILTER_KEY, JSON.stringify({only_stock:ONLY_STOCK, only_offers:ONLY_OFFERS})); }catch(e){}
+}
+function syncFilterUI(){
+  const b1=$("filterStock");
+  const b2=$("filterOffers");
+  if(b1) b1.classList.toggle("active", ONLY_STOCK);
+  if(b2) b2.classList.toggle("active", ONLY_OFFERS);
 }
 
 /* ================= MODALS ================= */
@@ -237,7 +263,7 @@ function renderFeaturedSection(){
     const safeName = esc(safe(p.nombre||p.name||"Producto"));
     return `
       <div class="fCard" role="listitem" data-id="${esc(safe(p.id))}">
-        <div class="fImg"><img loading="lazy" src="${esc(img||'no-image.png')}" alt="${safeName}"></div>
+        <div class="fImg"><img loading="lazy" src="${esc(img||NO_IMG)}" onerror="this.onerror=null;this.src='${NO_IMG}'" alt="${safeName}"></div>
         <div class="fBody">
           <p class="fName">${safeName}</p>
           <div class="fMeta">
@@ -379,6 +405,8 @@ function renderSubs(){
 /* ================= PRODUCTOS ================= */
 function filtered(){
  let list=[...PRODUCTS];
+ if(ONLY_STOCK) list=list.filter(p=>Number(p.stock||0)>0);
+ if(ONLY_OFFERS) list=list.filter(isOffer);
  if(CURRENT_CAT) list=(CURRENT_CAT==="OFERTAS")?list.filter(isOffer):list.filter(p=>p.categoria===CURRENT_CAT);
  if(CURRENT_SUB) list=list.filter(p=>p.subcategoria===CURRENT_SUB);
  const q=(QUERY||"").toLowerCase().trim();
@@ -407,8 +435,8 @@ function renderProducts(){
     : `<button class="bp" data-open-id="${escapeHtml(p.id)}">Ver detalles</button>`;
   card.innerHTML = `
     ${offer?`<div class="tagOffer">OFERTA</div>`:""}
-    <img class="cardImg" src="${img}" alt="${escapeHtml(p.nombre||"Producto")}" loading="lazy"
-         onerror="this.style.opacity=.35;this.style.filter='grayscale(1)';this.style.objectFit='contain';this.src='assets/img/no-image.png';">
+    <img class="cardImg" src="${esc(img||NO_IMG)}" alt="${escapeHtml(p.nombre||"Producto")}" loading="lazy"
+         onerror="this.onerror=null;this.src='${NO_IMG}';this.style.objectFit='contain';">
     <div class="cardBody">
       <div class="cardTitle">${escapeHtml(p.nombre||"")}</div>
       <div class="cardDesc">${escapeHtml((p.descripcion||"").slice(0,80))}${(p.descripcion||"").length>80?"…":""}</div>
@@ -500,9 +528,11 @@ function openProduct(id){
  }
  $("modalDesc").textContent=p.descripcion||"";
  const g=parseGallery(p);
- $("modalMainImg").src=g[0]||p.imagen||"";
+ const mainImg = $("modalMainImg");
+ mainImg.src = g[0] || p.imagen || NO_IMG;
+ fixImg(mainImg);
  const th=$("modalThumbs");th.innerHTML="";
- g.length<=1?th.classList.add("hidden"):(th.classList.remove("hidden"),g.forEach((src,idx)=>{const im=document.createElement("img");im.src=src;im.className=idx===0?"active":"";im.onclick=()=>{$("modalMainImg").src=src;[...th.children].forEach(x=>x.classList.remove("active"));im.classList.add("active")};th.appendChild(im)}));
+ g.length<=1?th.classList.add("hidden"):(th.classList.remove("hidden"),g.forEach((src,idx)=>{const im=document.createElement("img");im.src=src||NO_IMG;fixImg(im);im.className=idx===0?"active":"";im.onclick=()=>{mainImg.src=src||NO_IMG;fixImg(mainImg);[...th.children].forEach(x=>x.classList.remove("active"));im.classList.add("active")};th.appendChild(im)}));
  const vwrap=$("modalVideo");vwrap.innerHTML="";
  const v=safe(p.video||p.video_url||"");
  if(v){vwrap.classList.remove("hidden");const a=document.createElement("a");a.href=v;a.target="_blank";a.rel="noopener";a.className="videoBtn";a.textContent=videoLabel(v);vwrap.appendChild(a)}else vwrap.classList.add("hidden");
@@ -895,16 +925,34 @@ function wire(){
  }
  $("btnSendWA").onclick=sendWhatsApp
  $("goTop").onclick=()=>window.scrollTo({top:0,behavior:"smooth"})
+ const fab=$("fabTop");
+ if(fab){
+   fab.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
+   const onScroll=()=>{
+     const show=window.scrollY>420;
+     fab.classList.toggle("show",show);
+   };
+   window.addEventListener("scroll",onScroll,{passive:true});
+   onScroll();
+ }
  $("searchBtn").onclick=()=>$("searchInput").focus()
  $("themeBtn").onclick=toggleTheme
  $("cartBtn").onclick=openCart
  $("searchInput").addEventListener("input",e=>{QUERY=e.target.value||"";renderProducts()})
+
+ // Quick filters
+ const fs=$("filterStock");
+ const fo=$("filterOffers");
+ if(fs) fs.onclick=()=>{ONLY_STOCK=!ONLY_STOCK;saveFilters();syncFilterUI();renderProducts();};
+ if(fo) fo.onclick=()=>{ONLY_OFFERS=!ONLY_OFFERS;saveFilters();syncFilterUI();renderProducts();};
 }
 
 /* INIT */
 async function init(){
  applyTheme();
  loadCart();
+ loadFilters();
+ syncFilterUI();
  $("loadingMsg").style.display="block";
  try{
   DATA=await loadAPI();
@@ -919,7 +967,7 @@ async function init(){
     const n = (used.get(base)||0)+1;
     used.set(base,n);
     const finalId = n===1 ? base : `${base}__${n}`;
-    return {
+    const baseObj = {
       id: finalId,
       sheet_id: rawId, // por si luego quieres auditar
       nombre:safe(p.nombre),
@@ -929,10 +977,15 @@ async function init(){
       categoria:safe(p.categoria||"General"),
       subcategoria:safe(p.subcategoria||""),
       descripcion:safe(p.descripcion||""),
-      imagen:safe(p.imagen||""),
+      imagen:safe(p.imagen||"") || NO_IMG,
       video:safe(p.video||p.video_url||""),
       galeria:safe(p.galeria||"")
     };
+    // Passthrough de galeria_1..8 (para que funcione tal cual en Sheets)
+    for(let gi=1;gi<=8;gi++){
+      baseObj[`galeria_${gi}`] = safe(p[`galeria_${gi}`] || p[`GALERIA_${gi}`] || p[`galeria${gi}`] || "");
+    }
+    return baseObj;
   }).filter(p=>p.nombre);
 
   BY_ID={};
