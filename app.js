@@ -101,6 +101,64 @@ function cols(z){
 
 /* ================= ENVIOS DESDE SHEETS ================= */
 function enviosRows(){return Array.isArray(DATA?.envios)?DATA.envios:[]}
+/* ================= CONFIG UI DESDE SHEETS ================= */
+function cfgVal(k, fallback=""){
+  const rows = Array.isArray(DATA?.config) ? DATA.config : [];
+  const key = (k||"").toString().trim().toLowerCase();
+  for(const r of rows){
+    const ck = safe(r.clave||r.key||r.clave_||"").toLowerCase();
+    if(ck===key){
+      const v = r.valor ?? r.value ?? "";
+      return (v===null||v===undefined) ? "" : (""+v);
+    }
+  }
+  return fallback;
+}
+function applyConfigUI(){
+  // HERO
+  const heroTitle = $("heroTitle");
+  const heroDesc  = $("heroDesc");
+  const heroKick  = $("heroKickerText");
+  const heroNote  = $("heroNote");
+  const heroBadge = $("heroBadge");
+
+  const t = cfgVal("hero_titulo","");
+  const st= cfgVal("hero_subtitulo","");
+  const bd= cfgVal("hero_badge","");
+  const note = cfgVal("hero_aviso","");
+
+  if(heroTitle && t) heroTitle.textContent = t;
+  if(heroDesc && st)  heroDesc.textContent = st;
+  if(heroKick){
+    const promo = cfgVal("promo_texto","");
+    heroKick.textContent = promo || (st ? st : heroKick.textContent);
+  }
+  if(heroBadge && bd) heroBadge.textContent = bd;
+  if(heroNote && note) heroNote.textContent = note;
+
+  // FOOTER
+  const fHorario = $("footerHorario");
+  const fUbic = $("footerUbicacion");
+  const fEnvios = $("footerEnvios");
+  const fConf = $("footerConfianza");
+
+  const fh = cfgVal("footer_horario","");
+  const fu = cfgVal("footer_ubicacion","");
+  const fe = cfgVal("footer_envios","");
+  const fc = cfgVal("footer_confianza","");
+
+  if(fHorario && fh) fHorario.textContent = fh;
+  if(fUbic && fu) fUbic.textContent = fu;
+  if(fEnvios && fe) fEnvios.textContent = fe;
+  if(fConf && fc) fConf.textContent = fc;
+
+  // SEO (meta description)
+  const md = cfgVal("seo_descripcion","");
+  const meta = document.querySelector('meta[name="description"]');
+  if(meta && md) meta.setAttribute("content", md);
+  if(md) document.documentElement.setAttribute("data-seo", "1");
+}
+
 
 /* Buscar costo empresa (prioridad: por municipio -> tabla general) */
 function costoEmpresa(empresa, modalidad, depto, muni){
@@ -747,6 +805,7 @@ async function init(){
  $("loadingMsg").style.display="block";
  try{
   DATA=await loadAPI();
+  applyConfigUI();
   // Normalización robusta:
   // 1) si el ID viene vacío -> generar uno estable por fila
   // 2) si el ID viene repetido -> hacerlo único para evitar "abro uno y sale otro"
