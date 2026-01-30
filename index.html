@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SDComayagua</title>
+  <meta name="description" content="Artículos gamer para PC y móvil, accesorios, licencias y más. Pedidos rápidos por WhatsApp en Honduras." />
+  <link rel="icon" href="assets/favicon.svg" />
+  <link rel="stylesheet" href="assets/styles.css"/>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbarInner">
+      <button class="iconbtn" id="btnCats" title="Categorías">☰</button>
+
+      <a class="brand" href="#inicio" aria-label="Inicio">
+        <div class="logo">SDC</div>
+        <div class="brandText">
+          <div class="brandName">SDComayagua</div>
+          <div class="brandTag">Pedidos rápidos por WhatsApp • Honduras</div>
+        </div>
+      </a>
+
+      <div class="search">
+        <span class="sicon" aria-hidden="true">🔎</span>
+        <input id="q" placeholder="Buscar: gatillos, cooler, teclado..." autocomplete="off" />
+      </div>
+
+      <div class="rightBtns">
+        <button class="iconbtn" id="btnTheme" title="Modo claro/oscuro">🌓</button>
+        <a class="btn primary" href="#ofertas" id="btnGoOffers">Ver ofertas</a>
+      </div>
+    </div>
+
+    <div class="container chipsRow">
+      <div class="chips" id="catChips"></div>
+      <div class="subchips" id="subChips" style="display:none"></div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="inicio">
+    <div class="container heroInner">
+      <div class="heroCopy">
+        <div class="pill">🔥 Ofertas • 🎮 Accesorios • 💾 Licencias</div>
+        <h1 class="heroTitle">Tu tienda gamer <span class="grad">premium</span> en Honduras.</h1>
+        <p class="heroDesc">
+          Productos para PC y móvil, con atención rápida y entrega por mensajería.
+          Cotizá y pedí en 1 minuto por WhatsApp.
+        </p>
+        <div class="heroCtas">
+          <a class="btn primary" href="#catalogo">Ver catálogo</a>
+          <a class="btn" href="#envios">Ver envíos</a>
+        </div>
+        <div class="trust">
+          <div class="trustItem">✅ Stock actualizado</div>
+          <div class="trustItem">🚚 C807 • Forza • Cargo Expreso</div>
+          <div class="trustItem">🏠 Comayagua y La Paz: a domicilio</div>
+        </div>
+      </div>
+
+      <div class="heroCard">
+        <div class="heroCardTop">
+          <div class="hcTitle">Atajos</div>
+          <div class="hcSub">Para comprar más rápido</div>
+        </div>
+        <div class="heroCardGrid">
+          <a class="miniCard" href="#ofertas">
+            <div class="mcIcon">⚡</div>
+            <div>
+              <div class="mcT">Ofertas</div>
+              <div class="mcS">Lo más recomendado</div>
+            </div>
+          </a>
+          <a class="miniCard" href="#envios">
+            <div class="mcIcon">🚚</div>
+            <div>
+              <div class="mcT">Envíos</div>
+              <div class="mcS">Precios por municipio</div>
+            </div>
+          </a>
+          <a class="miniCard" href="#catalogo">
+            <div class="mcIcon">🛍️</div>
+            <div>
+              <div class="mcT">Catálogo</div>
+              <div class="mcS">Explorar categorías</div>
+            </div>
+          </a>
+          <a class="miniCard" href="#soporte" id="btnSupport">
+            <div class="mcIcon">💬</div>
+            <div>
+              <div class="mcT">Asesoría</div>
+              <div class="mcS">Te recomiendo opción</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ofertas -->
+  <section class="section" id="ofertas">
+    <div class="container">
+      <div class="sectionHead">
+        <h2>Ofertas recomendadas</h2>
+        <p>Selección basada en tu Google Sheets (oferta/destacado) y stock disponible.</p>
+      </div>
+      <div id="offersGrid" class="grid premiumGrid"></div>
+      <div id="offersEmpty" class="sectionNote" style="display:none">Aún no hay ofertas marcadas. Marcá “oferta” en tu Google Sheets para mostrar aquí.</div>
+    </div>
+  </section>
+
+  <!-- Envíos -->
+  <section class="section" id="envios">
+    <div class="container">
+      <div class="sectionHead">
+        <h2>Envíos y entrega</h2>
+        <p>Consultá el costo según tu departamento y municipio. Trabajamos con <strong>C807</strong>, <strong>Forza</strong> y <strong>Cargo Expreso</strong>. En <strong>Comayagua</strong> y <strong>La Paz</strong> también tenemos <strong>servicio a domicilio</strong>.</p>
+      </div>
+
+      <div class="shipWrap">
+        <div class="shipCard">
+          <h3 class="shipTitle">Calculadora de envío</h3>
+          <div class="shipForm">
+            <div class="field">
+              <label>Departamento</label>
+              <select id="shipDept"></select>
+            </div>
+            <div class="field">
+              <label>Municipio</label>
+              <select id="shipMuni"></select>
+            </div>
+            <div class="field" id="shipZoneWrap" style="display:none">
+              <label>Zona (Comayagua)</label>
+              <select id="shipZone"></select>
+            </div>
+          </div>
+
+          <div id="shipResult" class="shipResult">
+            <div class="sectionNote">Seleccioná tu ubicación para ver precios.</div>
+          </div>
+        </div>
+
+        <div class="shipCard">
+          <h3 class="shipTitle">Empresas de envío</h3>
+          <div id="couriers" class="couriers"></div>
+          <div class="sectionNote" style="margin-top:12px">
+            Nota: Los valores pueden variar por peso/volumen. Si tu producto es grande (ej. teclados/soportes),
+            te cotizamos el envío exacto por WhatsApp.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catálogo -->
+  <section class="section" id="catalogo">
+    <div class="container">
+      <div class="sectionHead">
+        <h2>Catálogo</h2>
+        <p>Filtrá por categoría y buscá rápido. Tocá un producto para ver fotos y pedir por WhatsApp.</p>
+      </div>
+      <div id="status" class="sectionNote">Cargando catálogo…</div>
+      <div id="products" class="grid premiumGrid" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- Soporte / WhatsApp -->
+  <section class="section" id="soporte">
+    <div class="container">
+      <div class="support">
+        <div>
+          <h2>¿No sabés cuál elegir?</h2>
+          <p>Escribinos y te recomendamos la mejor opción según tu presupuesto y tu dispositivo (PC/Android/iOS).</p>
+        </div>
+        <div class="supportBtns">
+          <button class="btn primary" id="btnWhatsappQuick">Escribir por WhatsApp</button>
+          <a class="btn" href="#catalogo">Seguir viendo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footerInner">
+      <div>
+        <div class="brandFoot">SDComayagua</div>
+        <div class="muted">Catálogo sincronizado con Google Sheets • Atención por WhatsApp</div>
+      </div>
+      <div class="muted">© <span id="year"></span> SDComayagua</div>
+    </div>
+  </footer>
+
+  <!-- Drawer categorías -->
+  <div class="modal" id="modalCats">
+    <div class="overlay"></div>
+    <div class="sheet">
+      <div class="shead">
+        <div>
+          <h2 style="margin:0">Categorías</h2>
+          <div class="muted" style="font-size:12px;margin-top:4px">Elegí una categoría para filtrar el catálogo.</div>
+        </div>
+        <button class="iconbtn" data-close="cats">✕</button>
+      </div>
+      <div class="sbody" id="catsBody"></div>
+      <div class="sfoot"><button class="btn" data-close="cats">Cerrar</button></div>
+    </div>
+  </div>
+
+  <!-- Modal producto -->
+  <div class="modal" id="modalProduct">
+    <div class="overlay"></div>
+    <div class="sheet">
+      <div class="shead">
+        <div>
+          <div id="pBread" class="muted" style="font-size:12px"></div>
+          <h2 id="pTitle" style="margin:6px 0 0">Producto</h2>
+        </div>
+        <button class="iconbtn" data-close="product">✕</button>
+      </div>
+      <div class="sbody">
+        <div class="heroImg" id="pHero"></div>
+
+        <div class="pmetaRow">
+          <div>
+            <div class="priceBig" id="pPrice">L 0</div>
+            <div class="muted" id="pStock">Stock: —</div>
+          </div>
+          <div id="pBadge"></div>
+        </div>
+
+        <div class="gallery" id="pGallery"></div>
+
+        <div class="splitInfo">
+          <div class="infoCard">
+            <div class="infoTitle">Descripción</div>
+            <div id="pDesc" class="infoBody">—</div>
+          </div>
+          <div class="infoCard">
+            <div class="infoTitle">Detalles</div>
+            <div id="pDetails" class="infoBody">—</div>
+          </div>
+        </div>
+
+        <div class="vidBtns" id="pVideos"></div>
+      </div>
+      <div class="sfoot">
+        <div class="actions">
+          <button class="btn primary" id="btnOrderNow">Pedir por WhatsApp</button>
+          <button class="btn" data-close="product">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp flotante -->
+  <button class="waFloat" id="waFloat" title="WhatsApp">💬</button>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
