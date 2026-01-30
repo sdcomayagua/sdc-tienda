@@ -1,1191 +1,242 @@
-(()=>{
-/* ================= CONFIG ================= */
-const API_URL="https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
-const CART_KEY="sdc_cart_final_today_v2";
-const THEME_KEY="sdc_theme_final_today_v2";
-const WA_DEFAULT="50431517755";
+// SDComayagua - Tienda 2026 (versión mejorada - enero 2026)
+(() => {
+  const API_URL = "https://script.google.com/macros/s/AKfycbytPfD9mq__VO7I2lnpBsqdCIT119ZT0zVyz0eeVjrJVgN_q8FYGgmqY6G66C2m67Pa4g/exec";
+  const FALLBACK_IMG = "assets/img/no-image.png";
+  const CART_KEY = "sdc_cart_2026_v3";
+  const THEME_KEY = "sdc_theme_2026_v2";
+  const WA_NUMBER = "50431517755";
 
-const EMPRESAS=["C807","Cargo Expreso","Forza"];
-const BUS_ON=true;
+  const $ = id => document.getElementById(id);
+  const safe = v => String(v ?? "").trim();
+  const money = n => `Lps. ${Math.round(Number(n || 0)).toLocaleString("es-HN")}`;
 
-// SOLO estos municipios en COMAYAGUA van a domicilio (sin empresas)
-const COMAYAGUA_DOMICILIO=new Set(["Comayagua","Villa de San Antonio","Ajuterique","Lejamaní","Lejamani","Flores"]);
+  let PRODUCTS = [], BY_ID = {}, CART = [];
+  let CURRENT = null, QUERY = "", CURRENT_CAT = null, CURRENT_SUB = null;
+  let PAGE = 1, PER_PAGE = 20;
+  let fuse = null;
 
-const $=id=>document.getElementById(id);
-const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-const safe=v=>String(v??"").trim();
-const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-const money=n=>`Lps. ${Math.round(Number(n||0)).toLocaleString("es-HN")}`;
-const isOffer=p=>Number(p.precio_anterior||0)>Number(p.precio||0);
-const isOut=p=>Number(p.stock||0)<=0;
-const NO_IMG='no-image.png';
-let LAST_SCROLL_Y = 0;
-let GALLERY_STATE = { list: [], idx: 0 };
+  function applyTheme() {
+    const theme = localStorage.getItem(THEME_KEY) || "dark";
+    document.body.classList.toggle("light", theme === "light");
+    $("themeBtn").innerHTML = theme === "light" ? '<i class="ri-sun-line"></i>' : '<i class="ri-moon-line"></i>';
+  }
 
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle("light");
+    localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
+    applyTheme();
+  }
 
-function fixImg(el){
-  if(!el) return;
-  el.onerror=()=>{ el.onerror=null; el.src=NO_IMG; };
-}
+  function loadCart() {
+    try {
+      CART = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    } catch {
+      CART = [];
+    }
+    updateCartBadge();
+  }
 
-let DATA=null,PRODUCTS=[],BY_ID={},CART=[],CURRENT=null;
-let CURRENT_CAT=null,CURRENT_SUB=null,QUERY="",STEP=1;
-let ONLY_STOCK=false, ONLY_OFFERS=false;
-const FILTER_KEY="sdc_quick_filters_v1";
+  function saveCart() {
+    localStorage.setItem(CART_KEY, JSON.stringify(CART));
+    updateCartBadge();
+  }
 
-/* Checkout */
-let C={
- depto:"",muni:"",
- entrega:"", // domicilio_ciudad | domicilio_muni | empresa | bus
- zona:"",col:"",ref:"",colonia_ref:"",
- envio:0,
- empresa:EMPRESAS[0],modalidad:"normal", // normal | pagar_al_recibir
- canal:"empresa", // empresa | bus
- pago:"",cash:0,cambio:0
-};
+  function updateCartBadge() {
+    const count = CART.reduce((sum, item) => sum + (item.qty || 1), 0);
+    $("cartCount").textContent = count;
+  }
 
-/* ================= THEME ================= */
-function applyTheme(){
- const t=localStorage.getItem(THEME_KEY)||"dark";
- document.body.classList.toggle("light",t==="light");
- $("themeBtn").innerHTML=t==="light"?'<i class="ri-sun-line"></i>':'<i class="ri-moon-line"></i>';
-}
-function toggleTheme(){
- const l=document.body.classList.contains("light");
- localStorage.setItem(THEME_KEY,l?"dark":"light");
- applyTheme();
-}
+  async function fetchData() {
+    try {
+      const res = await fetch(API_URL + "?action=get_all", { cache: "no-store" });
+      if (!res.ok) throw new Error("API error " + res.status);
+      const data = await res.json();
+      PRODUCTS = (data.productos || []).map(p => ({
+        id: safe(p.id || `prod_${Date.now()}_${Math.random().toString(36).slice(2,8)}`),
+        nombre: safe(p.nombre),
+        precio: Number(p.precio || 0),
+        precio_anterior: Number(p.precio_anterior || 0),
+        stock: Number(p.stock || 0),
+        categoria: safe(p.categoria || "General"),
+        subcategoria: safe(p.subcategoria || ""),
+        descripcion: safe(p.descripcion || ""),
+        imagen: safe(p.imagen) || FALLBACK_IMG,
+        galeria: safe(p.galeria || ""),
+        video: safe(p.video || ""),
+        galeria_1: safe(p.galeria_1 || ""), // hasta galeria_8 si existen
+      })).filter(p => p.nombre);
 
-/* ================= QUICK FILTERS (solo UX) ================= */
-function loadFilters(){
-  try{
-    const o=JSON.parse(localStorage.getItem(FILTER_KEY)||"{}");
-    ONLY_STOCK=!!o.only_stock;
-    ONLY_OFFERS=!!o.only_offers;
-  }catch(e){ ONLY_STOCK=false; ONLY_OFFERS=false; }
-}
-function saveFilters(){
-  try{ localStorage.setItem(FILTER_KEY, JSON.stringify({only_stock:ONLY_STOCK, only_offers:ONLY_OFFERS})); }catch(e){}
-}
-function syncFilterUI(){
-  const b1=$("filterStock");
-  const b2=$("filterOffers");
-  if(b1) b1.classList.toggle("active", ONLY_STOCK);
-  if(b2) b2.classList.toggle("active", ONLY_OFFERS);
-}
+      BY_ID = {};
+      PRODUCTS.forEach(p => BY_ID[p.id] = p);
 
-/* ================= MODALS ================= */
-function openOverlay(){$("overlay").style.display="block"}
-function closeOverlay(){$("overlay").style.display="none"}
-function openModal(id){openOverlay();$(id).style.display="block"}
-function closeModal(id){
- $(id).style.display="none";
- if(id==="productModal"){
-   // volver a la misma posición del catálogo
-   setTimeout(()=>{ window.scrollTo({top: LAST_SCROLL_Y||0, behavior:"instant"}); }, 0);
- }
- if($("productModal").style.display!=="block"&&$("cartModal").style.display!=="block") closeOverlay();
-}
+      // Inicializar Fuse para búsqueda tolerante
+      fuse = new Fuse(PRODUCTS, {
+        keys: ["nombre", "descripcion", "categoria", "subcategoria"],
+        threshold: 0.3,
+        ignoreLocation: true,
+        includeScore: true
+      });
 
-/* ================= TOAST (Añadido al carrito) ================= */
-let __toastTimer=null;
-function showAddToast(){
-  const t=$("addToast");
-  if(!t) return;
-  t.classList.add("show");
-  // Auto-ocultar suave
-  clearTimeout(__toastTimer);
-  __toastTimer=setTimeout(()=>hideAddToast(),4500);
-}
-function hideAddToast(){
-  const t=$("addToast");
-  if(!t) return;
-  t.classList.remove("show");
-}
-
-/* ================= CART ================= */
-function loadCart(){try{CART=JSON.parse(localStorage.getItem(CART_KEY)||"[]")}catch(e){CART=[]}if(!Array.isArray(CART))CART=[];updateBadge()}
-function saveCart(){localStorage.setItem(CART_KEY,JSON.stringify(CART));updateBadge()}
-function updateBadge(){$("cartCount").textContent=String(CART.reduce((a,b)=>a+Number(b.qty||0),0))}
-function sub(){return CART.reduce((s,i)=>{const p=BY_ID[i.id];return p?s+Number(p.precio||0)*Number(i.qty||0):s},0)}
-function total(){return sub()+Number(C.envio||0)}
-function calcCambio(){
- if(C.pago!=="efectivo"){C.cambio=0;return}
- const diff=Number(C.cash||0)-total();
- C.cambio=diff>0?diff:0;
- updateCartBadge();
-}
-
-function updateCartBadge(){
-
-function showAddPrompt(){
- // mini confirm (seguir / ir a pagar)
- let box = document.getElementById("addPrompt");
- if(!box){
-   box=document.createElement("div");
-   box.id="addPrompt";
-   box.style.position="fixed";
-   box.style.left="50%";
-   box.style.bottom="96px";
-   box.style.transform="translateX(-50%)";
-   box.style.zIndex="1400";
-   box.style.background="var(--card)";
-   box.style.border="1px solid var(--border)";
-   box.style.borderRadius="18px";
-   box.style.boxShadow="0 22px 60px rgba(0,0,0,.22)";
-   box.style.padding="12px";
-   box.style.width="min(520px, calc(100% - 24px))";
-   box.innerHTML = `
-     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-       <div style="width:34px;height:34px;border-radius:14px;background:rgba(11,87,255,.12);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--pri)">✓</div>
-       <div style="font-weight:900">Añadido al carrito</div>
-       <div style="margin-left:auto;color:var(--muted);font-size:12px">¿Qué deseas hacer?</div>
-     </div>
-     <div style="display:flex;gap:10px">
-       <button id="apKeep" class="bs" style="flex:1">Seguir comprando</button>
-       <button id="apPay" class="bp" style="flex:1">Ir a pagar</button>
-     </div>
-   `;
-   document.body.appendChild(box);
- }
- // bind actions each time
- document.getElementById("apKeep").onclick=()=>{ box.style.display="none"; closeModal("productModal"); };
- document.getElementById("apPay").onclick=()=>{ box.style.display="none"; closeModal("productModal"); openCart(); setStep(2); };
- box.style.display="block";
- clearTimeout(box._t);
- box._t=setTimeout(()=>{ box.style.display="none"; }, 3800);
-}
- const n = CART.reduce((a,x)=>a+Number(x.qty||0),0);
- const b = $("cartBadge"); if(b) b.textContent = String(n);
- const fb = $("fabCartBadge");
- if(fb){ fb.textContent = String(n); fb.style.display = n>0 ? "flex":"none"; }
-}
-
-
-/* ================= API ================= */
-async function loadAPI(){
- const r=await fetch(API_URL,{cache:"no-store"});
- if(!r.ok) throw new Error("API "+r.status);
- return await r.json();
-}
-
-/* ================= HN deptos/munis ================= */
-function deptos(){
- const rows=Array.isArray(DATA?.municipios_hn)?DATA.municipios_hn:[];
- const set=new Set(rows.map(r=>safe(r.departamento)).filter(Boolean));
- return [...set].sort((a,b)=>a.localeCompare(b));
-}
-function munis(d){
- const rows=Array.isArray(DATA?.municipios_hn)?DATA.municipios_hn:[];
- return rows.filter(r=>safe(r.departamento)===d).map(r=>safe(r.municipio)).filter(Boolean).sort((a,b)=>a.localeCompare(b));
-}
-
-/* ================= ZONAS COMAYAGUA CIUDAD ================= */
-function zRows(){return Array.isArray(DATA?.zonas_comayagua_ciudad)?DATA.zonas_comayagua_ciudad:[]}
-function zList(){
- const set=new Set(zRows().map(r=>safe(r.zona)).filter(Boolean));
- const arr=[...set];
- const order=["centrica","céntrica","alejada","fuera"];
- arr.sort((a,b)=>{
-  const ai=order.indexOf(a.toLowerCase()),bi=order.indexOf(b.toLowerCase());
-  return (ai===-1?99:ai)-(bi===-1?99:bi);
- });
- return arr;
-}
-function cols(z){
- return zRows().filter(r=>safe(r.zona)===z).map(r=>({col:safe(r.colonia_barrio),c:Number(r.costo||0),ref:safe(r.referencia)})).filter(x=>x.col);
-}
-
-/* ================= ENVIOS DESDE SHEETS ================= */
-function enviosRows(){return Array.isArray(DATA?.envios)?DATA.envios:[]}
-/* ================= CONFIG UI DESDE SHEETS ================= */
-function cfgVal(k, fallback=""){
-  const rows = Array.isArray(DATA?.config) ? DATA.config : [];
-  const key = (k||"").toString().trim().toLowerCase();
-  for(const r of rows){
-    const ck = safe(r.clave||r.key||r.clave_||"").toLowerCase();
-    if(ck===key){
-      const v = r.valor ?? r.value ?? "";
-      return (v===null||v===undefined) ? "" : (""+v);
+      return true;
+    } catch (err) {
+      console.error("Error cargando datos:", err);
+      $("productsGrid").innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--muted);">No pudimos cargar el catálogo.<br><small>${err.message}</small></div>`;
+      return false;
     }
   }
-  return fallback;
-}
-function applyConfigUI(){
-  // cache config in un objeto simple
-  const rows = Array.isArray(DATA?.config) ? DATA.config : [];
-  window.__CFG = window.__CFG || {};
-  for(const r of rows){
-    const k = safe(r.clave||r.key||r.clave_||"").toLowerCase();
-    if(!k) continue;
-    window.__CFG[k] = (r.valor!==undefined && r.valor!==null) ? String(r.valor) : String(r.value??"");
-  }
-  const cfg = (k,f="") => (window.__CFG?.[String(k).toLowerCase()] ?? f).toString().trim();
 
-  // HERO
-  const heroTitle = $("heroTitle");
-  const heroDesc  = $("heroDesc");
-  const heroBadge = $("heroBadge");
-  const heroNote  = $("heroNote");
-  const kicker    = $("heroKickerText");
-
-  const t  = cfg("hero_titulo","");
-  const st = cfg("hero_subtitulo","");
-  const bd = cfg("hero_badge","");
-  const note = cfg("hero_aviso","");
-  const kick = cfg("hero_kicker","");
-
-  if(kicker && kick) kicker.textContent = kick;
-  if(heroTitle && t) heroTitle.textContent = t;
-  if(heroDesc && st) heroDesc.textContent = st;
-  if(heroBadge && bd) heroBadge.textContent = bd;
-  if(heroNote && note) heroNote.textContent = note;
-
-  // Promo bar (editable)
-  const promoBar = $("promoBar");
-  const promoLink= $("promoLink");
-  const promoText= $("promoText");
-  const promoCta = $("promoCta");
-  const promoPill= $("promoPill");
-  const promoClose=$("promoClose");
-
-  const pe = cfg("promo_enabled","").toLowerCase();
-  const enabled = ["1","si","sí","true","on","yes"].includes(pe);
-  const ptext = cfg("promo_texto", cfg("promo_text",""));
-  const plink = cfg("promo_link","");
-  const pcta  = cfg("promo_cta","Ver");
-  const ppill = cfg("promo_pill","PROMO");
-  const pver  = cfg("promo_version", ptext); // para recordar si ya la cerraron
-
-  const dismissedKey = "sdc_promo_dismissed";
-  const dismissedVer = localStorage.getItem(dismissedKey);
-
-  if(promoBar && enabled && ptext && dismissedVer !== pver){
-    promoBar.style.display = "";
-    if(promoText) promoText.textContent = ptext;
-    if(promoCta) promoCta.textContent = pcta || "Ver";
-    if(promoPill) promoPill.textContent = ppill || "PROMO";
-    if(promoLink){
-      promoLink.href = (plink && plink !== "#") ? plink : "#productsGrid";
-      promoLink.target = (plink && plink !== "#productsGrid") ? "_blank" : "_self";
-    }
-    if(promoClose){
-      promoClose.onclick = ()=>{
-        promoBar.style.display="none";
-        try{ localStorage.setItem(dismissedKey, pver); }catch(_){}
+  function renderCategories() {
+    const container = $("categoryBar");
+    container.innerHTML = "";
+    const cats = [...new Set(PRODUCTS.map(p => p.categoria))].sort();
+    cats.forEach(cat => {
+      const btn = document.createElement("button");
+      btn.className = "pill" + (CURRENT_CAT === cat ? " active" : "");
+      btn.textContent = cat;
+      btn.onclick = () => {
+        CURRENT_CAT = CURRENT_CAT === cat ? null : cat;
+        CURRENT_SUB = null;
+        PAGE = 1;
+        renderCategories();
+        renderSubcategories();
+        renderProducts();
       };
-    }
-  }else if(promoBar){
-    promoBar.style.display="none";
-  }
-
-  // Footer
-  const fh = cfg("footer_horario","");
-  const fu = cfg("footer_ubicacion","");
-  const fe = cfg("footer_envios","");
-  const fc = cfg("footer_confianza","");
-  if($("footerHorario") && fh) $("footerHorario").textContent = fh;
-  if($("footerUbicacion") && fu) $("footerUbicacion").textContent = fu;
-  if($("footerEnvios") && fe) $("footerEnvios").textContent = fe;
-  if($("footerConfianza") && fc) $("footerConfianza").textContent = fc;
-
-  // SEO description
-  const md = cfg("seo_descripcion","");
-  const meta = document.querySelector('meta[name="description"]');
-  if(meta && md) meta.setAttribute("content", md);
-  if(md) document.documentElement.setAttribute("data-seo", "1");
-}
-
-
-
-function renderFeaturedSection(){
-  const sec = $("featuredSection");
-  const row = $("featuredRow");
-  const title = $("featuredTitle");
-  if(!sec || !row) return;
-
-  const cfg = (k,f="") => (window.__CFG?.[String(k).toLowerCase()] ?? f).toString().trim();
-  const enabled = ["1","si","sí","true","on","yes"].includes(cfg("destacados_enabled","1").toLowerCase());
-  if(!enabled){ sec.style.display="none"; return; }
-
-  const t = cfg("destacados_titulo","Destacados");
-  if(title) title.textContent = t;
-
-  const max = Number(cfg("destacados_max","10")) || 10;
-  const idsRaw = cfg("destacados_ids","");
-  let items = [];
-  if(idsRaw){
-    const ids = idsRaw.split(",").map(s=>s.trim()).filter(Boolean);
-    items = ids.map(id=>PRODUCTS.find(p=>safe(p.id)===safe(id))).filter(Boolean);
-  }else{
-    // fallback: mostrar OFERTAS si existen, si no: primeros productos
-    const offers = PRODUCTS.filter(isOffer);
-    items = (offers.length?offers:PRODUCTS).slice(0, max);
-  }
-  items = items.slice(0, max);
-
-  if(!items.length){ sec.style.display="none"; return; }
-
-  row.innerHTML = items.map(p=>{
-    const img = safe(p.imagen||p.img||p.foto||p.url||"");
-    const price = money(Number(p.precio||p.price||0));
-    const tag = isOffer(p) ? "OFERTA" : (safe(p.variante)||safe(p.subcategoria)||"");
-    const safeName = esc(safe(p.nombre||p.name||"Producto"));
-    return `
-      <div class="fCard" role="listitem" data-id="${esc(safe(p.id))}">
-        <div class="fImg"><img loading="lazy" src="${esc(img||NO_IMG)}" onerror="this.onerror=null;this.src='${NO_IMG}'" alt="${safeName}"></div>
-        <div class="fBody">
-          <p class="fName">${safeName}</p>
-          <div class="fMeta">
-            <span class="fPrice">${esc(price)}</span>
-            <span class="fTag">${esc(tag||"")}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  sec.style.display = "";
-  // click -> abrir modal del producto
-  row.querySelectorAll(".fCard").forEach(card=>{
-    card.addEventListener("click", ()=>{
-      const id = card.getAttribute("data-id");
-      // IMPORTANTE: abrir el producto (no el modal genérico)
-      // Antes se llamaba openModal(p) (bug) y en móvil quedaba pantalla oscura sin modal.
-      const p = PRODUCTS.find(x=>safe(x.id)===safe(id));
-      if(p) openProduct(p.id);
-      else location.hash = "#productsGrid";
+      container.appendChild(btn);
     });
-  });
-}
+  }
 
-/* Buscar costo empresa (prioridad: por municipio -> tabla general) */
-function costoEmpresa(empresa, modalidad, depto, muni){
- // 1) Si existe tabla por municipio en Sheets: tarifas_empresa_por_municipio
- const rowsM = Array.isArray(DATA?.tarifas_empresa_por_municipio) ? DATA.tarifas_empresa_por_municipio : [];
- const rM = rowsM.find(x =>
-   safe(x.departamento)===safe(depto) &&
-   safe(x.municipio)===safe(muni) &&
-   (!safe(x.empresa) || safe(x.empresa)===safe(empresa))
- );
- if(rM){
-   const v = (modalidad==="pagar_al_recibir")
-     ? Number(rM.contra_entrega||0)
-     : Number(rM.prepago||0);
-   if(v>0) return v;
- }
- // 2) Tabla general por empresa: empresas_envio
- const rowsE = Array.isArray(DATA?.empresas_envio) ? DATA.empresas_envio : [];
- const rE = rowsE.find(x => safe(x.empresa)===safe(empresa));
- if(rE){
-   const v = (modalidad==="pagar_al_recibir")
-     ? Number(rE.envio_empresa_contra||0)
-     : Number(rE.envio_empresa_prepago||0);
-   if(v>0) return v;
- }
- // 3) Compatibilidad: estructura antigua DATA.envios
- const rows = enviosRows();
- const r = rows.find(x=>safe(x.tipo)==="empresa" && safe(x.empresa)===safe(empresa) && safe(x.modalidad)===safe(modalidad));
- if(r) return Number(r.costo||0);
+  function renderSubcategories() {
+    const container = $("subcategories");
+    container.innerHTML = "";
+    if (!CURRENT_CAT) {
+      container.style.display = "none";
+      return;
+    }
+    container.style.display = "flex";
+    const subs = [...new Set(PRODUCTS.filter(p => p.categoria === CURRENT_CAT).map(p => p.subcategoria))].filter(Boolean).sort();
+    subs.forEach(sub => {
+      const btn = document.createElement("button");
+      btn.className = "pill" + (CURRENT_SUB === sub ? " active" : "");
+      btn.textContent = sub;
+      btn.onclick = () => {
+        CURRENT_SUB = CURRENT_SUB === sub ? null : sub;
+        PAGE = 1;
+        renderSubcategories();
+        renderProducts();
+      };
+      container.appendChild(btn);
+    });
+  }
 
- // fallback
- return (modalidad==="pagar_al_recibir"?170:110);
-}
+  function renderProducts() {
+    const grid = $("productsGrid");
+    grid.innerHTML = "";
 
-/* Buscar rango bus */
-function rangoBus(depto, muni){
- // tabla dedicada en Sheets (bus_local_tarifas) es sugerida, no obligatoria
- const rowsB = Array.isArray(DATA?.bus_local_tarifas) ? DATA.bus_local_tarifas : [];
- // Puedes poner municipio "(otros municipios)" para default de Comayagua, etc.
- const rB = rowsB.find(x => safe(x.departamento)===safe(depto) && safe(x.municipio)===safe(muni))
-          || rowsB.find(x => safe(x.departamento)===safe(depto) && safe(x.municipio).includes("otros"))
-          || rowsB.find(x => safe(x.municipio).includes("otros"));
- if(rB && Number(rB.costo_sugerido||0)>0){
-  const v=Number(rB.costo_sugerido||0);
-  return { min:v, max:v, nota: safe(rB.nota||"Costo sugerido de bus/encomienda") };
- }
+    let filtered = PRODUCTS;
 
- // compatibilidad: estructura antigua envios (rango)
- const rows=enviosRows();
- const r=rows.find(x=>safe(x.tipo)==="bus" && safe(x.empresa)==="Bus local");
- return {
-  min: Number(r?.costo_min||80),
-  max: Number(r?.costo_max||150),
-  nota: safe(r?.nota||"El costo varía según transporte y destino")
- };
-}
+    // Filtros de categoría y subcategoría
+    if (CURRENT_CAT) filtered = filtered.filter(p => p.categoria === CURRENT_CAT);
+    if (CURRENT_SUB) filtered = filtered.filter(p => p.subcategoria === CURRENT_SUB);
 
-/* Costo domicilio municipio (opcional) */
-function costoDomicilioMuni(depto,muni){
- const rows=enviosRows();
- const r=rows.find(x=>safe(x.tipo)==="domicilio_muni" && safe(x.departamento)===depto && safe(x.municipio)===muni);
- return r ? Number(r.costo||0) : 0;
-}
+    // Búsqueda
+    if (QUERY.trim()) {
+      const result = fuse.search(QUERY.trim());
+      filtered = result.map(r => r.item);
+    }
 
-/* ================= CATEGORÍAS (simple) ================= */
-function cats(){
- const set=new Set(PRODUCTS.map(p=>p.categoria).filter(Boolean));
- const arr=[...set].sort((a,b)=>a.localeCompare(b));
- if(PRODUCTS.some(isOffer)) arr.unshift("OFERTAS");
- return arr;
-}
-function subs(cat){
- if(!cat||cat==="OFERTAS")return[];
- return [...new Set(PRODUCTS.filter(p=>p.categoria===cat).map(p=>p.subcategoria).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-}
-function renderCats(){
- const bar=$("categoryBar");bar.innerHTML="";
- const all=document.createElement("button");
- all.className="pill"+(!CURRENT_CAT?" active":"");all.textContent="VER TODO";
- all.onclick=()=>{CURRENT_CAT=null;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();
-  renderFeaturedSection();};
- bar.appendChild(all);
- cats().forEach(c=>{
-  if(!c) return;
-  const b=document.createElement("button");
-  b.className="pill"+(CURRENT_CAT===c?" active":"");
-  b.textContent=c;
-  b.onclick=()=>{CURRENT_CAT=c;CURRENT_SUB=null;renderCats();renderSubs();renderProducts();
-  renderFeaturedSection();};
-  bar.appendChild(b);
- });
-}
-function renderSubs(){
- const bar=$("subcategories");bar.innerHTML="";
- const list=subs(CURRENT_CAT);
- if(!CURRENT_CAT||CURRENT_CAT==="OFERTAS"||!list.length){bar.style.display="none";return;}
- bar.style.display="flex";
+    const total = filtered.length;
+    const start = (PAGE - 1) * PER_PAGE;
+    const end = start + PER_PAGE;
+    const pageItems = filtered.slice(start, end);
 
- // Etiqueta visual para que Subcategorías se distingan de Categorías
- const lab=document.createElement("div");
- lab.className="subLabel";
- lab.textContent="Subcategorías:";
- bar.appendChild(lab);
- const all=document.createElement("button");
- all.className="pill"+(!CURRENT_SUB?" active":"");all.textContent="Todas";
- all.onclick=()=>{CURRENT_SUB=null;renderSubs();renderProducts();};
- bar.appendChild(all);
- list.forEach(s=>{
-  const b=document.createElement("button");
-  b.className="pill"+(CURRENT_SUB===s?" active":"");
-  b.textContent=s;
-  b.onclick=()=>{CURRENT_SUB=s;renderSubs();renderProducts();};
-  bar.appendChild(b);
- });
-}
-
-/* ================= PRODUCTOS ================= */
-function filtered(){
- let list=[...PRODUCTS];
- if(ONLY_STOCK) list=list.filter(p=>Number(p.stock||0)>0);
- if(ONLY_OFFERS) list=list.filter(isOffer);
- if(CURRENT_CAT) list=(CURRENT_CAT==="OFERTAS")?list.filter(isOffer):list.filter(p=>p.categoria===CURRENT_CAT);
- if(CURRENT_SUB) list=list.filter(p=>p.subcategoria===CURRENT_SUB);
- const q=(QUERY||"").toLowerCase().trim();
- if(q) list=list.filter(p=>(p.nombre||"").toLowerCase().includes(q)||(p.descripcion||"").toLowerCase().includes(q));
- list.sort((a,b)=>{const av=a.stock>0?0:1,bv=b.stock>0?0:1;if(av!==bv)return av-bv;return (a.nombre||"").localeCompare(b.nombre||"")});
- return list;
-}
-function renderProducts(){
- const g=$("productsGrid");
- const list=filtered();
- g.innerHTML="";
- $("productsTitle").textContent=`Productos (${list.length})`;
- if(!list.length){
-  g.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">No hay productos.</div>`;
-  return;
- }
- list.forEach(p=>{
-  const out=isOut(p), offer=isOffer(p);
-  const card=document.createElement("article");
-  card.className="card"+(out?" out":"");
-  const img=p.imagen||"";
-  // IMPORTANT: no usar onclick inline con id, porque si el id contiene comillas o caracteres raros,
-  // puede abrir el producto incorrecto. Usamos dataset + listeners.
-  const btnHtml = out
-    ? `<button class="btnDisabled" disabled>Agotado</button>`
-    : `<button class="bp" data-open-id="${escapeHtml(p.id)}">Ver detalles</button>`;
-  card.innerHTML = `
-    ${offer?`<div class="tagOffer">OFERTA</div>`:""}
-    <img class="cardImg" src="${esc(img||NO_IMG)}" alt="${escapeHtml(p.nombre||"Producto")}" loading="lazy"
-         onerror="this.onerror=null;this.src='${NO_IMG}';this.style.objectFit='contain';">
-    <div class="cardBody">
-      <div class="cardTitle">${escapeHtml(p.nombre||"")}</div>
-      <div class="cardDesc">${escapeHtml((p.descripcion||"").slice(0,80))}${(p.descripcion||"").length>80?"…":""}</div>
-      <div class="priceRow">
-        <div>
-          <div class="p">${money(p.precio||0)}</div>
-          ${offer?`<div class="o">${money(p.precio_anterior||0)}</div>`:""}
+    pageItems.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card" + (p.stock <= 0 ? " out" : "");
+      card.innerHTML = `
+        <div class="cardImgWrap">
+          <img class="cardImg lazy" src="${FALLBACK_IMG}" data-src="${p.imagen}" alt="${p.nombre}" loading="lazy">
+          ${p.stock <= 0 ? '<div class="tagOut">AGOTADO</div>' : ''}
+          ${p.precio_anterior > p.precio ? `<div class="tagOffer">-${Math.round((p.precio_anterior - p.precio)/p.precio_anterior*100)}%</div>` : ''}
         </div>
-        ${Number(p.stock||0)>0?`<div class="miniStock">Stock: ${Number(p.stock||0)}</div>`:""}
-      </div>
-      ${btnHtml}
-    </div>
-    ${out?`<div class="tagOut">AGOTADO</div>`:""}
-  `;
-  // Click en tarjeta o botón -> abre producto correcto
-  if(!out){
-    card.addEventListener("click",e=>{
-      const b=e.target.closest("button[data-open-id]");
-      if(b){
-        const pid=b.dataset.openId;
-        if(pid) openProduct(pid);
-        return;
+        <div class="cardBody">
+          <div class="cardTitle">${p.nombre}</div>
+          <div class="cardPrice">${money(p.precio)}</div>
+          ${p.precio_anterior > p.precio ? `<div class="cardOldPrice">${money(p.precio_anterior)}</div>` : ''}
+          <button class="bp small" data-id="${p.id}">Ver detalles</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Lazy loading
+    document.querySelectorAll("img.lazy").forEach(img => {
+      if (img.dataset.src) {
+        img.src = img.dataset.src;
+        img.onload = () => img.classList.add("loaded");
       }
-      // click en cualquier otra parte de la tarjeta
-      openProduct(p.id);
     });
-  }
-  g.appendChild(card);
- });
-}
 
-/* ================= MODAL PRODUCTO ================= */
-function parseGallery(p){
- // Soporta múltiples formatos desde Google Sheets:
- // - columna "galeria" (lista separada por comas)
- // - columnas "GALERIA_1".."GALERIA_8" (o galeria_1..galeria_8, galeria1..galeria8)
- const u=[];
- if(p.imagen) u.push(p.imagen);
-
- // 1) Campo único "galeria"
- if(p.galeria){
-  String(p.galeria)
-   .split(",")
-   .map(x=>x.trim())
-   .filter(Boolean)
-   .forEach(x=>u.push(x));
- }
-
- // 2) Campos múltiples tipo GALERIA_1..8 (case-insensitive)
- for(const k of Object.keys(p||{})){
-  const m = String(k).match(/^galeria[_\s]?(\d+)$/i);
-  if(!m) continue;
-  const n = Number(m[1]||0);
-  if(!n || n<1 || n>8) continue;
-  const v = safe(p[k]);
-  if(v) u.push(v);
- }
-
- // 3) Compatibilidad: galeria_1..8 aunque vengan como propiedades directas
- for(let i=1;i<=8;i++){
-  const a = safe(p[`galeria_${i}`]);
-  const b = safe(p[`GALERIA_${i}`]);
-  const c = safe(p[`galeria${i}`]);
-  if(a) u.push(a);
-  if(b) u.push(b);
-  if(c) u.push(c);
- }
-
- return [...new Set(u.filter(Boolean))].slice(0,8);
-}
-function videoLabel(url){
- const u=(url||"").toLowerCase();
- if(u.includes("tiktok.com"))return"Ver en TikTok";
- if(u.includes("youtube.com")||u.includes("youtu.be"))return"Ver en YouTube";
- if(u.includes("facebook.com")||u.includes("fb.watch"))return"Ver en Facebook";
- return"Ver video";
-}
-function openProduct(id){
- const p=BY_ID[id];if(!p)return;CURRENT=p;
- $("modalName").textContent=p.nombre||"Producto";
- $("modalSub").textContent=`${p.categoria||""}${p.subcategoria?(" · "+p.subcategoria):""}`;
- $("modalPrice").textContent=money(p.precio||0);
- $("modalOld").textContent=isOffer(p)?money(p.precio_anterior):"";
- const stEl=$("modalStock");
- if(stEl){
-  const st=Number(p.stock||0);
-  stEl.textContent=`Stock: ${isFinite(st)?st:"—"}`;
-  stEl.className="stock"+(st<=0?" out":"");
- }
- $("modalDesc").textContent=p.descripcion||"";
- const g=parseGallery(p);
- // guardar scroll para volver al mismo punto al cerrar
- LAST_SCROLL_Y = window.scrollY || 0;
- GALLERY_STATE.list = (Array.isArray(g) ? g : []).filter(Boolean);
- if(!GALLERY_STATE.list.length) GALLERY_STATE.list = [p.imagen||NO_IMG];
- // quitar duplicados exactos
- GALLERY_STATE.list = Array.from(new Set(GALLERY_STATE.list.map(x=>String(x).trim()).filter(Boolean)));
- GALLERY_STATE.idx = 0;
-
- const mainImg = $("modalMainImg");
- const th=$("modalThumbs");
- const dots=$("modalDots");
- const hint=$("modalSwipeHint");
-
- function renderGallery(){
-   const list = GALLERY_STATE.list;
-   const i = Math.max(0, Math.min(GALLERY_STATE.idx, list.length-1));
-   GALLERY_STATE.idx = i;
-   const src = list[i] || p.imagen || NO_IMG;
-   mainImg.src = src;
-   fixImg(mainImg);
-
-   // thumbs
-   th.innerHTML="";
-   if(list.length<=1){
-     th.classList.add("hidden");
-   }else{
-     th.classList.remove("hidden");
-     list.forEach((u,idx)=>{
-       const im=document.createElement("img");
-       im.src=u; im.alt=""; im.loading="lazy";
-       im.className="thumb"+(idx===i?" active":"");
-       im.onclick=()=>{GALLERY_STATE.idx=idx;renderGallery();};
-       fixImg(im);
-       th.appendChild(im);
-     });
-   }
-
-   // dots
-   if(dots){
-     dots.innerHTML="";
-     if(list.length<=1){
-       dots.classList.add("hidden");
-     }else{
-       dots.classList.remove("hidden");
-       list.forEach((_,idx)=>{
-         const d=document.createElement("span");
-         d.className="dot"+(idx===i?" active":"");
-         dots.appendChild(d);
-       });
-     }
-   }
-
-   // hint
-   if(hint){
-     const seen = localStorage.getItem("seen_swipe_hint")==="1";
-     if(list.length>1 && !seen){
-       hint.classList.remove("hidden");
-       setTimeout(()=>{ hint.classList.add("hidden"); localStorage.setItem("seen_swipe_hint","1"); }, 2500);
-     }else{
-       hint.classList.add("hidden");
-     }
-   }
- }
-
- renderGallery();
-
- // swipe sobre la imagen principal
- let sx=0, sy=0;
- mainImg.ontouchstart=(e)=>{ const t=e.touches[0]; sx=t.clientX; sy=t.clientY; };
- mainImg.ontouchend=(e)=>{
-   const t=e.changedTouches[0]; if(!t) return;
-   const dx=t.clientX-sx, dy=t.clientY-sy;
-   if(Math.abs(dx)<40 || Math.abs(dx)<Math.abs(dy)) return;
-   if(dx<0) GALLERY_STATE.idx = Math.min(GALLERY_STATE.list.length-1, GALLERY_STATE.idx+1);
-   else GALLERY_STATE.idx = Math.max(0, GALLERY_STATE.idx-1);
-   renderGallery();
- };
-
- const vwrap=$("modalVideo");vwrap.innerHTML="";
- const v=safe(p.video||p.video_url||"");
- if(v){vwrap.classList.remove("hidden");const a=document.createElement("a");a.href=v;a.target="_blank";a.rel="noopener";a.className="videoBtn";a.textContent=videoLabel(v);vwrap.appendChild(a)}else vwrap.classList.add("hidden");
- const out=isOut(p);
- // Botones del modal: si está agotado, no permitir pedir/añadir.
- $("btnAddCart").disabled=out;
- $("btnAddCart").textContent=out?"Agotado":"Añadir al carrito";
- const go=$("btnGoPay");
- if(go){
-  go.disabled=out;
-  go.innerHTML = out
-    ? '<i class="ri-time-line"></i> Muy pronto disponible'
-    : '<i class="ri-whatsapp-line"></i> Pedir ahora';
-  go.classList.toggle("disabled", out);
- }
- $("modalHint").textContent="";
- openModal("productModal");
-}
-window.__openProduct=openProduct;
-
-/* ================= CARRITO UI ================= */
-function renderCart(){
- const wrap=$("cartItems");wrap.innerHTML="";
- $("cartEmpty").style.display=CART.length?"none":"block";
- CART.forEach((it,idx)=>{
-  const p=BY_ID[it.id];if(!p)return;
-  const row=document.createElement("div");row.className="cartItem";
-  row.innerHTML=`<img src="${p.imagen||""}" alt=""><div><div class="cartName">${p.nombre}</div><div class="cartMeta">${money(p.precio)}</div><div class="qtyRow"><button class="minus">-</button><span class="qtyNum">${it.qty}</span><button class="plus">+</button><button class="trash">🗑</button></div></div>`;
-  row.querySelector(".minus").onclick=()=>{it.qty=Math.max(1,it.qty-1);saveCart();renderCart();updateTotalsUI();showAddPrompt()}
-  row.querySelector(".plus").onclick=()=>{it.qty++;saveCart();renderCart();updateTotalsUI();showAddPrompt()}
-  row.querySelector(".trash").onclick=()=>{CART.splice(idx,1);saveCart();renderCart();updateTotalsUI();showAddPrompt()}
-  wrap.appendChild(row);
- });
- updateTotalsUI();
- updateCartBadge();
-}
-function updateTotalsUI(){
- $("subTotal").textContent=money(sub());
- $("shipTotal").textContent=money(C.envio||0);
- $("grandTotal").textContent=money(total());
-}
-
-/* ================= STEPS ================= */
-function setStep(n){
- STEP=n;
- $("step1").classList.toggle("hidden",n!==1);
- $("step2").classList.toggle("hidden",n!==2);
- $("step3").classList.toggle("hidden",n!==3);
- $("tab1").classList.toggle("active",n===1);
- $("tab2").classList.toggle("active",n===2);
- $("tab3").classList.toggle("active",n===3);
- $("btnBack").style.display=n===1?"none":"inline-block";
- $("btnNext").textContent=n===3?"Enviar por WhatsApp":"Continuar";
- $("btnSendWA").style.display=n===3?"block":"none";
- if(n===2) buildCheckoutUI();
-}
-function openCart(){setStep(1);renderCart();openModal("cartModal")}
-
-/* ================= CHECKOUT UI ================= */
-function buildCheckoutUI(){
- const s2=$("step2"); if($("deptoSel")) return;
- s2.innerHTML=`
- <div class="ckbox">
-  <div class="tx"><b>Ubicación (Honduras)</b></div>
-  <div class="grid2sel">
-   <div><div class="tx">Departamento</div><select id="deptoSel"><option value="">Selecciona</option></select></div>
-   <div><div class="tx">Municipio</div><select id="muniSel" disabled><option value="">Selecciona</option></select></div>
-  </div>
-
-  <div id="colRefBlock" class="hidden">
-    <div class="note" style="margin-top:10px"><b>Colonia/Barrio (referencia):</b></div>
-    <input id="colRefInput" placeholder="Ej: La Sabana, La Caridad, Barrio Arriba… (opcional)">
-  </div>
-
-  <div id="domBlock" class="hidden">
-   <div class="hr"></div>
-   <div class="tx"><b>Servicio a domicilio</b></div>
-   <div id="comCityBlock" class="hidden">
-    <div class="tx">Comayagua ciudad: elegí tu zona</div>
-    <div class="grid2sel">
-     <select id="zonaSel"><option value="">Zona</option></select>
-     <select id="colSel"><option value="">Colonia/Barrio</option></select>
-    </div>
-    <input id="colFree" class="hidden" placeholder="Escribe tu colonia/barrio (ej: La Sabana)">
-    <div class="note" id="zonaInfo"></div>
-   </div>
-   <div id="domInfo" class="note hidden"></div>
-  </div>
-
-  <div id="empBlock" class="hidden">
-   <div class="hr"></div>
-   <div class="tx"><b>Envío por empresa</b></div>
-   <div class="grid2sel">
-    <select id="empSel"></select>
-    <select id="modSel"><option value="normal">Servicio normal</option><option value="pagar_al_recibir">Pagar al recibir</option></select>
-   </div>
-   <div class="note" id="empInfo"></div>
-   ${BUS_ON?`<div class="note" id="busInfo"></div>`:""}
-  </div>
-
-  <div class="hr"></div>
-  <div class="tx"><b>Datos</b></div>
-  <input id="custName" placeholder="Tu nombre">
-  <input id="custPhone" placeholder="Ej: 9999-9999">
-  <textarea id="custAddr" placeholder="Dirección / Referencia"></textarea>
-
-  <div class="hr"></div>
-  <div class="tx"><b>Pago</b></div>
-  <select id="paySel"><option value="">Selecciona</option></select>
-
-  <div id="cashBlock" class="hidden">
-   <input id="cashWith" placeholder="¿Con cuánto pagará? (solo domicilio)" inputmode="numeric">
-   <div class="note" id="cashInfo"></div>
-  </div>
-
-  <div class="hr"></div>
-  <div class="note"><b>Envío:</b> <span id="envioPreview">${money(C.envio||0)}</span> · <b>Total:</b> <span id="totalPreview">${money(total())}</span></div>
- </div>`;
-
- // deptos
- const ds=$("deptoSel");deptos().forEach(d=>{const o=document.createElement("option");o.value=d;o.textContent=d;ds.appendChild(o)});
- // empresas
- const es=$("empSel");EMPRESAS.forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=x;es.appendChild(o)});
-
- ds.onchange=()=>{C.depto=ds.value;fillMunisUI();applyRules();}
- $("muniSel").onchange=()=>{C.muni=$("muniSel").value;applyRules();}
-
- $("colRefInput").oninput=()=>{C.colonia_ref=safe($("colRefInput").value||"");}
-
- $("zonaSel").onchange=()=>{
-  C.zona=$("zonaSel").value;
-  // reset colonia al cambiar zona
-  C.col="";C.ref="";C.envio=0;
-  $("colFree").classList.add("hidden");
-  $("colFree").value="";
-  fillColsUI();
-  applyRules();
- }
-
- $("colSel").onchange=()=>{
-  const v=$("colSel").value||"";
-  // opción manual
-  if(v==="__manual__"){
-   $("colFree").classList.remove("hidden");
-   C.col=safe($("colFree").value||"");
-   C.envio=0;C.ref="Costo por confirmar";
-   $("zonaInfo").textContent="Escribe tu colonia/barrio. El costo se confirma por WhatsApp.";
-   refreshPreview();
-   return;
-  }
-
-  $("colFree").classList.add("hidden");
-  $("colFree").value="";
-  const opt=$("colSel").selectedOptions[0];
-  C.col=opt?.value||"";
-  C.envio=Number(opt?.dataset.costo||0);
-  C.ref=opt?.dataset.ref||"";
-  // Auto-llenar referencia de colonia/barrio
-  if($("colRefInput")) $("colRefInput").value=C.col||$("colRefInput").value||"";
-  C.colonia_ref=safe($("colRefInput").value||"");
-  $("zonaInfo").textContent=C.col?`Costo: ${money(C.envio)}${C.ref?(" · "+C.ref):""}`:"";
-  refreshPreview();
- }
-
- $("colFree").oninput=()=>{
-  if($("colSel").value!=="__manual__") return;
-  C.col=safe($("colFree").value||"");
-  $("zonaInfo").textContent=C.col?"Escrito: "+C.col+" · Costo por confirmar":"Escribe tu colonia/barrio.";
-  refreshPreview();
- }
-
- es.onchange=()=>{C.empresa=es.value;applyRules();}
- $("modSel").onchange=()=>{C.modalidad=$("modSel").value;applyRules();}
-
- $("paySel").onchange=()=>{C.pago=$("paySel").value;updatePayUI();refreshPreview();}
- $("cashWith").oninput=()=>{C.cash=Number(String($("cashWith").value||"").replace(/[^\d]/g,"")||0);refreshPreview();}
-
- fillMunisUI();
- applyRules();
-}
-
-function fillMunisUI(){
- const d=$("deptoSel").value;
- const ms=$("muniSel");
- ms.innerHTML=`<option value="">Selecciona</option>`;
- ms.disabled=!d;
- if(!d) return;
- munis(d).forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;ms.appendChild(o)});
- ms.disabled=false;
-}
-
-function fillZonaUI(){
- const zs=$("zonaSel");
- zs.innerHTML=`<option value="">Zona</option>`;
- zList().forEach(z=>{
-  const nice=z.toLowerCase().includes("centr")?"Zona Céntrica":z.toLowerCase().includes("alej")?"Zona Alejada":z.toLowerCase().includes("fuera")?"Fuera":z;
-  const o=document.createElement("option");o.value=z;o.textContent=nice;zs.appendChild(o);
- });
-}
-
-function fillColsUI(){
- const z=$("zonaSel").value;
- const cs=$("colSel");
- cs.innerHTML=`<option value="">Colonia/Barrio</option>`;
- if(!z) return;
- cols(z).forEach(c=>{
-  const o=document.createElement("option");
-  o.value=c.col;o.textContent=`${c.col} (${money(c.c)})`;
-  o.dataset.costo=String(c.c||0);o.dataset.ref=c.ref||"";
-  cs.appendChild(o);
- });
-
- // Permitir escribir colonia/barrio manualmente
- const om=document.createElement("option");
- om.value="__manual__";
- om.textContent="Otra / Escribir (costo por confirmar)";
- cs.appendChild(om);
-}
-
-/* ================= REGLAS (COSTOS DESDE SHEETS) ================= */
-function applyRules(){
- const dept=safe(C.depto),mun=safe(C.muni);
-
- // Mostrar input de referencia de colonia/barrio solo en Comayagua y La Paz
- const showColRef=!!dept && !!mun && (dept==="Comayagua" || dept==="La Paz");
- if($("colRefBlock")) $("colRefBlock").classList.toggle("hidden", !showColRef);
- if(!showColRef){
-  C.colonia_ref="";
-  if($("colRefInput")) $("colRefInput").value="";
- }
-
- // reset UI
- $("domBlock").classList.add("hidden");
- $("comCityBlock").classList.add("hidden");
- $("domInfo").classList.add("hidden");
- $("empBlock").classList.add("hidden");
-
- // reset costos/pago
- C.entrega="";C.envio=0;C.zona="";C.col="";C.ref="";C.pago="";C.cash=0;C.cambio=0;
-
- if(!dept||!mun){fillPayOptions();refreshPreview();return;}
-
- // ✅ Comayagua + domicilio
- if(dept==="Comayagua" && COMAYAGUA_DOMICILIO.has(mun)){
-  $("domBlock").classList.remove("hidden");
-  if(mun==="Comayagua"){
-   C.entrega="domicilio_ciudad";
-   $("comCityBlock").classList.remove("hidden");
-   fillZonaUI();
-   $("colSel").innerHTML=`<option value="">Colonia/Barrio</option>`;
-   $("zonaInfo").textContent="Elige zona y colonia para calcular el costo.";
-  }else{
-   C.entrega="domicilio_muni";
-   $("domInfo").classList.remove("hidden");
-   const costo = costoDomicilioMuni(dept,mun);
-   if(costo>0){C.envio=costo;$("domInfo").textContent=`Domicilio en ${mun}: ${money(costo)}.`;}
-   else{$("domInfo").textContent=`Domicilio en ${mun}. (Costo se confirma por WhatsApp).`;C.envio=0;}
-  }
-  fillPayOptions();
-  refreshPreview();
-  return;
- }
-
- // ✅ Otros municipios de Comayagua y cualquier otro depto => empresa/bus
- C.entrega="empresa";
- $("empBlock").classList.remove("hidden");
- C.empresa=$("empSel").value||EMPRESAS[0];
- C.modalidad=$("modSel").value||"normal";
- C.envio=costoEmpresa(C.empresa,C.modalidad,dept,mun);
- $("empInfo").textContent=`Empresa: ${C.empresa} · ${C.modalidad==="normal"?"Servicio normal":"Pagar al recibir"} · Costo: ${money(C.envio)}`;
- if(BUS_ON){
-  const rb=rangoBus(dept,mun);
-  $("busInfo").textContent=`🚌 Bus/encomienda: ${money(rb.min)}–${money(rb.max)}. ${rb.nota}`;
- }
- fillPayOptions();
- refreshPreview();
-}
-
-function fillPayOptions(){
- const sel=$("paySel"); if(!sel) return;
- sel.innerHTML=`<option value="">Selecciona</option>`;
- const domicilio=(C.entrega==="domicilio_ciudad"||C.entrega==="domicilio_muni");
- const add=(v,t)=>{const o=document.createElement("option");o.value=v;o.textContent=t;sel.appendChild(o)};
- if(domicilio){
-  add("efectivo","Efectivo (pagar al recibir)");
-  add("transferencia","Transferencia bancaria");
-  add("paypal","PayPal");
-  add("tigo","Tigo Money");
- }else{
-  add("transferencia","Transferencia bancaria");
-  add("paypal","PayPal");
-  add("tigo","Tigo Money");
-  add("recibir","Pagar al recibir");
- }
- updatePayUI();
-}
-
-function updatePayUI(){
- const domicilio=(C.entrega==="domicilio_ciudad"||C.entrega==="domicilio_muni");
- const metodo=$("paySel").value||"";
- C.pago=metodo;
- if(domicilio && metodo==="efectivo") $("cashBlock").classList.remove("hidden");
- else{$("cashBlock").classList.add("hidden");C.cash=0;C.cambio=0;if($("cashWith"))$("cashWith").value="";if($("cashInfo"))$("cashInfo").textContent="";}
-}
-
-function refreshPreview(){
- calcCambio();
- if($("envioPreview")) $("envioPreview").textContent=money(C.envio||0);
- if($("totalPreview")) $("totalPreview").textContent=money(total());
- if($("cashInfo") && C.pago==="efectivo"){
-  const diff=Number(C.cash||0)-total();
-  if(Number(C.cash||0)<=0) $("cashInfo").textContent="Escribe con cuánto pagará para calcular el cambio.";
-  else if(diff<0) $("cashInfo").textContent=`Faltan ${money(Math.abs(diff))} para completar el total.`;
-  else $("cashInfo").textContent=`Cambio estimado: ${money(diff)}.`;
- }
- updateTotalsUI();
- updateCartBadge();
-}
-
-/* WHATSAPP */
-function sendWhatsApp(){
- if(!CART.length) return alert("Carrito vacío");
- const name=safe($("custName").value||"");
- const phone=safe($("custPhone").value||"");
- const addr=safe($("custAddr").value||"");
-
- const lines=[];
- lines.push("🛒 PEDIDO - SDComayagua","");
- if(name) lines.push("👤 "+name);
- if(phone) lines.push("📞 "+phone);
- if(C.depto&&C.muni) lines.push(`📍 ${C.depto} / ${C.muni}`);
- if(C.colonia_ref) lines.push(`🏘️ ${C.colonia_ref}`);
-
- if(C.entrega==="domicilio_ciudad"){
-  lines.push("🚚 Domicilio (Comayagua ciudad)");
-  if(C.zona) lines.push("Zona: "+C.zona);
-  if(C.col) lines.push("Colonia/Barrio: "+C.col);
- }else if(C.entrega==="domicilio_muni"){
-  lines.push("🚚 Domicilio (Comayagua)");
- }else{
-  lines.push(`📦 Empresa: ${C.empresa} · ${C.modalidad==="normal"?"Normal":"Pagar al recibir"}`);
-  if(BUS_ON){
-   const rb=rangoBus(dept,mun);
-   lines.push(`🚌 Bus/encomienda: ${money(rb.min)}–${money(rb.max)} (varía).`);
-  }
- }
-
- if(addr) lines.push("📌 "+addr);
-
- lines.push("","Productos:");
- CART.forEach(it=>{const p=BY_ID[it.id];if(p) lines.push(`- ${it.qty} x ${p.nombre} (${money(p.precio)})`)});
- lines.push("");
- lines.push("Subtotal: "+money(sub()));
- lines.push("Envío: "+money(C.envio||0));
- lines.push("Total: "+money(total()));
- if(C.pago) lines.push("Pago: "+C.pago);
- if(C.pago==="efectivo"){lines.push("Efectivo con: "+money(C.cash||0));lines.push("Cambio: "+money(C.cambio||0));}
-
- window.open(`https://wa.me/${WA_DEFAULT}?text=${encodeURIComponent(lines.join("\n"))}`,"_blank");
-}
-
-/* EVENTOS */
-function wire(){
- $("overlay").onclick=()=>{closeModal("productModal");closeModal("cartModal")}
- $("closeProduct").onclick=()=>closeModal("productModal")
- $("closeCart").onclick=()=>closeModal("cartModal")
- $("btnKeepBuying").onclick=()=>closeModal("productModal")
- $("btnGoPay").onclick=()=>{closeModal("productModal");openCart()}
- $("btnAddCart").onclick=()=>{
-  if(!CURRENT||isOut(CURRENT)) return;
-  const it=CART.find(x=>x.id===CURRENT.id);
-  if(it) it.qty++; else CART.push({id:CURRENT.id,qty:1});
-  saveCart();
-  $("modalHint").textContent="";
-  showAddToast();
- }
-
- // Toast actions
- const tk=$("toastKeep");
- const tp=$("toastPay");
- if(tk) tk.onclick=()=>{ hideAddToast(); /* seguir comprando */ };
- if(tp) tp.onclick=()=>{ hideAddToast(); closeModal("productModal"); openCart(); setStep(2); };
- $("tab1").onclick=()=>setStep(1)
- $("tab2").onclick=()=>setStep(2)
- $("tab3").onclick=()=>setStep(3)
- $("btnBack").onclick=()=>{if(STEP>1)setStep(STEP-1)}
- $("btnNext").onclick=()=>{
-  if(STEP===1){if(!CART.length)return alert("Tu carrito está vacío.");setStep(2);return;}
-  if(STEP===2){
-   if(!$("deptoSel").value||!$("muniSel").value) return alert("Selecciona departamento y municipio.");
-   if(C.entrega==="domicilio_ciudad" && (!C.zona || !C.col)) return alert("Elige zona y colonia/barrio.");
-   if(!safe($("custName").value)) return alert("Escribe tu nombre.");
-   if(!safe($("custAddr").value)) return alert("Escribe tu dirección / referencia.");
-   if(!$("paySel").value) return alert("Selecciona método de pago.");
-   if($("paySel").value==="efectivo" && Number(C.cash||0)<=0) return alert("Escribe con cuánto pagará.");
-   setStep(3);return;
-  }
-  if(STEP===3) sendWhatsApp();
- }
- $("btnSendWA").onclick=sendWhatsApp
- $("goTop").onclick=()=>window.scrollTo({top:0,behavior:"smooth"})
- const fab=$("fabTop");
- if(fab){
-   fab.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
-   const onScroll=()=>{
-     const show=window.scrollY>420;
-     fab.classList.toggle("show",show);
-   };
-   window.addEventListener("scroll",onScroll,{passive:true});
-   onScroll();
- }
- $("searchBtn").onclick=()=>$("searchInput").focus()
- $("themeBtn").onclick=toggleTheme
- $("cartBtn").onclick=openCart
- const fabCart=$("fabCart");
- if(fabCart){ fabCart.onclick=openCart; }
-
- const hoc=$("heroOpenCart");
- if(hoc) hoc.onclick=openCart;
- $("searchInput").addEventListener("input",e=>{QUERY=e.target.value||"";renderProducts()})
-
- // Quick filters
- const fs=$("filterStock");
- const fo=$("filterOffers");
- if(fs) fs.onclick=()=>{ONLY_STOCK=!ONLY_STOCK;saveFilters();syncFilterUI();renderProducts();};
- if(fo) fo.onclick=()=>{ONLY_OFFERS=!ONLY_OFFERS;saveFilters();syncFilterUI();renderProducts();};
-}
-
-/* INIT */
-async function init(){
- applyTheme();
- loadCart();
- loadFilters();
- syncFilterUI();
- // Loader fullscreen (mejor UX en móvil)
- try{
-   document.body.classList.add("page-loading");
-   const pl=$("pageLoader");
-   if(pl) pl.style.display="flex";
- }catch(e){}
- // Evita mostrar UI a medias mientras carga
- $("loadingMsg").style.display="none";
- try{
-  DATA=await loadAPI();
-  applyConfigUI();
-  // Normalización robusta:
-  // 1) si el ID viene vacío -> generar uno estable por fila
-  // 2) si el ID viene repetido -> hacerlo único para evitar "abro uno y sale otro"
-  const used=new Map();
-  PRODUCTS=(DATA.productos||[]).map((p,i)=>{
-    const rawId=safe(p.id);
-    const base = rawId || `row_${i+1}`;
-    const n = (used.get(base)||0)+1;
-    used.set(base,n);
-    const finalId = n===1 ? base : `${base}__${n}`;
-    const baseObj = {
-      id: finalId,
-      sheet_id: rawId, // por si luego quieres auditar
-      nombre:safe(p.nombre),
-      precio:Number(p.precio||0),
-      precio_anterior:Number(p.precio_anterior||0),
-      stock:Number(p.stock||0),
-      categoria:safe(p.categoria||"General"),
-      subcategoria:safe(p.subcategoria||""),
-      descripcion:safe(p.descripcion||""),
-      imagen:safe(p.imagen||"") || NO_IMG,
-      video:safe(p.video||p.video_url||""),
-      galeria:safe(p.galeria||"")
-    };
-    // Passthrough de galeria_1..8 (para que funcione tal cual en Sheets)
-    for(let gi=1;gi<=8;gi++){
-      baseObj[`galeria_${gi}`] = safe(p[`galeria_${gi}`] || p[`GALERIA_${gi}`] || p[`galeria${gi}`] || "");
+    // Paginación
+    const pagContainer = $("paginationContainer");
+    pagContainer.innerHTML = "";
+    if (total > PER_PAGE) {
+      const pag = document.createElement("div");
+      pag.className = "pagination";
+      pag.innerHTML = `
+        <button ${PAGE === 1 ? "disabled" : ""} onclick="changePage(${PAGE-1})">Anterior</button>
+        <span>Pág. ${PAGE} de ${Math.ceil(total / PER_PAGE)}</span>
+        <button ${end >= total ? "disabled" : ""} onclick="changePage(${PAGE+1})">Siguiente</button>
+      `;
+      pagContainer.appendChild(pag);
     }
-    return baseObj;
-  }).filter(p=>p.nombre);
 
-  BY_ID={};
-  PRODUCTS.forEach(p=>{ BY_ID[p.id]=p; });
-
-  // Compatibilidad con carritos guardados antes de la corrección de IDs.
-  // Si un item del carrito trae un id viejo (de Sheets) que ya no existe,
-  // intentamos encontrar el producto por sheet_id.
-  if(Array.isArray(CART) && CART.length){
-    let changed=false;
-    CART.forEach(it=>{
-      if(BY_ID[it.id]) return;
-      const found=PRODUCTS.find(p=>p.sheet_id && p.sheet_id===it.id);
-      if(found){ it.id=found.id; changed=true; }
-    });
-    if(changed) saveCart();
+    $("sectionTitle").textContent = QUERY ? `Resultados para "${QUERY}"` : (CURRENT_CAT || "Catálogo");
   }
 
-  renderCats();renderSubs();renderProducts();
-  renderFeaturedSection();
-  wire();
- }catch(e){
-  console.error(e);
-  $("productsGrid").innerHTML=`<div style="grid-column:1/-1;color:var(--muted);padding:12px">Error cargando catálogo.</div>`;
- }finally{
-   // Ocultar loader y mostrar página
-   try{
-     const pl=$("pageLoader");
-     if(pl) pl.style.display="none";
-     document.body.classList.remove("page-loading");
-   }catch(e){}
-   $("loadingMsg").style.display="none";
- }
-}
-document.addEventListener("DOMContentLoaded",init);
+  window.changePage = function(newPage) {
+    if (newPage < 1) return;
+    PAGE = newPage;
+    renderProducts();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
+  // Debounce para búsqueda
+  let searchTimer;
+  $("searchInput").addEventListener("input", e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      QUERY = e.target.value.trim();
+      PAGE = 1;
+      renderProducts();
+    }, 400);
+  });
+
+  function initEventListeners() {
+    $("themeBtn").onclick = toggleTheme;
+    $("goTop").onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+    $("searchBtn").onclick = () => $("searchInput").focus();
+
+    document.addEventListener("click", e => {
+      if (e.target.matches("[data-id]")) {
+        const id = e.target.dataset.id;
+        const product = BY_ID[id];
+        if (product) showProductModal(product);
+      }
+    });
+  }
+
+  async function init() {
+    applyTheme();
+    loadCart();
+    const loaded = await fetchData();
+    if (loaded) {
+      renderCategories();
+      renderProducts();
+      initEventListeners();
+    }
+    $("pageLoader").style.display = "none";
+    document.body.classList.remove("page-loading");
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
 })();
