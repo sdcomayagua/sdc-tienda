@@ -1,0 +1,1921 @@
+{
+  "couriers": [
+    {
+      "name": "C807",
+      "prepay": 110.0,
+      "cod": 160.0,
+      "prepay_methods": "Depósito/Transferencia; Tigo Money; PayPal",
+      "note": "Valores referencia (ajusta)"
+    },
+    {
+      "name": "Cargo Expreso",
+      "prepay": 110.0,
+      "cod": 160.0,
+      "prepay_methods": "Depósito/Transferencia; Tigo Money; PayPal",
+      "note": "Valores referencia (ajusta)"
+    },
+    {
+      "name": "Forza",
+      "prepay": 110.0,
+      "cod": 160.0,
+      "prepay_methods": "Depósito/Transferencia; Tigo Money; PayPal",
+      "note": "Valores referencia (ajusta)"
+    }
+  ],
+  "rates_by_municipality": {
+    "Atlántida": {
+      "La Ceiba": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Porvenir": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Tela": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Jutiapa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Masica": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Arizona Categoría Segundo nivel de división": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Esparta": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Choluteca": {
+      "Choluteca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Apacilagua": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Concepción de María": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Duyure": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Corpus": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Triunfo": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Marcovia": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Morolica": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Namasigüe": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Orocuina": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Pespire": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Antonio de Flores": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Isidro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San José": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Marcos de Colón": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Ana de Yusguare": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Colón": {
+      "Trujillo": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Balfate": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Iriona": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Limón": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Sabá": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Fe": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Rosa de Aguán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Sonaguera": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Tocoa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Bonito Oriental": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Comayagua": {
+      "El Rosario": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Esquías": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Humuya": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Libertad": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Lamaní": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Trinidad": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Meámbar": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Minas de Oro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Ojos de Agua": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Jerónimo": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San José de Comayagua": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San José del Potrero": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Luis": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Sebastián": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Siguatepeque": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Las Lajas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Taulabé": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Copán": {
+      "Santa Rosa de Copán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Cabañas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Concepción": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Copán Ruinas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Corquín": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Cucuyagua": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Dolores": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Dulce Nombre": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Paraíso": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Florida": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Jigua": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Unión": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Nueva Arcadia": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Agustín": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Antonio": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Jerónimo": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San José": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Juan de Opoa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Nicolás": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Pedro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Rita": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Trinidad de Copán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Veracruz": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Cortés": {
+      "San Pedro Sula": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Choloma": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Omoa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Pimienta": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Potrerillos": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Puerto Cortés": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Antonio de Cortés": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco de Yojoa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Manuel": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Cruz de Yojoa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Villanueva": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Lima": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "El Paraíso": {
+      "Yuscarán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Alauca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Danlí": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Paraíso": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Güinope": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Jacaleapa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Liure": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Morocelí": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Oropolí": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Potrerillos": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Antonio de Flores": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Lucas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Matías": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Soledad": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Teupasenti": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Texiguat": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Vado Ancho": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Yauyupe": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Trojes": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Francisco Morazán": {
+      "Distrito Central": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Alubarén": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Cedros": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Curarén": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Porvenir": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Guaimaca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Libertad": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Venta": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Lepaterique": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Maraita": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Marale": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Nueva Armenia": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Ojojona": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Orica": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Reitoca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Sabanagrande": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Antonio de Oriente": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Buenaventura": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Ignacio": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Cantarranas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Miguelito": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Ana": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Lucía": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Talanga": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Tatumbla": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Valle de Ángeles": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Villa de San Francisco": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Vallecillo": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Gracias a Dios": {
+      "Puerto Lempira": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Brus Laguna": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Ahuas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Juan Francisco Bulnes": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Villeda Morales": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Wampusirpe": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Intibucá": {
+      "La Esperanza": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Camasca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Colomoncagua": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Concepción": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Dolores": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Intibucá": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Jesús de Otoro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Magdalena": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Masaguara": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Antonio": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Isidro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Juan": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Marcos de la Sierra": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Miguel Guancapla": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Lucía": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Yamaranguila": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco de Opalaca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Islas de la Bahía": {
+      "Roatán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Guanaja": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "José Santos Guardiola": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Utila": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "La Paz": {
+      "Aguanqueterique": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Cabañas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Cane": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Chinacla": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Guajiquiro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Lauterique": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Marcala": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Mercedes de Oriente": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Opatoro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Antonio del Norte": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San José": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Juan": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Pedro de Tutule": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Ana": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Elena": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa María": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santiago de Puringla": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Yarula": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Lempira": {
+      "Gracias": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Belén": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Candelaria": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Cololaca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Erandique": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Gualcince": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Guarita": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Campa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Iguala": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Las Flores": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Unión": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Virtud": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Lepaera": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Mapulaca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Piraera": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Andrés": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Juan Guarita": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Manuel Colohete": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Rafael": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Sebastián": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Cruz": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Talgua": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Tambla": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Tomalá": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Valladolid": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Virginia": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Marcos de Caiquín": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Ocotepeque": {
+      "Ocotepeque": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Belén Gualcho": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Concepción": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Dolores Merendón": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Fraternidad": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Encarnación": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Labor": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Lucerna": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Mercedes": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Fernando": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco del Valle": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Jorge": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Marcos": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Fe": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Sensenti": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Sinuapa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Olancho": {
+      "Juticalpa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Campamento": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Catacamas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Concordia": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Dulce Nombre de Curlí": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Rosario": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Esquipulas del Norte": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Gualaco": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Guarizama": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Guata": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Guayape": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Jano": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "La Unión": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Mangulile": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Manto": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Salamá": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Esteban": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco de Becerra": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco de la Paz": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa María del Real": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Silca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Yocón": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Patuca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Santa Bárbara": {
+      "Santa Bárbara": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Arada": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Atima": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Azacualpa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Ceguaca": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Concepción del Norte": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Concepción del Sur": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Chinda": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Níspero": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Gualala": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Ilama": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Las Vegas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Macuelizo": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Naranjito": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Nuevo Celilac": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Nueva Frontera": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Petoa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Protección": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Quimistán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco de Ojuera": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San José de las Colinas": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Luis": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Marcos": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Nicolás": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Pedro Zacapa": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Vicente Centenario": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Rita": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Trinidad": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Valle": {
+      "Nacaome": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Alianza": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Amapala": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Aramecina": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Caridad": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Goascorán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Langue": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Francisco de Coray": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "San Lorenzo": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    },
+    "Yoro": {
+      "Yoro": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Arenal": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Negrito": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "El Progreso": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Jocón": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Morazán": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Olanchito": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Santa Rita": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Sulaco": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Victoria": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      },
+      "Yorito": {
+        "prepay": 110.0,
+        "cod": 160.0,
+        "default_courier": "C807",
+        "note": "Referencia (ajusta)"
+      }
+    }
+  },
+  "local_delivery": {
+    "zones_comayagua": [
+      {
+        "zone": "Cerca",
+        "type": "cerca",
+        "examples": "Ej: Centro, barrio céntrico"
+      },
+      {
+        "zone": "Alejada",
+        "type": "alejada",
+        "examples": "Ej: colonias alejadas"
+      },
+      {
+        "zone": "Fuera",
+        "type": "fuera",
+        "examples": "Ej: fuera de Comayagua ciudad"
+      },
+      {
+        "zone": "El Sifón",
+        "type": "alejada",
+        "examples": "Comayagua (lugar/zona, ajusta tipo)"
+      },
+      {
+        "zone": "El Taladro",
+        "type": "alejada",
+        "examples": "Comayagua (lugar/zona, ajusta tipo)"
+      }
+    ],
+    "municipality_flat": {
+      "Ajuterique": 80.0,
+      "Lejamaní": 90.0,
+      "Flores": 80.0,
+      "Villa de San Antonio": 90.0,
+      "Palmerola": 70.0,
+      "El Pajonal": 65.0,
+      "La Paz": 120.0,
+      "Yarumela": 90.0
+    },
+    "comayagua_city": {
+      "cerca": 25.0,
+      "alejada": 40.0,
+      "fuera": 60.0
+    },
+    "coverage": [
+      {
+        "department": "Comayagua",
+        "municipality": "Ajuterique",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      },
+      {
+        "department": "Comayagua",
+        "municipality": "Comayagua",
+        "mode": "local",
+        "note": "Entrega propia: elegir zona (cerca/alejada/fuera) dentro de Comayagua"
+      },
+      {
+        "department": "Comayagua",
+        "municipality": "El Pajonal",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      },
+      {
+        "department": "Comayagua",
+        "municipality": "Flores",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      },
+      {
+        "department": "Comayagua",
+        "municipality": "Lejamaní",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      },
+      {
+        "department": "Comayagua",
+        "municipality": "Palmerola",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      },
+      {
+        "department": "Comayagua",
+        "municipality": "Villa de San Antonio",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      },
+      {
+        "department": "La Paz",
+        "municipality": "La Paz",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      },
+      {
+        "department": "La Paz",
+        "municipality": "Yarumela",
+        "mode": "local",
+        "note": "Entrega propia: tarifa fija por municipio"
+      }
+    ]
+  }
+}
