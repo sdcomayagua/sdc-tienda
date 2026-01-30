@@ -16,62 +16,16 @@
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 
   <style>
-    .pageLoader {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .plLogo {
-      width: 80px;
-      height: 80px;
-      background: var(--primary);
-      color: white;
-      border-radius: 20px;
-      display: grid;
-      place-items: center;
-      font-size: 36px;
-      font-weight: 900;
-    }
-    .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin: 24px 0;
-      padding: 12px;
-    }
-    .pagination button {
-      padding: 10px 18px;
-      border-radius: 12px;
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-    }
-    .pagination button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    img.lazy {
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    img.lazy.loaded {
-      opacity: 1;
-    }
-    .backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      z-index: 100;
-    }
+    .pageLoader { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; gap:16px; }
+    .plLogo { width:80px; height:80px; background:var(--primary); color:white; border-radius:20px; display:grid; place-items:center; font-size:36px; font-weight:900; }
+    .pagination { display:flex; justify-content:center; gap:16px; margin:24px 0; padding:12px; }
+    .pagination button { padding:10px 18px; border-radius:12px; background:var(--primary); color:white; font-weight:700; border:none; cursor:pointer; }
+    .pagination button:disabled { opacity:0.4; cursor:not-allowed; }
+    img.lazy { opacity:0; transition:opacity 0.4s; }
+    img.lazy.loaded { opacity:1; }
+    .backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:99; display:none; }
+    .g2 { display:grid; gap:20px; }
+    @media (min-width:768px) { .g2 { grid-template-columns:1fr 1fr; } }
   </style>
 </head>
 <body class="page-loading">
@@ -91,9 +45,9 @@
         <span id="storeSub">Accesorios • Gamer • Hogar</span>
       </div>
     </div>
-    <div class="a" id="topActions">
+    <div class="a">
       <button class="ib" id="searchBtn" title="Buscar"><i class="ri-search-line"></i></button>
-      <button class="ib" id="themeBtn" title="Cambiar tema"><i class="ri-moon-line"></i></button>
+      <button class="ib" id="themeBtn" title="Tema"><i class="ri-moon-line"></i></button>
       <button class="ib" id="cartBtn">
         <i class="ri-shopping-cart-2-line"></i>
         <span class="bd" id="cartCount">0</span>
@@ -131,11 +85,11 @@
     <h3 id="modalTitle">Detalles del producto</h3>
     <button class="mc" id="btnCloseProd">✕</button>
   </div>
-  <div class="mb" id="prodBody">
+  <div class="mb">
     <div class="g2">
       <div>
-        <img id="modalMainImg" class="mi" src="" alt="">
-        <div id="modalThumbs" class="th" style="display:none"></div>
+        <img id="modalMainImg" class="mi" src="" alt="" loading="lazy">
+        <div id="modalThumbs" class="th" style="display:none; margin-top:12px;"></div>
       </div>
       <div>
         <div class="pr">
@@ -144,8 +98,7 @@
           <div class="stock" id="modalStock"></div>
         </div>
         <div class="tx" id="modalDesc"></div>
-        <div id="modalVideo" class="vb" style="display:none"></div>
-        <div class="note" id="modalExtra"></div>
+        <div id="modalVideo" style="margin:12px 0;"></div>
       </div>
     </div>
   </div>
@@ -153,7 +106,7 @@
     <button class="link" id="btnKeepBuying">Seguir comprando</button>
     <div class="mfRow">
       <button class="bp" id="btnAddCart"><i class="ri-shopping-cart-2-line"></i> Añadir al carrito</button>
-      <button class="bp alt" id="btnGoPay"><i class="ri-whatsapp-line"></i> Pedir ahora</button>
+      <button class="bp alt" id="btnWhatsApp"><i class="ri-whatsapp-line"></i> Pedir ahora</button>
     </div>
   </div>
 </div>
@@ -161,47 +114,23 @@
 <!-- MODAL CARRITO -->
 <div class="m" id="cartModal" style="display:none" aria-hidden="true">
   <div class="mh">
-    <div><h3 class="mt">Carrito y pedido</h3><div class="ms">1-2-3</div></div>
+    <h3>Carrito</h3>
     <button class="mc" id="closeCart">✕</button>
   </div>
-
   <div class="mb">
-    <div class="tabs">
-      <button class="tab active" id="tab1">Carrito</button>
-      <button class="tab" id="tab2">Entrega</button>
-      <button class="tab" id="tab3">Pago</button>
-    </div>
-
-    <div id="step1">
-      <div id="cartEmpty" class="tx" style="display:none">Tu carrito está vacío.</div>
-      <div id="cartItems" class="ci"></div>
-      <div class="tot">
-        <div class="r"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
-        <div class="r"><span>Envío</span><span id="shipTotal">Lps. 0</span></div>
-        <div class="r t"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
-      </div>
-      <div class="note"><b>Nota:</b> el envío se calcula según tu ubicación.</div>
-    </div>
-
-    <div id="step2" style="display:none">
-      <!-- Formulario de entrega (puedes agregar inputs aquí basado en original) -->
-      <input id="custName" placeholder="Nombre completo">
-      <input id="custAddr" placeholder="Dirección">
-    </div>
-
-    <div id="step3" style="display:none">
-      <div class="tx">Revisa tu pedido y envía por WhatsApp.</div>
-      <button class="bp full" id="btnSendWA">Enviar por WhatsApp</button>
+    <div id="cartEmpty" style="text-align:center; padding:40px 0; color:var(--muted); display:none;">Tu carrito está vacío</div>
+    <div id="cartItems"></div>
+    <div class="tot" style="margin-top:20px;">
+      <div class="r"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
+      <div class="r t"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
     </div>
   </div>
-
   <div class="mf">
-    <button class="bs" id="btnBack">Atrás</button>
-    <button class="bp" id="btnNext">Continuar</button>
+    <button class="bp full" id="btnCheckout">Pedir por WhatsApp</button>
   </div>
 </div>
 
-<div id="backdrop" class="backdrop" style="display:none"></div>
+<div id="backdrop" class="backdrop"></div>
 
 <script src="app.js"></script>
 </body>
