@@ -65,6 +65,13 @@
     img.lazy.loaded {
       opacity: 1;
     }
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 100;
+    }
   </style>
 </head>
 <body class="page-loading">
@@ -121,10 +128,27 @@
 <!-- MODAL PRODUCTO -->
 <div class="m" id="prodModal" style="display:none" aria-hidden="true">
   <div class="mh">
-    <h3>Detalles del producto</h3>
+    <h3 id="modalTitle">Detalles del producto</h3>
     <button class="mc" id="btnCloseProd">✕</button>
   </div>
-  <div class="mb" id="prodBody"></div>
+  <div class="mb" id="prodBody">
+    <div class="g2">
+      <div>
+        <img id="modalMainImg" class="mi" src="" alt="">
+        <div id="modalThumbs" class="th" style="display:none"></div>
+      </div>
+      <div>
+        <div class="pr">
+          <div class="p" id="modalPrice">Lps. 0</div>
+          <div class="o" id="modalOldPrice"></div>
+          <div class="stock" id="modalStock"></div>
+        </div>
+        <div class="tx" id="modalDesc"></div>
+        <div id="modalVideo" class="vb" style="display:none"></div>
+        <div class="note" id="modalExtra"></div>
+      </div>
+    </div>
+  </div>
   <div class="mf">
     <button class="link" id="btnKeepBuying">Seguir comprando</button>
     <div class="mfRow">
@@ -136,11 +160,48 @@
 
 <!-- MODAL CARRITO -->
 <div class="m" id="cartModal" style="display:none" aria-hidden="true">
-  <!-- contenido del carrito como en tu versión anterior -->
-  <!-- ... puedes mantener tu HTML del carrito aquí ... -->
+  <div class="mh">
+    <div><h3 class="mt">Carrito y pedido</h3><div class="ms">1-2-3</div></div>
+    <button class="mc" id="closeCart">✕</button>
+  </div>
+
+  <div class="mb">
+    <div class="tabs">
+      <button class="tab active" id="tab1">Carrito</button>
+      <button class="tab" id="tab2">Entrega</button>
+      <button class="tab" id="tab3">Pago</button>
+    </div>
+
+    <div id="step1">
+      <div id="cartEmpty" class="tx" style="display:none">Tu carrito está vacío.</div>
+      <div id="cartItems" class="ci"></div>
+      <div class="tot">
+        <div class="r"><span>Subtotal</span><span id="subTotal">Lps. 0</span></div>
+        <div class="r"><span>Envío</span><span id="shipTotal">Lps. 0</span></div>
+        <div class="r t"><span>Total</span><span id="grandTotal">Lps. 0</span></div>
+      </div>
+      <div class="note"><b>Nota:</b> el envío se calcula según tu ubicación.</div>
+    </div>
+
+    <div id="step2" style="display:none">
+      <!-- Formulario de entrega (puedes agregar inputs aquí basado en original) -->
+      <input id="custName" placeholder="Nombre completo">
+      <input id="custAddr" placeholder="Dirección">
+    </div>
+
+    <div id="step3" style="display:none">
+      <div class="tx">Revisa tu pedido y envía por WhatsApp.</div>
+      <button class="bp full" id="btnSendWA">Enviar por WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="mf">
+    <button class="bs" id="btnBack">Atrás</button>
+    <button class="bp" id="btnNext">Continuar</button>
+  </div>
 </div>
 
-<div id="backdrop" class="backdrop"></div>
+<div id="backdrop" class="backdrop" style="display:none"></div>
 
 <script src="app.js"></script>
 </body>
