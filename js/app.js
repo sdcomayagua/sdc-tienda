@@ -69,6 +69,20 @@
     const cats = state.productos.map(p => String(p.categoria || "").trim()).filter(Boolean);
     return ["Todo", ...Array.from(new Set(cats)).sort((a,b)=>a.localeCompare(b,"es"))];
   }
+
+  // Para que no se vea "saturado": mostramos pocas categorías en chips (las más usadas)
+  function topCategories(limit = 8){
+    const counts = new Map();
+    state.productos.forEach(p => {
+      const c = String(p.categoria || "").trim();
+      if(!c) return;
+      counts.set(c, (counts.get(c) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .sort((a,b) => (b[1]-a[1]) || a[0].localeCompare(b[0],"es"))
+      .slice(0, limit)
+      .map(([c]) => c);
+  }
   function subcategories(cat){
     if (!cat || cat==="Todo") return [];
     const subs = state.productos
@@ -88,10 +102,14 @@
       return;
     }
     el.style.display = "flex";
+    const limit = 12;
+    const show = subs.slice(0, limit);
+    const hasMore = subs.length > limit;
     const btnAll = `<button class="chip ${state.sub==="" ? "active":""}" data-sub="">Todas</button>`;
+    const more = hasMore ? `<button class="chip" data-open="cats">Más…</button>` : "";
     el.innerHTML = [btnAll]
-      .concat(subs.map(s => `<button class="chip ${s===state.sub?"active":""}" data-sub="${esc(s)}">${esc(s)}</button>`))
-      .join("");
+      .concat(show.map(s => `<button class="chip ${s===state.sub?"active":""}" data-sub="${esc(s)}">${esc(s)}</button>`))
+      .join("") + more;
   }
 
   function renderCatsDrawer(){
@@ -116,8 +134,18 @@
   }
 
   function renderCats(){
-    const cats = categories();
-    $("#catChips").innerHTML = cats.map(c => `<button class="chip ${c===state.cat?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+    const all = categories();
+    const top = ["Todo", ...topCategories(8)];
+    const hasMore = all.length > top.length;
+
+    // Si el usuario eligió una categoría que no está en el top, la mostramos también (para que se vea activa)
+    const chips = top.slice();
+    if (state.cat && !chips.includes(state.cat)) chips.splice(1, 0, state.cat);
+
+    const moreChip = hasMore ? `<button class="chip" data-open="cats">Más…</button>` : "";
+    $("#catChips").innerHTML = chips
+      .map(c => `<button class="chip ${c===state.cat?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`)
+      .join("") + moreChip;
     renderSubChips();
     renderCatsDrawer();
   }
@@ -442,6 +470,12 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("overlay") || e.target.closest("[data-close]")){
         closeAll(); return;
+      }
+
+      const openCats = e.target.closest("[data-open='cats']");
+      if (openCats){
+        openModal("#modalCats");
+        return;
       }
       const acc = e.target.closest("[data-acc]");
       if (acc){ acc.parentElement.classList.toggle("open"); return; }
