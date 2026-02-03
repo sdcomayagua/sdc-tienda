@@ -19,14 +19,8 @@
   };
 
   function initTheme(){
-    let t = "dark";
-    try { t = localStorage.getItem("sdc_theme") || "dark"; } catch(_){}
-    document.documentElement.setAttribute("data-theme", t);
-  }
-  function toggleTheme(){
-    const t = document.documentElement.getAttribute("data-theme")==="light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", t);
-    try { localStorage.setItem("sdc_theme", t); } catch(_){}
+    // Solo modo día (claro)
+    document.documentElement.setAttribute("data-theme", "light");
   }
 
   function openModal(sel){
@@ -446,7 +440,6 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
   }
 
   function hookEvents(){
-    $("#btnTheme")?.addEventListener("click", toggleTheme);
     $("#btnCats")?.addEventListener("click", () => openModal("#modalCats"));
     $("#btnOrderNow")?.addEventListener("click", orderNow);
 
@@ -549,4 +542,3 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
 
   init();
 })();
-
