@@ -505,6 +505,20 @@ body{background: var(--bg);}
 /* 2 por fila en celular (más compacto y premium) */
 .grid{grid-template-columns: repeat(2, minmax(0, 1fr));}
 
+/* 🔥 En móvil, evita tarjetas “muy alargadas”:
+   - imagen un poco más rectangular
+   - contenido más compacto
+*/
+@media(max-width:720px){
+  .thumb{aspect-ratio: 4/3;}
+  .cbody{gap:8px}
+  .title{min-height:32px}
+  .badge{padding:6px 8px;font-size:11px}
+  .btnMini{padding:10px 10px;border-radius:14px}
+  .price{font-size:14px}
+  .stockOk,.stockNo{font-size:11px}
+}
+
 @media(max-width:520px){
   .container{padding:12px}
   .grid{gap:12px}
