@@ -19,7 +19,7 @@
   };
 
   function initTheme(){
-    // Solo modo d�a (claro)
+    // Solo modo día (claro)
     document.documentElement.setAttribute("data-theme", "light");
   }
 
@@ -64,7 +64,7 @@
     return ["Todo", ...Array.from(new Set(cats)).sort((a,b)=>a.localeCompare(b,"es"))];
   }
 
-  // Para que no se vea "saturado": mostramos pocas categorías en chips (las más usadas)
+  // Para que no se vea "saturado": mostramos pocas categorÃ­as en chips (las mÃ¡s usadas)
   function topCategories(limit = 8){
     const counts = new Map();
     state.productos.forEach(p => {
@@ -100,7 +100,7 @@
     const show = subs.slice(0, limit);
     const hasMore = subs.length > limit;
     const btnAll = `<button class="chip ${state.sub==="" ? "active":""}" data-sub="">Todas</button>`;
-    const more = hasMore ? `<button class="chip" data-open="cats">Más…</button>` : "";
+    const more = hasMore ? `<button class="chip" data-open="cats">MÃ¡sâ¦</button>` : "";
     el.innerHTML = [btnAll]
       .concat(show.map(s => `<button class="chip ${s===state.sub?"active":""}" data-sub="${esc(s)}">${esc(s)}</button>`))
       .join("") + more;
@@ -111,14 +111,14 @@
     const cats = categories();
     body.innerHTML = cats.map(c => {
       if (c==="Todo"){
-        return `<div class="acc open"><div class="acc-h" data-cat="${esc(c)}" data-sub=""><strong>Todo</strong><span>›</span></div></div>`;
+        return `<div class="acc open"><div class="acc-h" data-cat="${esc(c)}" data-sub=""><strong>Todo</strong><span>âº</span></div></div>`;
       }
       const subs = subcategories(c);
       const subsHtml = subs.length
         ? (`<div class="mini">` + subs.map(s => `<button data-cat="${esc(c)}" data-sub="${esc(s)}">${esc(s)}</button>`).join("") + `</div>`)
         : `<div class="mini"><button data-cat="${esc(c)}" data-sub="">Ver</button></div>`;
       return `<div class="acc">
-        <div class="acc-h" data-acc><strong>${esc(c)}</strong><span>▾</span></div>
+        <div class="acc-h" data-acc><strong>${esc(c)}</strong><span>â¾</span></div>
         <div class="acc-b">
           <button class="btn" style="margin:0 0 10px" data-cat="${esc(c)}" data-sub="">Ver todo ${esc(c)}</button>
           ${subsHtml}
@@ -132,11 +132,11 @@
     const top = ["Todo", ...topCategories(8)];
     const hasMore = all.length > top.length;
 
-    // Si el usuario eligió una categoría que no está en el top, la mostramos también (para que se vea activa)
+    // Si el usuario eligiÃ³ una categorÃ­a que no estÃ¡ en el top, la mostramos tambiÃ©n (para que se vea activa)
     const chips = top.slice();
     if (state.cat && !chips.includes(state.cat)) chips.splice(1, 0, state.cat);
 
-    const moreChip = hasMore ? `<button class="chip" data-open="cats">Más…</button>` : "";
+    const moreChip = hasMore ? `<button class="chip" data-open="cats">MÃ¡sâ¦</button>` : "";
     $("#catChips").innerHTML = chips
       .map(c => `<button class="chip ${c===state.cat?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`)
       .join("") + moreChip;
@@ -183,20 +183,25 @@
     const id = String(p.id || name);
     const b = badgeFor(p);
     const showPrev = prev && prev > price;
-    const btnLabel = stock > 0 ? (opts.cta || "Ver detalles") : "No disponible";
+    const btnLabel = stock > 0 ? (opts.cta || "Ver") : "Agotado";
 
-    return `<div class="card" data-id="${esc(id)}">
-      <div class="thumb" data-open="product">
+    // Estilo tipo GadgetStore: tarjeta compacta, 2 por fila en celular, sin verse alargada
+    return `<div class="gCard" data-id="${esc(id)}">
+      <div class="gThumb" data-open="product">
         ${img ? `<img loading="lazy" src="${esc(img)}" alt="">` : `<div class="ph">Imagen no disponible</div>`}
-        ${b ? `<div class="badge">${esc(b.text)}</div>` : ``}
+        ${b ? `<div class="gBadge ${b.kind === "sale" ? "sale" : "top"}">${esc(b.text)}</div>` : ``}
+        ${stock <= 0 ? `<div class="gOut">Agotado</div>` : ``}
       </div>
-      <div class="cbody">
-        <p class="title" data-open="product">${esc(name)}</p>
-        <div class="metaRow">
-          <div class="price">${money(price)} ${showPrev ? `<del>${money(prev)}</del>` : ``}</div>
-          <div class="${stock>0 ? "stockOk" : "stockNo"}">${stock>0 ? `Stock: ${stock}` : "Agotado"}</div>
+      <div class="gBody">
+        <p class="gTitle" data-open="product">${esc(name)}</p>
+        <div class="gBottom">
+          <button class="gCartBtn" data-open="product" ${stock>0 ? "" : "disabled"} aria-label="${esc(btnLabel)}">🛒</button>
+          <div class="gPrice">
+            <span class="gNow">${money(price)}</span>
+            ${showPrev ? `<span class="gWas"><del>${money(prev)}</del></span>` : ``}
+          </div>
         </div>
-        <button class="btnMini ${stock>0 ? "primary":""}" data-open="product" ${stock>0 ? "" : "disabled"}>${esc(btnLabel)}</button>
+        <div class="gStock ${stock>0 ? "ok" : "no"}">${stock>0 ? `Stock: ${stock}` : "Agotado"}</div>
       </div>
     </div>`;
   }
@@ -234,16 +239,16 @@
     add("Marca", p.marca);
     add("Modelo", p.modelo);
     add("Compatibilidad", p.compatibilidad);
-    add("Garantía", p.garantia);
-    add("Condición", p.condicion);
-    return rows.length ? rows.join("") : "—";
+    add("GarantÃ­a", p.garantia);
+    add("CondiciÃ³n", p.condicion);
+    return rows.length ? rows.join("") : "â";
   }
 
   function openProduct(p){
     state.active = p;
 
     const imgs = getImages(p);
-    $("#pBread").textContent = `${p.categoria || "—"} • ${p.subcategoria || "—"}`;
+    $("#pBread").textContent = `${p.categoria || "â"} â¢ ${p.subcategoria || "â"}`;
     $("#pTitle").textContent = p.nombre || p.name || "Producto";
 
     const price = Number(p.precio || p.price || 0);
@@ -251,7 +256,7 @@
     const stock = Number(p.stock ?? 0);
 
     $("#pPrice").innerHTML = `${money(price)}${(prev && prev>price) ? ` <span class="muted" style="font-size:14px"><del>${money(prev)}</del></span>` : ""}`;
-    $("#pStock").textContent = `Stock: ${Number.isFinite(stock) ? stock : "—"}`;
+    $("#pStock").textContent = `Stock: ${Number.isFinite(stock) ? stock : "â"}`;
 
     const b = badgeFor(p);
     $("#pBadge").innerHTML = b ? `<div class="badge">${esc(b.text)}</div>` : "";
@@ -260,7 +265,7 @@
     $("#pGallery").innerHTML = imgs.map(u => `<div class="gthumb" data-img="${esc(u)}"><img loading="lazy" src="${esc(u)}" alt=""></div>`).join("");
 
     const desc = String(p.descripcion || p.desc || "").trim();
-    $("#pDesc").textContent = desc || "—";
+    $("#pDesc").textContent = desc || "â";
     $("#pDetails").innerHTML = buildDetails(p);
 
     const tt = String(p.video_tiktok||"").trim();
@@ -276,7 +281,7 @@
 
     $("#pVideos").innerHTML = vids || `<div class="sectionNote" style="margin-top:0">No hay videos para este producto.</div>`;
 
-    // botón pedir: deshabilitar si no hay stock
+    // botÃ³n pedir: deshabilitar si no hay stock
     $("#btnOrderNow").disabled = !(stock > 0);
 
     openModal("#modalProduct");
@@ -296,18 +301,18 @@
     const stock = Number(p.stock ?? 0);
 
     const extra = [];
-    if (p.categoria) extra.push(`Categoría: ${p.categoria}`);
-    if (p.subcategoria) extra.push(`Subcategoría: ${p.subcategoria}`);
+    if (p.categoria) extra.push(`CategorÃ­a: ${p.categoria}`);
+    if (p.subcategoria) extra.push(`SubcategorÃ­a: ${p.subcategoria}`);
     if (p.id) extra.push(`ID: ${p.id}`);
 
     const msg =
-`Hola 👋, quiero pedir este producto en ${S.STORE_NAME || "SDComayagua"}:
+`Hola ð, quiero pedir este producto en ${S.STORE_NAME || "SDComayagua"}:
 - ${name}
 - Precio: ${money(price)}
 - Cantidad: 1
 ${extra.length ? ("\n" + extra.join("\n")) : ""}
 
-¿Está disponible? (Stock: ${stock})`;
+Â¿EstÃ¡ disponible? (Stock: ${stock})`;
 
     sendWhatsAppMessage(msg);
   }
@@ -316,11 +321,11 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
   function renderCouriers(){
     const el = $("#couriers");
     const s = state.shipping;
-    if (!s || !Array.isArray(s.couriers)){ el.innerHTML = `<div class="sectionNote">No se cargaron empresas de envío.</div>`; return; }
+    if (!s || !Array.isArray(s.couriers)){ el.innerHTML = `<div class="sectionNote">No se cargaron empresas de envÃ­o.</div>`; return; }
 
     el.innerHTML = s.couriers.map(c => {
-      const cod = (c.cod != null) ? money(c.cod) : "—";
-      const pre = (c.prepay != null) ? money(c.prepay) : "—";
+      const cod = (c.cod != null) ? money(c.cod) : "â";
+      const pre = (c.prepay != null) ? money(c.prepay) : "â";
       return `<div class="courier">
         <div class="courierTop">
           <div class="courierName">${esc(c.name)}</div>
@@ -354,14 +359,14 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
     const res = $("#shipResult");
 
     if(!s || !s.rates_by_municipality){
-      res.innerHTML = `<div class="sectionNote">No se pudo cargar la tabla de envíos.</div>`;
+      res.innerHTML = `<div class="sectionNote">No se pudo cargar la tabla de envÃ­os.</div>`;
       return;
     }
 
     const depts = Object.keys(s.rates_by_municipality).sort((a,b)=>a.localeCompare(b,"es"));
-    setOptions(deptSel, depts, "Seleccionar…");
-    setOptions(muniSel, [], "Seleccionar…");
-    setOptions(zoneSel, [], "Seleccionar…");
+    setOptions(deptSel, depts, "Seleccionarâ¦");
+    setOptions(muniSel, [], "Seleccionarâ¦");
+    setOptions(zoneSel, [], "Seleccionarâ¦");
 
     function compute(){
       const d = deptSel.value;
@@ -369,7 +374,7 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
       const z = zoneSel.value;
 
       zoneWrap.style.display = "none";
-      res.innerHTML = `<div class="sectionNote">Seleccioná tu ubicación para ver precios.</div>`;
+      res.innerHTML = `<div class="sectionNote">SeleccionÃ¡ tu ubicaciÃ³n para ver precios.</div>`;
       if(!d || !m) return;
 
       const localFlat = s.local_delivery?.municipality_flat?.[m];
@@ -379,10 +384,10 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
       if (isComayaguaCity){
         zoneWrap.style.display = "block";
         const zones = (s.local_delivery?.zones_comayagua || []).map(x=>x.zone).filter(Boolean);
-        setOptions(zoneSel, zones, "Seleccionar zona…");
+        setOptions(zoneSel, zones, "Seleccionar zonaâ¦");
 
         if(!z){
-          res.innerHTML = `<div class="sectionNote">Elegí una zona para ver el costo a domicilio en Comayagua.</div>`;
+          res.innerHTML = `<div class="sectionNote">ElegÃ­ una zona para ver el costo a domicilio en Comayagua.</div>`;
           return;
         }
         const zoneType = (s.local_delivery?.zones_comayagua || []).find(x=>x.zone===z)?.type;
@@ -390,9 +395,9 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
 
         res.innerHTML =
           `<div class="rateBox">
-            <div class="rateTitle">🚚 Servicio a domicilio (Comayagua)</div>
+            <div class="rateTitle">ð Servicio a domicilio (Comayagua)</div>
             <div class="rateRow"><div class="muted">Zona: <strong>${esc(z)}</strong></div><div class="rateP">${price!=null ? money(price) : "Cotizar"}</div></div>
-            <div class="rateHint">Costo según zona/distancia. Si tu zona no aparece, te cotizamos exacto por WhatsApp.</div>
+            <div class="rateHint">Costo segÃºn zona/distancia. Si tu zona no aparece, te cotizamos exacto por WhatsApp.</div>
           </div>`;
         return;
       }
@@ -400,8 +405,8 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
       if (localFlat){
         res.innerHTML =
           `<div class="rateBox">
-            <div class="rateTitle">🚚 Servicio a domicilio</div>
-            <div class="rateRow"><div class="muted">${esc(d)} • ${esc(m)}</div><div class="rateP">${money(localFlat)}</div></div>
+            <div class="rateTitle">ð Servicio a domicilio</div>
+            <div class="rateRow"><div class="muted">${esc(d)} â¢ ${esc(m)}</div><div class="rateP">${money(localFlat)}</div></div>
             <div class="rateHint">Entrega propia (tarifa de referencia). Puede variar por distancia/volumen.</div>
           </div>`;
         return;
@@ -409,29 +414,29 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
 
       const rate = s.rates_by_municipality?.[d]?.[m];
       if(!rate){
-        res.innerHTML = `<div class="sectionNote">No hay tarifa cargada para ${esc(d)} • ${esc(m)}. Te cotizamos por WhatsApp.</div>`;
+        res.innerHTML = `<div class="sectionNote">No hay tarifa cargada para ${esc(d)} â¢ ${esc(m)}. Te cotizamos por WhatsApp.</div>`;
         return;
       }
 
       res.innerHTML =
         `<div class="rateBox">
-          <div class="rateTitle">📦 Envío por empresa</div>
-          <div class="rateRow"><div class="muted">Prepago</div><div class="rateP">${rate.prepay!=null ? money(rate.prepay) : "—"}</div></div>
-          <div class="rateRow"><div class="muted">Contra entrega</div><div class="rateP">${rate.cod!=null ? money(rate.cod) : "—"}</div></div>
-          <div class="rateHint">Empresa sugerida: <strong>${esc(rate.default_courier || "—")}</strong>${rate.note ? `<br>${esc(rate.note)}` : ""}</div>
+          <div class="rateTitle">ð¦ EnvÃ­o por empresa</div>
+          <div class="rateRow"><div class="muted">Prepago</div><div class="rateP">${rate.prepay!=null ? money(rate.prepay) : "â"}</div></div>
+          <div class="rateRow"><div class="muted">Contra entrega</div><div class="rateP">${rate.cod!=null ? money(rate.cod) : "â"}</div></div>
+          <div class="rateHint">Empresa sugerida: <strong>${esc(rate.default_courier || "â")}</strong>${rate.note ? `<br>${esc(rate.note)}` : ""}</div>
         </div>`;
     }
 
     deptSel.addEventListener("change", () => {
       const d = deptSel.value;
       const munis = d ? Object.keys(s.rates_by_municipality[d] || {}).sort((a,b)=>a.localeCompare(b,"es")) : [];
-      setOptions(muniSel, munis, "Seleccionar…");
+      setOptions(muniSel, munis, "Seleccionarâ¦");
       zoneWrap.style.display = "none";
-      setOptions(zoneSel, [], "Seleccionar…");
+      setOptions(zoneSel, [], "Seleccionarâ¦");
       compute();
     });
     muniSel.addEventListener("change", () => {
-      setOptions(zoneSel, [], "Seleccionar…");
+      setOptions(zoneSel, [], "Seleccionarâ¦");
       compute();
     });
     zoneSel.addEventListener("change", compute);
@@ -444,7 +449,7 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
     $("#btnOrderNow")?.addEventListener("click", orderNow);
 
     $("#btnWhatsappQuick")?.addEventListener("click", () => {
-      sendWhatsAppMessage(`Hola 👋, vengo del catálogo de ${S.STORE_NAME || "SDComayagua"}. ¿Me podés ayudar a elegir un producto?`);
+      sendWhatsAppMessage(`Hola ð, vengo del catÃ¡logo de ${S.STORE_NAME || "SDComayagua"}. Â¿Me podÃ©s ayudar a elegir un producto?`);
     });
     $("#btnSupport")?.addEventListener("click", (e) => {
       e.preventDefault();
@@ -452,7 +457,7 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
     });
 
     $("#waFloat")?.addEventListener("click", () => {
-      sendWhatsAppMessage(`Hola 👋, vengo del catálogo de ${S.STORE_NAME || "SDComayagua"}.`);
+      sendWhatsAppMessage(`Hola ð, vengo del catÃ¡logo de ${S.STORE_NAME || "SDComayagua"}.`);
     });
 
     $("#q")?.addEventListener("input", (e) => {
@@ -534,7 +539,7 @@ ${extra.length ? ("\n" + extra.join("\n")) : ""}
       renderProducts();
       $("#status").style.display = "none";
     }catch(err){
-      $("#status").textContent = "No se pudo cargar el catálogo. Revisa tu conexión o el Apps Script.";
+      $("#status").textContent = "No se pudo cargar el catÃ¡logo. Revisa tu conexiÃ³n o el Apps Script.";
       $("#status").style.display = "block";
       console.error(err);
     }
