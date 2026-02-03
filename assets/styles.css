@@ -9,9 +9,12 @@
   --shadow: 0 20px 60px rgba(0,0,0,.45);
   --radius:22px;
   --radius2:16px;
-  --grad: linear-gradient(90deg, rgba(0,170,255,.95), rgba(0,220,170,.95));
-  --grad2: radial-gradient(800px 500px at 15% 0%, rgba(0,180,255,.22), transparent 62%),
-           radial-gradient(900px 500px at 95% 10%, rgba(0,255,180,.16), transparent 60%);
+  /* Paleta más sobria (menos neón, más "premium") */
+  --accent1: rgba(79,70,229,.92);  /* índigo */
+  --accent2: rgba(6,182,212,.90);  /* cian */
+  --grad: linear-gradient(90deg, var(--accent1), var(--accent2));
+  --grad2: radial-gradient(800px 500px at 15% 0%, rgba(79,70,229,.14), transparent 62%),
+           radial-gradient(900px 500px at 95% 10%, rgba(6,182,212,.12), transparent 60%);
 }
 
 :root[data-theme="light"]{
@@ -22,8 +25,8 @@
   --muted:rgba(7,16,30,.68);
   --border:rgba(0,0,0,.10);
   --shadow: 0 20px 60px rgba(0,0,0,.14);
-  --grad2: radial-gradient(800px 500px at 15% 0%, rgba(0,180,255,.16), transparent 62%),
-           radial-gradient(900px 500px at 95% 10%, rgba(0,255,180,.12), transparent 60%);
+  --grad2: radial-gradient(800px 500px at 15% 0%, rgba(79,70,229,.10), transparent 62%),
+           radial-gradient(900px 500px at 95% 10%, rgba(6,182,212,.08), transparent 60%);
 }
 
 *{box-sizing:border-box}
@@ -41,7 +44,7 @@ a{color:inherit;text-decoration:none}
 .topbar{
   position:sticky;top:0;z-index:60;
   backdrop-filter: blur(10px);
-  background: rgba(5,10,18,.66);
+  background: rgba(7,11,18,.72);
   border-bottom:1px solid var(--border);
 }
 :root[data-theme="light"] .topbar{background: rgba(255,255,255,.80)}
@@ -121,7 +124,9 @@ a{color:inherit;text-decoration:none}
   font-size:13px;
   cursor:pointer;
 }
-.chip.active{background:rgba(0,170,255,.22);border-color:rgba(0,170,255,.35)}
+.chip.active{background:rgba(79,70,229,.14);border-color:rgba(79,70,229,.28)}
+.chip.more{background: rgba(255,255,255,.06)}
+:root[data-theme="light"] .chip.more{background: rgba(0,0,0,.04)}
 .chip:active{transform:scale(.99)}
 
 /* Hero */
@@ -204,8 +209,8 @@ a{color:inherit;text-decoration:none}
 .mcIcon{
   width:38px;height:38px;border-radius:14px;
   display:flex;align-items:center;justify-content:center;
-  background: rgba(0,170,255,.15);
-  border:1px solid rgba(0,170,255,.28);
+  background: rgba(79,70,229,.10);
+  border:1px solid rgba(79,70,229,.18);
 }
 .mcT{font-weight:1000}
 .mcS{font-size:12px;color:var(--muted);margin-top:2px}
